@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 사용자 계정
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String   // bcrypt hashed
+  name        String
+  role        String   @default("EMPLOYEE") // "ADMIN" | "EMPLOYEE" | "EXECUTIVE"
+  pendingRole String?  // 승인 대기 중인 역할 (e.g. "ADMIN")
+  employee    Employee?
+  createdAt   DateTime @default(now())
+}
+
+// 본사/현장 구분
+model Location {
+  id      Int      @id @default(autoincrement())
+  company String   // "남광토건" | "극동건설" | "금광기업"
+  name    String   // e.g. "본사", "서울현장", "부산현장"
+  type    String   // "HQ" | "SITE"
+  teams   Team[]
+}
+
+// 팀
+model Team {
+  id          Int       @id @default(autoincrement())
+  name        String    // e.g. "경영지원팀", "설계팀"
+  description String?   // 팀 설명 (최대 3줄)
+  imageUrl    String?   // 팀 대표 이미지 URL
+  imageStyle  String?   // 이미지 스타일 JSON (scale, x, y)
+  category    String?   // 카테고리: 건축사업본부, 토목사업본부, 경영지원실, 기타
+  locationId  Int
+  location    Location  @relation(fields: [locationId], references: [id])
+  employees   Employee[]
+}
+
+// 직원
+model Employee {
+  id         Int      @id @default(autoincrement())
+  name       String
+  nameEn     String?  // 영어 이름
+  email      String   @unique
+  phone      String?
+  phoneWork  String?  // 회사 번호
+  emailWork  String?  // 회사 이메일
+  position   String   // 직급: 사원, 대리, 과장, 차장, 부장
+  role       String   // 직책: 팀원, 팀장, 부서장
+  teamId     Int
+  team       Team     @relation(fields: [teamId], references: [id])
+  resumePath String?  // 이력서 PDF 파일 경로
+  photoUrl   String?  // 프로필 사진 URL
+  joinDate   String?  // 입사일
+  resumeData String?  // 이력서 추출 데이터 (JSON)
+  status     String   @default("ACTIVE") // "ACTIVE" | "INACTIVE"
+  userId     Int?     @unique
+  user       User?    @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

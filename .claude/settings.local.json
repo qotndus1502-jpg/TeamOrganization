@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm)",
+      "Read(//c/project/**)",
+      "Bash(npx create-next-app@latest team-organization --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm)",
+      "Bash(node --import tsx prisma/seed.ts)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill /PID 21908 /F)",
+      "Bash(taskkill //PID 21908 //F)",
+      "Bash(npx prisma:*)",
+      "Bash(1 echo:*)",
+      "Bash(npx tsx:*)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\" //FO CSV)",
+      "Bash(curl -s -c cookies.txt -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"kim.cs@company.com\"\",\"\"password\"\":\"\"test123\"\"}')",
+      "Bash(curl -s -b cookies.txt http://localhost:3000/api/auth/me)",
+      "Bash(npm run:*)",
+      "Bash(curl -s -o /dev/null -w \"PROFILE: %{http_code}\\\\n\" http://localhost:3000/profile)"
+    ]
+  }
+}
