@@ -202,8 +202,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
         {/* 회사 — 소속 그룹 중앙 정렬 */}
         <div className="flex-shrink-0 self-center">
           <div data-node="company" className="bg-white/80 backdrop-blur-md border border-white/60 rounded-xl w-[160px] h-[80px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-center">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
-            <h2 className="text-base font-bold text-[#111] mt-1.5">{companyFilter || "남광토건"}</h2>
+            <h2 className="text-xl font-bold text-[#111]">{companyFilter || "남광토건"}</h2>
           </div>
         </div>
 
