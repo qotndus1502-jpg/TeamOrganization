@@ -15,7 +15,7 @@ function getSecret(): string {
 // [보안] secure 플래그를 프로덕션에서 활성화, sameSite strict 적용
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
+  secure: process.env.NODE_ENV === "production" && process.env.DISABLE_SECURE_COOKIE !== "true",
   sameSite: "strict" as const,
   path: "/",
   maxAge: 60 * 60 * 24 * 7, // 7일
