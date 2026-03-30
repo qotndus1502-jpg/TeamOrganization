@@ -65,12 +65,12 @@ function TeamCard({ team, onSelect, isAdmin, onImageUpdate }: {
   return (
     <div
       onClick={() => onSelect(team.id)}
-      className="relative rounded-2xl bg-white shadow-sm hover:shadow-xl border border-gray-100/80 text-left transition-all duration-300 group overflow-hidden cursor-pointer p-6 flex flex-col justify-between h-40 hover:border-primary/20"
+      className="relative rounded-2xl bg-card shadow-sm hover:shadow-xl border border-border/40 text-left transition-all duration-300 group overflow-hidden cursor-pointer p-6 flex flex-col justify-between h-40 hover:border-primary/20"
     >
       <div className="flex items-start justify-between">
-        <h3 className="text-xl font-bold text-gray-900 leading-tight">{team.name}</h3>
-        <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
-          <svg className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <h3 className="text-xl font-bold text-foreground leading-tight">{team.name}</h3>
+        <div className="w-8 h-8 rounded-lg bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+          <svg className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </div>
@@ -117,7 +117,7 @@ function TeamSection({ title, teams, onSelect, isAdmin, onImageUpdate }: {
   if (teams.length === 0) return null;
   return (
     <div className="mb-10">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">{title}</h2>
+      <h2 className="text-lg font-semibold text-foreground mb-4">{title}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
         {teams.map((team) => (
           <TeamCard key={team.id} team={team} onSelect={onSelect} isAdmin={isAdmin} onImageUpdate={onImageUpdate} />
@@ -221,10 +221,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                 <button
                   data-node="location" data-loc-id={loc.label}
                   onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
-                  className="bg-white border border-gray-200/60 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer"
+                  className="bg-card border border-border/40 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer"
                 >
-                  <h3 className="text-base font-bold text-[#111]">{loc.label}</h3>
-                  <p className="text-xs text-[#999] mt-0.5">{loc.teams.length}팀</p>
+                  <h3 className="text-base font-bold text-foreground">{loc.label}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{loc.teams.length}팀</p>
                 </button>
               </div>
 
@@ -237,10 +237,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                       <button
                         data-node="category" data-cat-id={`${loc.label}-${cat.label}`} data-parent={loc.label}
                         onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
-                        className="bg-white/90 border border-gray-200/50 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/15 transition-all duration-200 cursor-pointer"
+                        className="bg-card/90 border border-border/30 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/15 transition-all duration-200 cursor-pointer"
                       >
-                        <p className="text-base font-bold text-[#111]">{cat.label}</p>
-                        <p className="text-xs text-[#999] mt-0.5">{cat.teams.length}팀</p>
+                        <p className="text-base font-bold text-foreground">{cat.label}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{cat.teams.length}팀</p>
                       </button>
                     </div>
 
@@ -260,10 +260,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                                   className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between"
                                   style={{ background: "#C1FD3C" }}>
                                   <div className="flex items-center gap-1.5">
-                                    <h4 className="text-base font-extrabold text-[#2B3037] leading-tight">{team.name}</h4>
-                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-[#2B3037] text-white text-[9px] font-bold">MyTeam</span>}
+                                    <h4 className="text-base font-extrabold text-foreground leading-tight">{team.name}</h4>
+                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-foreground text-primary-foreground text-[9px] font-bold">MyTeam</span>}
                                   </div>
-                                  <span className="mt-1 px-2.5 py-0.5 rounded-full bg-white text-sm font-bold text-[#2B3037] self-start">{team._count.employees}명</span>
+                                  <span className="mt-1 px-2.5 py-0.5 rounded-full bg-card text-sm font-bold text-foreground self-start">{team._count.employees}명</span>
                                 </button>
                               ))}
                             </div>
@@ -273,7 +273,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                     )}
                   </div>
                 )) : (
-                  <div className="bg-white/50 border border-white/50 rounded-xl p-5 text-center text-sm text-[#999]">
+                  <div className="bg-card/50 border border-border/30 rounded-xl p-5 text-center text-sm text-muted-foreground">
                     등록된 팀이 없습니다
                   </div>
                 )}
@@ -401,7 +401,7 @@ interface User {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-400">불러오는 중...</div>}>
+    <Suspense fallback={<div className="h-full flex items-center justify-center text-muted-foreground">불러오는 중...</div>}>
       <DashboardContent />
     </Suspense>
   );
@@ -534,7 +534,7 @@ function DashboardContent() {
             setSelectedTeamId(null);
           }
         }}
-        className="fixed bottom-8 right-8 z-50 bg-white hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-full shadow-xl border border-gray-200/80 hover:shadow-2xl transition-all duration-200 text-sm font-semibold flex items-center gap-2 active:scale-95"
+        className="fixed bottom-8 right-8 z-50 bg-card hover:bg-muted text-foreground px-5 py-2.5 rounded-full shadow-xl border border-border/60 hover:shadow-2xl transition-all duration-200 text-sm font-semibold flex items-center gap-2 active:scale-95"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -557,7 +557,7 @@ function DashboardContent() {
 
       {/* 사이드바 */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white/95 backdrop-blur-md shadow-2xl z-40 transform transition-transform duration-300 ease-in-out border-r border-gray-100 ${
+        className={`fixed top-0 left-0 h-full w-72 bg-card/95 backdrop-blur-md shadow-2xl z-40 transform transition-transform duration-300 ease-in-out border-r border-border/50 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         onMouseLeave={() => setSidebarOpen(false)}
@@ -565,14 +565,14 @@ function DashboardContent() {
         <div className="p-5 h-full flex flex-col">
           <div className="mb-5">
             <div className="px-1 pb-4 mb-2">
-              <h2 className="text-xl font-bold text-gray-900">{companyFilter || "전체"}</h2>
-              <p className="text-xs text-gray-400 mt-0.5">팀 목록</p>
+              <h2 className="text-xl font-bold text-foreground">{companyFilter || "전체"}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">팀 목록</p>
             </div>
-            <div className="flex gap-1 bg-gray-100/80 rounded-xl p-1">
+            <div className="flex gap-1 bg-muted rounded-xl p-1">
               <button
                 onClick={() => setActiveTab("HQ")}
                 className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  activeTab === "HQ" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                  activeTab === "HQ" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 본사
@@ -580,7 +580,7 @@ function DashboardContent() {
               <button
                 onClick={() => setActiveTab("SITE")}
                 className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  activeTab === "SITE" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                  activeTab === "SITE" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 현장
@@ -595,16 +595,16 @@ function DashboardContent() {
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 ${
                   selectedTeamId === team.id
                     ? "bg-primary/10 text-primary border border-primary/15"
-                    : "hover:bg-gray-50 border border-transparent text-gray-700"
+                    : "hover:bg-muted border border-transparent text-foreground/70"
                 }`}
               >
                 <p className={`text-sm font-semibold truncate ${selectedTeamId === team.id ? "text-primary" : ""}`}>{team.name}</p>
-                <span className={`text-xs font-medium flex-shrink-0 ml-2 tabular-nums ${selectedTeamId === team.id ? "text-primary/60" : "text-gray-400"}`}>{team._count.employees}명</span>
+                <span className={`text-xs font-medium flex-shrink-0 ml-2 tabular-nums ${selectedTeamId === team.id ? "text-primary/60" : "text-muted-foreground"}`}>{team._count.employees}명</span>
               </button>
             ))}
             {filteredTeams.length === 0 && (
               <div className="text-center py-10">
-                <p className="text-sm text-gray-400">등록된 팀이 없습니다</p>
+                <p className="text-sm text-muted-foreground">등록된 팀이 없습니다</p>
               </div>
             )}
           </div>
@@ -614,24 +614,24 @@ function DashboardContent() {
       {/* 메인 콘텐츠 */}
       <div className="h-full flex flex-col">
         {selectedTeamId ? (
-          <div className="fixed inset-0 top-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col">
+          <div className="fixed inset-0 top-0 z-20 bg-card/95 backdrop-blur-sm flex flex-col">
             {/* 조직도 — 전체 영역 */}
             <div className="flex-1 overflow-auto">
               {loadingEmployees ? (
                 <div className="mt-32 text-center">
-                  <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-gray-50 text-gray-500 text-sm">
+                  <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-muted text-muted-foreground text-sm">
                     <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
                     불러오는 중...
                   </div>
                 </div>
               ) : employees.length === 0 ? (
                 <div className="mt-32 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                     </svg>
                   </div>
-                  <p className="text-gray-500 text-sm">등록된 팀원이 없습니다</p>
+                  <p className="text-muted-foreground text-sm">등록된 팀원이 없습니다</p>
                 </div>
               ) : (
                 <TeamOrgChart

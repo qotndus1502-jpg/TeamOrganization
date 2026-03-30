@@ -40,7 +40,7 @@ export default function EmployeeCard({
         <div className="flex items-center gap-3.5">
           <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 ${
             isLeader
-              ? "bg-gradient-to-br from-orange-400 to-orange-500 text-white shadow-sm"
+              ? "bg-gradient-to-br from-orange-400 to-orange-500 text-primary-foreground shadow-sm"
               : "bg-gradient-to-br from-muted to-muted/80 text-muted-foreground"
           }`}>
             {employee.name.charAt(0)}
