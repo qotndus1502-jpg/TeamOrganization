@@ -122,103 +122,176 @@ function TeamSection({ title, teams, onSelect, isAdmin, onImageUpdate }: {
   );
 }
 
+function TreeNode({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`relative ${className}`}>{children}</div>;
+}
+
+function TreeConnector({ direction = "right" }: { direction?: "right" | "down" }) {
+  if (direction === "down") return <div className="w-px h-6 bg-gray-300 mx-auto" />;
+  return <div className="w-8 h-px bg-gray-300 flex-shrink-0" />;
+}
+
+function TreeBranch({ children }: { children: React.ReactNode }) {
+  const items = React.Children.toArray(children);
+  if (items.length === 0) return null;
+  return (
+    <div className="relative flex flex-col gap-0">
+      {/* 수직선 */}
+      {items.length > 1 && (
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300" style={{ top: "50%" }} />
+      )}
+      {items.map((child, i) => (
+        <div key={i} className="relative flex items-center">
+          {/* 수평 연결선 */}
+          <div className="w-6 h-px bg-gray-300 flex-shrink-0" />
+          {child}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
   companyFilter: string | null;
   locations: { label: string; teams: Team[]; categories: { label: string; teams: Team[] }[] }[];
   onSelectTeam: (id: number) => void;
 }) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const companyRef = useRef<HTMLDivElement>(null);
 
+  // SVG 라인 그리기
   useEffect(() => {
+    const svg = svgRef.current;
     const container = containerRef.current;
-    const company = companyRef.current;
-    if (!container || !company) return;
-    const nodes = container.querySelectorAll('[data-loc-node]');
-    if (nodes.length < 2) return;
-    const containerRect = container.getBoundingClientRect();
-    const first = nodes[0].getBoundingClientRect();
-    const last = nodes[nodes.length - 1].getBoundingClientRect();
-    const midY = (first.top + first.height / 2 + last.top + last.height / 2) / 2;
-    const companyH = company.offsetHeight;
-    const targetTop = midY - containerRect.top - companyH / 2;
-    company.style.position = "relative";
-    company.style.top = `${targetTop}px`;
+    if (!svg || !container) return;
+
+    const rect = container.getBoundingClientRect();
+    svg.setAttribute("width", String(rect.width));
+    svg.setAttribute("height", String(rect.height));
+
+    // 기존 라인 제거
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    const drawLine = (from: Element, to: Element) => {
+      const fr = from.getBoundingClientRect();
+      const tr = to.getBoundingClientRect();
+      const x1 = fr.right - rect.left;
+      const y1 = fr.top + fr.height / 2 - rect.top;
+      const x2 = tr.left - rect.left;
+      const y2 = tr.top + tr.height / 2 - rect.top;
+      const midX = (x1 + x2) / 2;
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
+      path.setAttribute("stroke", "#d1d5db");
+      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("fill", "none");
+      svg.appendChild(path);
+    };
+
+    // 회사 → 소속
+    const companyEl = container.querySelector("[data-node='company']");
+    const locEls = container.querySelectorAll("[data-node='location']");
+    locEls.forEach((el) => { if (companyEl) drawLine(companyEl, el); });
+
+    // 소속 → 카테고리
+    locEls.forEach((locEl) => {
+      const locId = locEl.getAttribute("data-loc-id");
+      const catEls = container.querySelectorAll(`[data-node='category'][data-parent='${locId}']`);
+      catEls.forEach((catEl) => drawLine(locEl, catEl));
+    });
+
+    // 카테고리 → 팀
+    const catEls = container.querySelectorAll("[data-node='category']");
+    catEls.forEach((catEl) => {
+      const catId = catEl.getAttribute("data-cat-id");
+      const teamEls = container.querySelectorAll(`[data-node='team'][data-parent='${catId}']`);
+      teamEls.forEach((teamEl) => drawLine(catEl, teamEl));
+    });
   });
 
-  return (
-    <div ref={containerRef} className="flex justify-center p-10 gap-0">
-      {/* 회사 카드 */}
-      <div ref={companyRef} className="flex-shrink-0">
-        <div className="flex items-center">
-          <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[32px] px-10 py-8 shadow-[0_8px_40px_rgba(167,199,200,0.2)] text-center overflow-hidden">
-            <div className="absolute inset-0 overflow-hidden rounded-[32px]">
-              <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
-            </div>
-            <div className="relative z-10">
-              <span className="px-3 py-1 rounded-full bg-[#111111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
-              <h2 className="text-2xl font-bold text-[#111111] mt-3">{companyFilter || "남광토건"}</h2>
-            </div>
-          </div>
-          <div className="w-12 h-px bg-gradient-to-r from-gray-400 to-gray-300" />
-        </div>
-      </div>
+  const allLocs = locations.filter((l) => l.categories.length > 0 || l.teams.length > 0);
 
-      {/* 본사/현장 열 */}
-      <div className="flex flex-col">
-        {locations.map((loc, locIdx) => (
-          <div key={loc.label} className={`flex items-center gap-0 ${locIdx > 0 ? "mt-14" : ""}`}>
-            <div className="flex-shrink-0" data-loc-node>
-              <button
-                onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
-                className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[24px] px-10 py-8 shadow-[0_4px_24px_rgba(167,199,200,0.15)] text-center overflow-hidden hover:bg-white/90 hover:shadow-[0_8px_32px_rgba(167,199,200,0.3)] transition-all cursor-pointer"
-              >
-                <div className="absolute inset-0 overflow-hidden rounded-[24px]">
-                  <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
-                </div>
-                <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-[#111111]">{loc.label}</h2>
-                  <p className="text-base text-[#999999] mt-1">{loc.teams.length}팀</p>
-                </div>
-              </button>
-            </div>
-            <div className="flex-shrink-0"><div className="w-8 h-px bg-gray-400" /></div>
-            <div className="flex flex-col gap-8">
-              {loc.categories.length > 0 ? loc.categories.map((cat) => (
-                <div key={cat.label} className="flex items-center gap-0">
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
-                      className="bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl px-6 py-4 shadow-[0_2px_16px_rgba(167,199,200,0.1)] text-center min-w-[120px] hover:bg-white/80 hover:shadow-[0_4px_20px_rgba(167,199,200,0.25)] transition-all cursor-pointer"
-                    >
-                      <p className="text-xl font-bold text-[#111111]">{cat.label}</p>
-                      <p className="text-base text-[#999999] mt-1">{cat.teams.length}팀</p>
-                    </button>
-                  </div>
-                  <div className="flex-shrink-0"><div className="w-6 h-px bg-gray-400" /></div>
-                  <div className="grid grid-cols-3 gap-3">
-                    {cat.teams.map((team) => (
-                      <button key={team.id} onClick={() => onSelectTeam(team.id)}
-                        className="premium-card relative rounded-[20px] p-5 text-left overflow-hidden group min-h-[100px] flex flex-col justify-between"
-                        style={{ background: "linear-gradient(135deg, #C1FD3C 60%, #d9fea0 100%)" }}>
-                        <div className="relative z-10 flex flex-col justify-between h-full gap-3">
-                          <h3 className="text-xl font-extrabold text-[#2B3037] leading-tight">{team.name}</h3>
-                          <div className="flex items-center justify-between">
-                            <span className="px-3 py-1 rounded-full bg-white text-base font-bold text-[#2B3037]">{team._count.employees}명</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )) : (
-                <div className="bg-white/50 backdrop-blur-[20px] border border-white/50 rounded-[20px] p-6 text-center text-sm text-[#999999]">
-                  등록된 팀이 없습니다
-                </div>
-              )}
-            </div>
+  return (
+    <div ref={containerRef} className="relative p-10 min-w-fit">
+      <svg ref={svgRef} className="absolute top-0 left-0 pointer-events-none" style={{ zIndex: 0 }} />
+
+      <div className="relative flex items-start gap-0" style={{ zIndex: 1 }}>
+        {/* 회사 */}
+        <div className="flex-shrink-0 flex items-center" style={{ minHeight: allLocs.length > 1 ? `${allLocs.length * 200}px` : "auto", alignItems: "center" }}>
+          <div data-node="company" className="bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl px-8 py-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] text-center">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
+            <h2 className="text-xl font-bold text-[#111] mt-2">{companyFilter || "남광토건"}</h2>
           </div>
-        ))}
+        </div>
+
+        {/* 소속 열 */}
+        <div className="flex-shrink-0 flex flex-col justify-center gap-12 ml-16">
+          {allLocs.map((loc) => (
+            <div key={loc.label} className="flex items-start gap-0">
+              {/* 소속 카드 */}
+              <div className="flex-shrink-0 flex items-center" style={{ minHeight: loc.categories.length > 1 ? `${loc.categories.length * 120}px` : "auto", alignItems: "center" }}>
+                <button
+                  data-node="location" data-loc-id={loc.label}
+                  onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
+                  className="bg-white/80 backdrop-blur-md border border-white/60 rounded-xl px-7 py-5 shadow-[0_2px_16px_rgba(0,0,0,0.04)] text-center hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all cursor-pointer"
+                >
+                  <h3 className="text-lg font-bold text-[#111]">{loc.label}</h3>
+                  <p className="text-sm text-[#999] mt-0.5">{loc.teams.length}팀</p>
+                </button>
+              </div>
+
+              {/* 카테고리 열 */}
+              <div className="flex-shrink-0 flex flex-col justify-center gap-8 ml-14">
+                {loc.categories.length > 0 ? loc.categories.map((cat) => (
+                  <div key={cat.label} className="flex items-start gap-0">
+                    {/* 카테고리 카드 */}
+                    <div className="flex-shrink-0 flex items-center" style={{ minHeight: cat.teams.length > 3 ? `${Math.ceil(cat.teams.length / 3) * 80}px` : "auto", alignItems: "center" }}>
+                      <button
+                        data-node="category" data-cat-id={`${loc.label}-${cat.label}`} data-parent={loc.label}
+                        onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
+                        className="bg-white/70 backdrop-blur-md border border-white/50 rounded-xl px-5 py-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] text-center min-w-[120px] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all cursor-pointer"
+                      >
+                        <p className="text-base font-bold text-[#111]">{cat.label}</p>
+                        <p className="text-sm text-[#999] mt-0.5">{cat.teams.length}팀</p>
+                      </button>
+                    </div>
+
+                    {/* 팀 그리드 */}
+                    {cat.teams.length > 0 && (
+                      <div className="flex flex-col gap-2 ml-12">
+                        {(() => {
+                          const rows = [];
+                          for (let i = 0; i < cat.teams.length; i += 3) {
+                            rows.push(cat.teams.slice(i, i + 3));
+                          }
+                          return rows.map((row, ri) => (
+                            <div key={ri} className="flex gap-2">
+                              {row.map((team) => (
+                                <button key={team.id}
+                                  data-node="team" data-parent={`${loc.label}-${cat.label}`}
+                                  onClick={() => onSelectTeam(team.id)}
+                                  className="premium-card relative rounded-2xl p-4 text-left overflow-hidden min-w-[130px] min-h-[80px] flex flex-col justify-between"
+                                  style={{ background: "linear-gradient(135deg, #C1FD3C 60%, #d9fea0 100%)" }}>
+                                  <h4 className="text-base font-extrabold text-[#2B3037] leading-tight">{team.name}</h4>
+                                  <span className="mt-2 px-2.5 py-0.5 rounded-full bg-white text-sm font-bold text-[#2B3037] self-start">{team._count.employees}명</span>
+                                </button>
+                              ))}
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                )) : (
+                  <div className="bg-white/50 border border-white/50 rounded-xl p-5 text-center text-sm text-[#999]">
+                    등록된 팀이 없습니다
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
