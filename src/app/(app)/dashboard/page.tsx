@@ -227,17 +227,29 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
 function TeamListView({ teams, companyFilter, onSelectTeam }: {
   teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void;
 }) {
+  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/categories").then((r) => r.ok ? r.json() : []).then(setDbCategories).catch(() => {});
+  }, []);
+
   const hqTeams = teams.filter((t) => t.location.type === "HQ");
   const siteTeams = teams.filter((t) => t.location.type === "SITE");
 
-  const CATEGORY_ORDER = ["건축사업본부", "토목사업본부", "경영지원실", "기타"];
+  const companyCategories = dbCategories.filter((c) => c.company === companyFilter);
+
   const groupByCategory = (teamList: Team[]) => {
     const grouped: { label: string; teams: Team[] }[] = [];
-    for (const cat of CATEGORY_ORDER) {
-      const filtered = teamList.filter((t) => (t.category || "기타") === cat);
-      if (filtered.length > 0) grouped.push({ label: cat, teams: filtered });
+    // DB에 등록된 카테고리 순서대로
+    const catNames = [...new Set([
+      ...companyCategories.map((c) => c.name),
+      ...teamList.map((t) => t.category).filter(Boolean) as string[],
+    ])];
+    for (const cat of catNames) {
+      const filtered = teamList.filter((t) => t.category === cat);
+      grouped.push({ label: cat, teams: filtered });
     }
-    const uncategorized = teamList.filter((t) => !t.category && !CATEGORY_ORDER.includes("기타"));
+    const uncategorized = teamList.filter((t) => !t.category);
     if (uncategorized.length > 0) grouped.push({ label: "기타", teams: uncategorized });
     return grouped;
   };

@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
 const COMPANIES = ["3사 통합관리", "남광토건", "극동건설", "금광기업"];
-const CATEGORIES = ["건축사업본부", "토목사업본부", "경영지원실", "기타"];
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES_LIST = ["팀원", "팀장", "부서장"];
 
@@ -64,10 +63,12 @@ export default function AdminTeamsPage() {
 
   // 승인 대기 알림
   const [pendingCount, setPendingCount] = useState(0);
+  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string }[]>([]);
 
   const load = () => {
     fetch("/api/admin/teams").then((r) => r.json()).then((t: Team[]) => { setTeams(t); setAllTeams(t); });
     fetch("/api/admin/locations").then((r) => r.json()).then(setLocations);
+    fetch("/api/admin/categories").then((r) => r.ok ? r.json() : []).then(setDbCategories).catch(() => {});
     fetch("/api/admin/users").then((r) => r.json()).then((users: { pendingRole: string | null }[]) => {
       setPendingCount(users.filter((u) => u.pendingRole).length);
     }).catch(() => {});
@@ -337,7 +338,7 @@ export default function AdminTeamsPage() {
               <select value={teamCategory} onChange={(e) => setTeamCategory(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none">
                 <option value="">선택</option>
-                {CATEGORIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+                {dbCategories.filter((c) => c.company === selCompany || !selCompany).map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
               </select>
             </div>
             <div className="flex-1 min-w-[140px]">
