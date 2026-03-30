@@ -180,7 +180,16 @@ export default function AdminUsersPage() {
                     ))}
                   </div>
                   <button
-                    onClick={() => { if (selectedRoles.length === 0) { alert("최소 1개 역할을 선택해주세요."); return; } setNewRoleValue(selectedRoles.join(",")); handleChangeRole(u.id); }}
+                    onClick={async () => {
+                      if (selectedRoles.length === 0) { alert("최소 1개 역할을 선택해주세요."); return; }
+                      const roles = selectedRoles.join(",");
+                      await fetch(`/api/admin/users/${u.id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ action: "changeRole", role: roles }),
+                      });
+                      setChangingRole(null); setSelectedRoles([]); load();
+                    }}
                     className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition"
                   >
                     저장

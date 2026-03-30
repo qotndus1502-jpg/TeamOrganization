@@ -64,9 +64,10 @@ export async function PUT(
   }
 
   if (action === "changeRole" && newRole) {
-    // Direct role change by admin
+    // Direct role change by admin (다중 역할 지원: "EMPLOYEE,ADMIN")
     const validRoles = ["ADMIN", "EMPLOYEE", "EXECUTIVE"];
-    if (!validRoles.includes(newRole)) {
+    const roles = newRole.split(",");
+    if (!roles.every((r: string) => validRoles.includes(r))) {
       return NextResponse.json({ error: "유효하지 않은 역할입니다." }, { status: 400 });
     }
     const updated = await prisma.user.update({
