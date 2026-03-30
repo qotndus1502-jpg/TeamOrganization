@@ -116,8 +116,8 @@ function OrgChartStyles() {
         transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
       }
       .org-node:hover {
-        transform: scale(1.5);
-        box-shadow: 0 20px 60px rgba(167,199,200,0.5), 0 8px 25px rgba(167,199,200,0.3);
+        transform: scale(1.1);
+        box-shadow: 0 12px 30px rgba(167,199,200,0.4), 0 4px 15px rgba(167,199,200,0.2);
         z-index: 10;
       }
     `}</style>
