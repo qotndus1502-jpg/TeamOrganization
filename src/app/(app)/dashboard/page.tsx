@@ -386,6 +386,7 @@ interface User {
   id: number;
   name: string;
   role: string;
+  teamId: number | null;
 }
 
 
@@ -438,6 +439,11 @@ function DashboardContent() {
   }, [slidePhase]);
 
   const handleSelectTeam = (id: number) => {
+    // 직원은 자기 팀만 볼 수 있음 (관리자/임원은 전체)
+    if (user && user.role === "EMPLOYEE" && user.teamId && user.teamId !== id) {
+      alert("자신의 팀만 조회할 수 있습니다.");
+      return;
+    }
     triggerZoom(() => { setSelectedTeamId(id); setSidebarOpen(false); });
   };
 
