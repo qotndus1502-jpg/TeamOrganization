@@ -131,7 +131,7 @@ function EditableSection<T extends Record<string, string>>({
                               newLines[j] = e.target.value;
                               update(idx, f.key, newLines.slice(0, 5).join("\n"));
                             }}
-                            placeholder={`상세 ${j + 1}`}
+                            placeholder={`${f.label.replace(/\s*\(.*\)/, "")} ${j + 1}`}
                             className="flex-1 border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
                           />
                         </div>
@@ -667,7 +667,7 @@ export default function RegisterPage() {
               { key: "position", label: "직위" },
               { key: "task", label: "담당업무" },
               { key: "period", label: "기간" },
-              { key: "description", label: "업무기술서 (주요 업무 내용을 작성하세요)", type: "textarea" },
+              { key: "description", label: "상세 업무 / 프로젝트", type: "textarea" },
             ]}
           />
         </div>
@@ -704,7 +704,7 @@ export default function RegisterPage() {
               { key: "department", label: "소속부서" },
               { key: "duty", label: "직책" },
               { key: "job_role", label: "직무" },
-              { key: "description", label: "업무 상세 내용을 작성하세요", type: "textarea" },
+              { key: "description", label: "담당 업무 / 프로젝트", type: "textarea" },
             ]}
           />
         </div>
