@@ -42,15 +42,13 @@ export default function LoginPage() {
       return;
     }
 
-    // Role-based redirect after login
+    // Role-based redirect after login (full page reload to ensure cookie is sent)
     if (data.role === "EXECUTIVE" || data.role === "ADMIN") {
-      // EXECUTIVE and ADMIN go to dashboard
-      router.push("/dashboard?company=" + encodeURIComponent("남광토건"));
+      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
     } else if (!data.hasEmployee) {
-      // EMPLOYEE without profile goes to register
-      router.push("/register");
+      window.location.href = "/register";
     } else {
-      router.push("/dashboard?company=" + encodeURIComponent("남광토건"));
+      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
     }
   };
 

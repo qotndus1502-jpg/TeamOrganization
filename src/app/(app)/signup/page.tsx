@@ -47,14 +47,13 @@ export default function SignupPage() {
       return;
     }
 
-    // Redirect based on role
+    // Redirect based on role (full page reload to ensure cookie is sent)
     if (selectedRole === "EXECUTIVE") {
-      router.push("/dashboard");
+      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
     } else if (selectedRole === "ADMIN") {
-      // pendingRole=ADMIN, redirect to dashboard with message
-      router.push("/dashboard");
+      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
     } else {
-      router.push("/register");
+      window.location.href = "/register";
     }
   };
 
