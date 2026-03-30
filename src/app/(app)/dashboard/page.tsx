@@ -253,7 +253,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
                                 <button key={team.id}
                                   onClick={() => onSelectTeam(team.id)}
                                   className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between"
-                                  style={{ background: "linear-gradient(135deg, #C1FD3C 60%, #d9fea0 100%)" }}>
+                                  style={{ background: "#C1FD3C" }}>
                                   <h4 className="text-base font-extrabold text-[#2B3037] leading-tight">{team.name}</h4>
                                   <span className="mt-2 px-2.5 py-0.5 rounded-full bg-white text-sm font-bold text-[#2B3037] self-start">{team._count.employees}명</span>
                                 </button>
