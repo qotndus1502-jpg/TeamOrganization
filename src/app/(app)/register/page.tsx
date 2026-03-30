@@ -21,9 +21,9 @@ interface UserInfo {
   employeeId: number | null;
 }
 
-interface Education { [key: string]: string; period: string; school_name: string; major: string; degree: string; location: string }
+interface Education { [key: string]: string; startDate: string; endDate: string; school_name: string; major: string; degree: string; location: string }
 interface Certification { [key: string]: string; name: string; acquisition_date: string; issuer: string; license_number: string }
-interface Experience { [key: string]: string; period: string; company: string; position: string; task: string; description: string }
+interface Experience { [key: string]: string; startDate: string; endDate: string; company: string; position: string; task: string; description: string }
 interface FamilyRelation { [key: string]: string; relation: string; name: string; birth_date: string; occupation: string }
 interface Appointment { [key: string]: string; date: string; type: string; position: string; grade: string; department: string; duty: string; job_role: string; description: string }
 
@@ -39,9 +39,9 @@ interface ExtractedData {
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES = ["팀원", "팀장", "부서장"];
 
-const emptyEducation = (): Education => ({ period: "", school_name: "", major: "", degree: "", location: "" });
+const emptyEducation = (): Education => ({ startDate: "", endDate: "", school_name: "", major: "", degree: "", location: "" });
 const emptyCertification = (): Certification => ({ name: "", acquisition_date: "", issuer: "", license_number: "" });
-const emptyExperience = (): Experience => ({ period: "", company: "", position: "", task: "", description: "" });
+const emptyExperience = (): Experience => ({ startDate: "", endDate: "", company: "", position: "", task: "", description: "" });
 const emptyFamily = (): FamilyRelation => ({ relation: "", name: "", birth_date: "", occupation: "" });
 const emptyAppointment = (): Appointment => ({ date: "", type: "", position: "", grade: "", department: "", duty: "", job_role: "", description: "" });
 
@@ -211,9 +211,14 @@ export default function RegisterPage() {
         if (emp.resumeData) {
           try {
             const rd = JSON.parse(emp.resumeData);
-            if (rd.education?.length) setEducation(rd.education.map((e: Partial<Education>) => ({ ...emptyEducation(), ...e })));
+            const splitP = (item: Record<string, string>) => {
+              if (item.startDate || item.endDate) return item;
+              if (item.period) { const p = item.period.split(/[~\-–—]/).map((s: string) => s.trim()); return { ...item, startDate: p[0] || "", endDate: p[1] || "" }; }
+              return item;
+            };
+            if (rd.education?.length) setEducation(rd.education.map((e: Partial<Education>) => ({ ...emptyEducation(), ...splitP(e as Record<string, string>) })));
             if (rd.certifications?.length) setCertifications(rd.certifications.map((c: Partial<Certification>) => ({ ...emptyCertification(), ...c })));
-            if (rd.experience?.length) setExperience(rd.experience.map((e: Partial<Experience>) => ({ ...emptyExperience(), ...e })));
+            if (rd.experience?.length) setExperience(rd.experience.map((e: Partial<Experience>) => ({ ...emptyExperience(), ...splitP(e as Record<string, string>) })));
             if (rd.familyRelations?.length) setFamilyRelations(rd.familyRelations.map((f: Partial<FamilyRelation>) => ({ ...emptyFamily(), ...f })));
             if (rd.appointmentHistory?.length) setAppointmentHistory(rd.appointmentHistory.map((a: Partial<Appointment>) => ({ ...emptyAppointment(), ...a })));
           } catch { /* ignore parse error */ }
@@ -278,10 +283,20 @@ export default function RegisterPage() {
       return updated;
     });
 
+    // period → startDate/endDate 호환 변환
+    const splitPeriod = (item: Record<string, string>) => {
+      if (item.startDate || item.endDate) return item;
+      if (item.period) {
+        const parts = item.period.split(/[~\-–—]/).map((s: string) => s.trim());
+        return { ...item, startDate: parts[0] || "", endDate: parts[1] || "" };
+      }
+      return item;
+    };
+
     // 배열 데이터 매핑
-    setEducation((data.education || []).map((e) => ({ ...emptyEducation(), ...e } as Education)));
+    setEducation((data.education || []).map((e) => ({ ...emptyEducation(), ...splitPeriod(e) } as Education)));
     setCertifications((data.certifications || []).map((c) => ({ ...emptyCertification(), ...c } as Certification)));
-    setExperience((data.experience || []).map((e) => ({ ...emptyExperience(), ...e } as Experience)));
+    setExperience((data.experience || []).map((e) => ({ ...emptyExperience(), ...splitPeriod(e) } as Experience)));
     setFamilyRelations((data.family_relations || []).map((f) => ({ ...emptyFamily(), ...f } as FamilyRelation)));
     setAppointmentHistory((data.appointment_history || []).map((a) => ({ ...emptyAppointment(), ...a } as Appointment)));
 
@@ -632,7 +647,8 @@ export default function RegisterPage() {
               { key: "school_name", label: "학교명" },
               { key: "major", label: "전공" },
               { key: "degree", label: "학위" },
-              { key: "period", label: "기간" },
+              { key: "startDate", label: "입학일" },
+              { key: "endDate", label: "졸업일" },
             ]}
           />
         </div>
@@ -666,7 +682,8 @@ export default function RegisterPage() {
               { key: "company", label: "회사명" },
               { key: "position", label: "직위" },
               { key: "task", label: "담당업무" },
-              { key: "period", label: "기간" },
+              { key: "startDate", label: "입사일" },
+              { key: "endDate", label: "퇴직일" },
               { key: "description", label: "상세 업무 / 프로젝트", type: "textarea" },
             ]}
           />

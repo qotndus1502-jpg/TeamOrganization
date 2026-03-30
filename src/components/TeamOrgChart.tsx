@@ -41,9 +41,9 @@ interface ResumeExtra {
   hobby?: string;
 }
 
-interface Education { period: string; school_name: string; major: string; degree: string; logoUrl?: string; }
+interface Education { period?: string; startDate?: string; endDate?: string; school_name: string; major: string; degree: string; logoUrl?: string; }
 interface Certification { name: string; acquisition_date: string; issuer: string; }
-interface Experience { period: string; company: string; position: string; task: string; description?: string; }
+interface Experience { period?: string; startDate?: string; endDate?: string; company: string; position: string; task: string; description?: string; }
 
 function parseResumeData(data: string | null) {
   if (!data) return { education: [], certifications: [], experience: [], appointmentHistory: [], extra: {} as ResumeExtra };
@@ -81,6 +81,16 @@ function fmtPeriod(p: string | null | undefined): string {
   if (parts.length >= 2) return `${fmtDateShort(parts[0])} ~ ${fmtDateShort(parts[1])}`;
   if (parts.length === 1) return fmtDateShort(parts[0]);
   return p;
+}
+
+function fmtRange(item: { startDate?: string; endDate?: string; period?: string }): string {
+  if (item.startDate) {
+    const start = fmtDateShort(item.startDate);
+    const end = item.endDate ? fmtDateShort(item.endDate) : "현재";
+    return `${start} ~ ${end}`;
+  }
+  if (item.period) return fmtPeriod(item.period);
+  return "—";
 }
 
 const POSITION_RING_COLORS: Record<string, string> = {
@@ -190,25 +200,27 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
     const diff = (now.getTime() - join.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
     yearsWorked = diff >= 1 ? `${Math.floor(diff)}년` : `${Math.floor(diff * 12)}개월`;
     let prevMonths = 0;
+    const parseDate = (d: string) => {
+      const parts = d.replace(/[\/-]/g, ".").split(".").map(Number);
+      if (parts.length >= 3) {
+        const yr = parts[0] < 100 ? parts[0] + 2000 : parts[0];
+        return new Date(yr, parts[1] - 1, parts[2]);
+      }
+      return null;
+    };
     experience.forEach((e) => {
-      if (!e.period) return;
-      // "19.06.24 ~ 19.12.27" or "2019.06.24 ~ 2019.12.27" or "2019-06-24 ~ 2019-12-27"
-      const cleaned = e.period.replace(/\(.*?\)/g, "");
-      const dates = cleaned.split(/[~\-–—]/).map((s: string) => s.trim()).filter(Boolean);
-      if (dates.length >= 2) {
-        const parse = (d: string) => {
-          const parts = d.replace(/-/g, ".").split(".").map(Number);
-          if (parts.length >= 3) {
-            const yr = parts[0] < 100 ? parts[0] + 2000 : parts[0];
-            return new Date(yr, parts[1] - 1, parts[2]);
-          }
-          return null;
-        };
-        const start = parse(dates[0]);
-        const end = parse(dates[1]);
-        if (start && end) {
-          prevMonths += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
-        }
+      let start: Date | null = null;
+      let end: Date | null = null;
+      if (e.startDate && e.endDate) {
+        start = parseDate(e.startDate);
+        end = parseDate(e.endDate);
+      } else if (e.period) {
+        const cleaned = e.period.replace(/\(.*?\)/g, "");
+        const dates = cleaned.split(/[~\-–—]/).map((s: string) => s.trim()).filter(Boolean);
+        if (dates.length >= 2) { start = parseDate(dates[0]); end = parseDate(dates[1]); }
+      }
+      if (start && end) {
+        prevMonths += (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44);
       }
     });
     const totalMonths = diff * 12 + prevMonths;
@@ -413,7 +425,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
                     <div key={i} className="p-6 rounded-md bg-white border-2 border-gray-200">
-                      <p className="text-base font-bold text-[#2B3037]">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtPeriod(e.period)}</p>
+                      <p className="text-base font-bold text-[#2B3037]">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtRange(e)}</p>
                       {(e.task || e.description) && (
                         <ul className="mt-4 space-y-2 border-t border-gray-200 pt-4">
                           {e.task && !e.description && (

@@ -35,7 +35,8 @@ const extractionSchema: Schema = {
       items: {
         type: SchemaType.OBJECT,
         properties: {
-          period: { type: SchemaType.STRING, description: "기간(시작~종료)" },
+          startDate: { type: SchemaType.STRING, description: "입학일(YYYY.MM.DD)" },
+          endDate: { type: SchemaType.STRING, description: "졸업일(YYYY.MM.DD)" },
           school_name: { type: SchemaType.STRING, description: "학교명" },
           major: { type: SchemaType.STRING, description: "전공" },
           degree: { type: SchemaType.STRING, description: "학위" },
@@ -64,7 +65,8 @@ const extractionSchema: Schema = {
       items: {
         type: SchemaType.OBJECT,
         properties: {
-          period: { type: SchemaType.STRING, description: "기간" },
+          startDate: { type: SchemaType.STRING, description: "입사일(YYYY.MM.DD)" },
+          endDate: { type: SchemaType.STRING, description: "퇴직일(YYYY.MM.DD), 재직중이면 빈문자열" },
           company: { type: SchemaType.STRING, description: "회사명" },
           position: { type: SchemaType.STRING, description: "최종직위" },
           task: { type: SchemaType.STRING, description: "담당업무" },
