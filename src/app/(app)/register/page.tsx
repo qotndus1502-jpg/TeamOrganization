@@ -795,8 +795,8 @@ export default function RegisterPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <EditableSection
             title="이전 발령사항"
-            items={appointmentHistory}
-            setItems={setAppointmentHistory}
+            items={appointmentHistory.slice(1)}
+            setItems={(prev) => setAppointmentHistory([appointmentHistory[0], ...prev].filter(Boolean))}
             emptyItem={emptyAppointment}
             readOnly={readOnly}
             fields={[
