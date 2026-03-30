@@ -711,15 +711,8 @@ export default function TeamOrgChart({
                   onMouseLeave={() => setHoveredId(null)}
                 >
                   <div
-                    className="org-node w-60 h-60 rounded-full bg-gradient-to-br from-gray-700 via-gray-500 to-gray-400 backdrop-blur-xl border border-white/30 shadow-[0_10px_50px_rgba(0,0,0,0.15)] flex items-center justify-center text-7xl font-extralight text-white overflow-hidden relative"
-                    style={{ "--node-glow": "rgba(80,80,80,0.3)" } as React.CSSProperties}
+                    className="org-node w-60 h-60 rounded-full overflow-hidden relative flex items-center justify-center"
                   >
-                    {/* 유리 반사 */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/10 via-transparent to-transparent" />
-                    <div className="absolute top-2 left-5 right-5 h-6 rounded-full bg-gradient-to-b from-white/8 to-transparent blur-sm" />
-                    <div className="absolute inset-0 rounded-full overflow-hidden">
-                      <div className="absolute -inset-full w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{ animation: "orgShimmer 5s ease-in-out infinite" }} />
-                    </div>
                     <span className="relative z-10">
                       {leader.photoUrl ? (
                         <img src={leader.photoUrl} alt={leader.name} className="w-60 h-60 object-cover" />
