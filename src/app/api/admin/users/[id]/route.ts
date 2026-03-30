@@ -85,3 +85,47 @@ export async function PUT(
 
   return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
 }
+
+// DELETE: 사용자 삭제
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") {
+    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
+  }
+
+  const { id } = await params;
+  const userId = Number(id);
+
+  if (userId === session.userId) {
+    return NextResponse.json({ error: "자신의 계정은 삭제할 수 없습니다." }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { employee: true },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "사용자를 찾을 수 없습니다." }, { status: 404 });
+  }
+
+  // 연결된 Employee가 있으면 먼저 삭제
+  if (user.employee) {
+    await prisma.employee.delete({ where: { id: user.employee.id } });
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+
+  await auditLog({
+    action: "DELETE",
+    userId: session.userId,
+    targetType: "User",
+    targetId: userId,
+    detail: JSON.stringify({ email: user.email, name: user.name }),
+  });
+
+  return NextResponse.json({ success: true });
+}

@@ -60,6 +60,17 @@ export default function AdminUsersPage() {
     load();
   };
 
+  const handleDelete = async (userId: number, userName: string) => {
+    if (!confirm(`"${userName}" 사용자를 삭제하시겠습니까?\n연결된 직원 정보도 함께 삭제됩니다.`)) return;
+    const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+    if (res.ok) {
+      load();
+    } else {
+      const data = await res.json();
+      alert(data.error || "삭제에 실패했습니다.");
+    }
+  };
+
   const handleChangeRole = async (userId: number) => {
     if (!newRoleValue) return;
     await fetch(`/api/admin/users/${userId}`, {
@@ -172,12 +183,20 @@ export default function AdminUsersPage() {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => { setChangingRole(u.id); setNewRoleValue(u.role); }}
-                  className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition font-medium"
-                >
-                  역할 변경
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { setChangingRole(u.id); setNewRoleValue(u.role); }}
+                    className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition font-medium"
+                  >
+                    역할 변경
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u.id, u.name)}
+                    className="px-4 py-2 text-sm text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition font-medium"
+                  >
+                    삭제
+                  </button>
+                </div>
               )}
             </div>
           </div>
