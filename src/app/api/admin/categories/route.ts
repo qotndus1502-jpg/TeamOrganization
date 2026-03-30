@@ -9,9 +9,6 @@ async function checkAdmin() {
 }
 
 export async function GET() {
-  const session = await checkAdmin();
-  if (!session) return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
-
   const categories = await prisma.category.findMany({
     include: { location: true },
     orderBy: { id: "asc" },
