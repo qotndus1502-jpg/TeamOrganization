@@ -31,6 +31,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "이메일 또는 비밀번호가 올바르지 않습니다." }, { status: 401 });
     }
 
+    // 승인 대기 중이면 로그인 차단
+    if (user.pendingRole) {
+      return NextResponse.json({ error: `${user.pendingRole === "EXECUTIVE" ? "임원" : "관리자"} 권한 승인 대기 중입니다. 관리자 승인 후 로그인할 수 있습니다.` }, { status: 403 });
+    }
+
     // 로그인 성공 시 Rate Limit 초기화
     resetRateLimit(`login:${ip}`);
 

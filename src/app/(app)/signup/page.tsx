@@ -47,14 +47,15 @@ export default function SignupPage() {
       return;
     }
 
-    // Redirect based on role (full page reload to ensure cookie is sent)
-    if (selectedRole === "EXECUTIVE") {
-      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
-    } else if (selectedRole === "ADMIN") {
-      window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
-    } else {
-      window.location.href = "/register";
+    // 승인 대기 중이면 로그인 페이지로 안내
+    if (data.needsApproval) {
+      alert("회원가입이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.");
+      window.location.href = "/login";
+      return;
     }
+
+    // Redirect based on role (full page reload to ensure cookie is sent)
+    window.location.href = "/register";
   };
 
   return (

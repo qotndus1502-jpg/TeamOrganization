@@ -44,6 +44,14 @@ export async function POST(request: NextRequest) {
       data: { email, password: hashed, name, role, pendingRole },
     });
 
+    // 승인 대기 중이면 쿠키 발급하지 않음 (로그인 차단)
+    if (pendingRole) {
+      return NextResponse.json(
+        { id: user.id, email: user.email, name: user.name, role: user.role, pendingRole: user.pendingRole, needsApproval: true },
+        { status: 201 }
+      );
+    }
+
     const cookie = buildSessionCookie({ id: user.id, role: user.role, name: user.name });
     const response = NextResponse.json(
       { id: user.id, email: user.email, name: user.name, role: user.role, pendingRole: user.pendingRole },
