@@ -32,11 +32,11 @@ export default function Navbar() {
   };
 
   const roleLabel = (role: string) => {
-    switch (role) {
-      case "ADMIN": return "관리자";
-      case "EXECUTIVE": return "임원";
-      default: return "직원";
-    }
+    const roles = role.split(",");
+    const labels = roles.map((r) => {
+      switch (r) { case "ADMIN": return "관리자"; case "EXECUTIVE": return "임원"; default: return "직원"; }
+    });
+    return labels.join(" · ");
   };
 
   return (
@@ -62,7 +62,7 @@ export default function Navbar() {
                 나의 팀
               </a>
             )}
-            {user.role === "ADMIN" && (
+            {user.role.includes("ADMIN") && (
               <Link href="/admin" className="text-gray-600 hover:text-gray-900 font-medium text-sm">
                 관리자
               </Link>
@@ -71,7 +71,7 @@ export default function Navbar() {
             {/* EMPLOYEE/ADMIN: show profile link to register page */}
             <div className="flex items-center gap-3 border-l border-gray-200 pl-5">
               <Link
-                href={user.role === "EMPLOYEE" ? "/register" : "/dashboard"}
+                href={user.role.includes("EMPLOYEE") ? "/register" : "/dashboard"}
                 className="flex items-center gap-2 hover:opacity-80 transition"
               >
                 <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-white">

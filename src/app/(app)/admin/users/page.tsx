@@ -29,6 +29,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [changingRole, setChangingRole] = useState<number | null>(null);
   const [newRoleValue, setNewRoleValue] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   const load = async () => {
     const res = await fetch("/api/admin/users");
@@ -144,9 +145,11 @@ export default function AdminUsersPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-gray-900">{u.name}</p>
-                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${ROLE_COLORS[u.role] || "bg-gray-100 text-gray-600"}`}>
-                    {ROLE_LABELS[u.role] || u.role}
-                  </span>
+                  {u.role.split(",").map((r: string) => (
+                    <span key={r} className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${ROLE_COLORS[r] || "bg-gray-100 text-gray-600"}`}>
+                      {ROLE_LABELS[r] || r}
+                    </span>
+                  ))}
                   {u.pendingRole && (
                     <span className="text-xs text-orange-500 font-medium">({ROLE_LABELS[u.pendingRole]} 대기)</span>
                   )}
@@ -159,24 +162,31 @@ export default function AdminUsersPage() {
             </div>
             <div>
               {changingRole === u.id ? (
-                <div className="flex items-center gap-2">
-                  <select
-                    value={newRoleValue}
-                    onChange={(e) => setNewRoleValue(e.target.value)}
-                    className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none"
-                  >
-                    <option value="EMPLOYEE">직원</option>
-                    <option value="EXECUTIVE">임원</option>
-                    <option value="ADMIN">관리자</option>
-                  </select>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
+                    {(["EMPLOYEE", "EXECUTIVE", "ADMIN"] as const).map((r) => (
+                      <label key={r} className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedRoles.includes(r)}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedRoles([...selectedRoles, r]);
+                            else setSelectedRoles(selectedRoles.filter((x) => x !== r));
+                          }}
+                          className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+                        />
+                        <span className="text-sm text-gray-700">{ROLE_LABELS[r]}</span>
+                      </label>
+                    ))}
+                  </div>
                   <button
-                    onClick={() => handleChangeRole(u.id)}
+                    onClick={() => { if (selectedRoles.length === 0) { alert("최소 1개 역할을 선택해주세요."); return; } setNewRoleValue(selectedRoles.join(",")); handleChangeRole(u.id); }}
                     className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-700 transition"
                   >
-                    변경
+                    저장
                   </button>
                   <button
-                    onClick={() => { setChangingRole(null); setNewRoleValue(""); }}
+                    onClick={() => { setChangingRole(null); setNewRoleValue(""); setSelectedRoles([]); }}
                     className="px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-200 transition"
                   >
                     취소
@@ -185,7 +195,7 @@ export default function AdminUsersPage() {
               ) : (
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { setChangingRole(u.id); setNewRoleValue(u.role); }}
+                    onClick={() => { setChangingRole(u.id); setSelectedRoles(u.role.split(",")); setNewRoleValue(u.role); }}
                     className="px-4 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition font-medium"
                   >
                     역할 변경

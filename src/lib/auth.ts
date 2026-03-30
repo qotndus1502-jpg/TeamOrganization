@@ -93,8 +93,12 @@ export async function requireAuth(): Promise<Session> {
 
 export async function requireAdmin(): Promise<Session> {
   const session = await requireAuth();
-  if (session.role !== "ADMIN") redirect("/");
+  if (!session.role.split(",").includes("ADMIN")) redirect("/");
   return session;
+}
+
+export function hasRole(role: string, target: string): boolean {
+  return role.split(",").includes(target);
 }
 
 // [보안] 비밀번호 정책 검증 (KISA 기준: 8자 이상, 영문+숫자+특수문자 조합)

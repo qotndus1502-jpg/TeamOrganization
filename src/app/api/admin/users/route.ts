@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // GET: list users (optionally filter by pendingRole)
 export async function GET() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !session.role.split(",").includes("ADMIN")) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
 

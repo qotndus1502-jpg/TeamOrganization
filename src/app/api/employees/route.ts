@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     };
 
     // [보안] 본인 등록인지 확인 (다른 userId로 등록 시도 방지)
-    if (data.userId && data.userId !== session.userId && session.role !== "ADMIN") {
+    if (data.userId && data.userId !== session.userId && !session.role.split(",").includes("ADMIN")) {
       return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
     }
 

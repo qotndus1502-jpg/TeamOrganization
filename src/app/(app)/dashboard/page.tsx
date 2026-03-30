@@ -444,7 +444,7 @@ function DashboardContent() {
 
   const handleSelectTeam = (id: number) => {
     // 직원은 자기 팀만 볼 수 있음 (관리자/임원은 전체)
-    if (user && user.role === "EMPLOYEE" && user.teamId && user.teamId !== id) {
+    if (user && !user.role.includes("ADMIN") && !user.role.includes("EXECUTIVE") && user.teamId && user.teamId !== id) {
       alert("자신의 팀만 조회할 수 있습니다.");
       return;
     }
@@ -452,7 +452,7 @@ function DashboardContent() {
   };
 
 
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.role.includes("ADMIN");
 
   useEffect(() => {
     fetch("/api/auth/me").then((r) => r.json()).then(setUser);

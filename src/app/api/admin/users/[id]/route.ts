@@ -9,7 +9,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !session.role.split(",").includes("ADMIN")) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
 
@@ -92,7 +92,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || !session.role.split(",").includes("ADMIN")) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
 

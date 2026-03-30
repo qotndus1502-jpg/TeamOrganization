@@ -256,7 +256,7 @@ export default function RegisterPage() {
 
       if (!data) { router.replace("/login"); return; }
       // EXECUTIVE users without employee data -> redirect to dashboard
-      if (data.role === "EXECUTIVE" && !data.hasEmployee) {
+      if (data.role.includes("EXECUTIVE") && !data.role.includes("EMPLOYEE") && !data.hasEmployee) {
         router.replace("/dashboard");
         return;
       }

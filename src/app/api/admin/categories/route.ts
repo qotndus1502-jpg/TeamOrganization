@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 
 async function checkAdmin() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return null;
+  if (!session || !session.role.split(",").includes("ADMIN")) return null;
   return session;
 }
 

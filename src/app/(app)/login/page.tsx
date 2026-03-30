@@ -43,7 +43,7 @@ export default function LoginPage() {
     }
 
     // Role-based redirect after login (full page reload to ensure cookie is sent)
-    if (data.role === "EXECUTIVE" || data.role === "ADMIN") {
+    if (data.role.includes("EXECUTIVE") || data.role.includes("ADMIN")) {
       window.location.href = "/dashboard?company=" + encodeURIComponent("남광토건");
     } else if (!data.hasEmployee) {
       window.location.href = "/register";
