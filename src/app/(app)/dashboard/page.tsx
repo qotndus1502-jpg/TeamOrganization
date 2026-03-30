@@ -178,10 +178,11 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
   });
 }
 
-function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
+function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId }: {
   companyFilter: string | null;
   locations: { label: string; teams: Team[]; categories: { label: string; teams: Team[] }[] }[];
   onSelectTeam: (id: number) => void;
+  userTeamId?: number | null;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -253,8 +254,11 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
                                   onClick={() => onSelectTeam(team.id)}
                                   className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between"
                                   style={{ background: "#C1FD3C" }}>
-                                  <h4 className="text-base font-extrabold text-[#2B3037] leading-tight">{team.name}</h4>
-                                  <span className="mt-2 px-2.5 py-0.5 rounded-full bg-white text-sm font-bold text-[#2B3037] self-start">{team._count.employees}명</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <h4 className="text-base font-extrabold text-[#2B3037] leading-tight">{team.name}</h4>
+                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-[#2B3037] text-white text-[9px] font-bold">MyTeam</span>}
+                                  </div>
+                                  <span className="mt-1 px-2.5 py-0.5 rounded-full bg-white text-sm font-bold text-[#2B3037] self-start">{team._count.employees}명</span>
                                 </button>
                               ))}
                             </div>
@@ -277,8 +281,8 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
   );
 }
 
-function TeamListView({ teams, companyFilter, onSelectTeam }: {
-  teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void;
+function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
+  teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void; userTeamId?: number | null;
 }) {
   const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string; locationId: number }[]>([]);
 
@@ -329,7 +333,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
         }
       `}</style>
 
-      <CompanyTreeLayout companyFilter={companyFilter} locations={locations} onSelectTeam={onSelectTeam} />
+      <CompanyTreeLayout companyFilter={companyFilter} locations={locations} onSelectTeam={onSelectTeam} userTeamId={userTeamId} />
     </div>
   );
 }
@@ -624,6 +628,7 @@ function DashboardContent() {
             teams={teams}
             companyFilter={companyFilter}
             onSelectTeam={handleSelectTeam}
+            userTeamId={user?.teamId}
           />
         )}
       </div>
