@@ -21,7 +21,7 @@ interface UserInfo {
   employeeId: number | null;
 }
 
-interface Education { [key: string]: string; period: string; school_name: string; major: string; degree: string; location: string; logoUrl: string }
+interface Education { [key: string]: string; period: string; school_name: string; major: string; degree: string; location: string }
 interface Certification { [key: string]: string; name: string; acquisition_date: string; issuer: string; license_number: string }
 interface Experience { [key: string]: string; period: string; company: string; position: string; task: string; description: string }
 interface FamilyRelation { [key: string]: string; relation: string; name: string; birth_date: string; occupation: string }
@@ -39,7 +39,7 @@ interface ExtractedData {
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES = ["팀원", "팀장", "부서장"];
 
-const emptyEducation = (): Education => ({ period: "", school_name: "", major: "", degree: "", location: "", logoUrl: "" });
+const emptyEducation = (): Education => ({ period: "", school_name: "", major: "", degree: "", location: "" });
 const emptyCertification = (): Certification => ({ name: "", acquisition_date: "", issuer: "", license_number: "" });
 const emptyExperience = (): Experience => ({ period: "", company: "", position: "", task: "", description: "" });
 const emptyFamily = (): FamilyRelation => ({ relation: "", name: "", birth_date: "", occupation: "" });
@@ -633,7 +633,6 @@ export default function RegisterPage() {
               { key: "major", label: "전공" },
               { key: "degree", label: "학위" },
               { key: "period", label: "기간" },
-              { key: "logoUrl", label: "학교 로고 URL" },
             ]}
           />
         </div>
