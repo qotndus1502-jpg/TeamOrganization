@@ -328,12 +328,12 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
         {/* 근속/경력 카드 */}
         <div className="bg-white rounded-md border border-gray-200 py-4 flex">
           <div className="flex-1 text-center border-r border-gray-200">
-            <p className="text-xl font-bold text-[#2B3037] leading-none">{yearsWorked}</p>
-            <p className="text-base text-gray-500 mt-0.5">근속</p>
+            <p className="text-lg font-bold text-[#2B3037] leading-none">{yearsWorked}</p>
+            <p className="text-sm text-gray-500 mt-0.5">근속</p>
           </div>
           <div className="flex-1 text-center">
-            <p className="text-xl font-bold text-[#2B3037] leading-none">{totalCareer}</p>
-            <p className="text-base text-gray-500 mt-0.5">경력</p>
+            <p className="text-lg font-bold text-[#2B3037] leading-none">{totalCareer}</p>
+            <p className="text-sm text-gray-500 mt-0.5">경력</p>
           </div>
         </div>
 
@@ -344,8 +344,8 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
               <div key={i} className="py-1.5 flex items-center gap-2.5">
                 <span className="text-3xl flex-shrink-0">🎓</span>
                 <div className="min-w-0">
-                  <p className="text-xl font-bold text-[#2B3037] truncate">{e.school_name}</p>
-                  {e.major && <p className="text-base text-gray-500">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
+                  <p className="text-lg font-bold text-[#2B3037] truncate">{e.school_name}</p>
+                  {e.major && <p className="text-sm text-gray-500">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
                 </div>
               </div>
             )) : (
@@ -453,7 +453,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       {certifications.map((c, i) => (
                         <div key={i} className="px-6 py-5 rounded-md bg-white border-2 border-gray-200">
                           <p className="text-lg font-bold text-[#2B3037]">{c.name}</p>
-                          <p className="text-base text-gray-500 mt-1">{fmtDateShort(c.acquisition_date)}{c.issuer ? ` · ${c.issuer}` : ""}</p>
+                          <p className="text-sm text-gray-500 mt-1">{fmtDateShort(c.acquisition_date)}{c.issuer ? ` · ${c.issuer}` : ""}</p>
                         </div>
                       ))}
                     </div>
