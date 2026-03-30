@@ -57,10 +57,15 @@ function EditableSection<T extends Record<string, string>>({
   title: string;
   items: T[];
   setItems: (items: T[]) => void;
-  fields: { key: keyof T; label: string; width?: string; type?: "text" | "textarea" }[];
+  fields: { key: keyof T; label: string; width?: string; type?: "text" | "textarea" | "date"; pairWith?: keyof T; pairLabel?: string }[];
   emptyItem: () => T;
   readOnly?: boolean;
 }) {
+  // YYYY.MM.DD → YYYY-MM-DD (input[type=date]용)
+  const toIso = (d: string) => d ? d.replace(/\./g, "-").replace(/(\d{4})-(\d{1,2})-(\d{1,2}).*/, "$1-$2-$3") : "";
+  // YYYY-MM-DD → YYYY.MM.DD (표시/저장용)
+  const toDot = (d: string) => d ? d.replace(/-/g, ".") : "";
+
   const update = (idx: number, key: keyof T, value: string) => {
     const next = [...items];
     next[idx] = { ...next[idx], [key]: value };
@@ -87,21 +92,64 @@ function EditableSection<T extends Record<string, string>>({
             <div key={idx} className="flex gap-2 items-start bg-gray-50 rounded-lg p-3">
               <div className="flex-1 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
-                  {fields.filter((f) => f.type !== "textarea").map((f) => readOnly ? (
-                    <div key={String(f.key)} className={`px-2 py-1.5 text-gray-900 ${String(f.key) === "school_name" ? "text-xl font-bold col-span-2" : "text-sm"}`}>
-                      {String(f.key) !== "school_name" && <span className="text-xs text-gray-400">{f.label}: </span>}
-                      {item[f.key] || "-"}
-                    </div>
-                  ) : (
-                    <input
-                      key={String(f.key)}
-                      type="text"
-                      value={item[f.key] || ""}
-                      onChange={(e) => update(idx, f.key, e.target.value)}
-                      placeholder={f.label}
-                      className={`border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none ${f.width || ""}`}
-                    />
-                  ))}
+                  {(() => {
+                    const textFields = fields.filter((f) => f.type !== "textarea" && f.type !== "date" && !f.pairWith);
+                    const dateFields = fields.filter((f) => f.type === "date");
+                    // date 필드를 2개씩 묶어서 나란히 표시
+                    const datePairs: typeof dateFields[] = [];
+                    for (let i = 0; i < dateFields.length; i += 2) {
+                      datePairs.push(dateFields.slice(i, i + 2));
+                    }
+                    return (
+                      <>
+                        {textFields.map((f) => readOnly ? (
+                          <div key={String(f.key)} className={`px-2 py-1.5 text-gray-900 ${String(f.key) === "school_name" ? "text-xl font-bold col-span-2" : "text-sm"}`}>
+                            {String(f.key) !== "school_name" && <span className="text-xs text-gray-400">{f.label}: </span>}
+                            {item[f.key] || "-"}
+                          </div>
+                        ) : (
+                          <input
+                            key={String(f.key)}
+                            type="text"
+                            value={item[f.key] || ""}
+                            onChange={(e) => update(idx, f.key, e.target.value)}
+                            placeholder={f.label}
+                            className={`border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none ${f.width || ""}`}
+                          />
+                        ))}
+                        {datePairs.map((pair, pi) => readOnly ? (
+                          <div key={pi} className="col-span-2 flex items-center gap-2 text-sm text-gray-900 px-2 py-1.5">
+                            <span className="text-xs text-gray-400">{pair[0].label}:</span> {item[pair[0].key] || "-"}
+                            {pair[1] && <><span className="text-gray-300 mx-1">~</span><span className="text-xs text-gray-400">{pair[1].label}:</span> {item[pair[1].key] || "-"}</>}
+                          </div>
+                        ) : (
+                          <div key={pi} className="col-span-2 flex items-center gap-2">
+                            <div className="flex-1">
+                              <label className="text-[10px] text-gray-400 mb-0.5 block">{pair[0].label}</label>
+                              <input
+                                type="date"
+                                value={toIso(item[pair[0].key] || "")}
+                                onChange={(e) => update(idx, pair[0].key, toDot(e.target.value))}
+                                className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
+                              />
+                            </div>
+                            <span className="text-gray-400 mt-4">~</span>
+                            {pair[1] && (
+                              <div className="flex-1">
+                                <label className="text-[10px] text-gray-400 mb-0.5 block">{pair[1].label}</label>
+                                <input
+                                  type="date"
+                                  value={toIso(item[pair[1].key] || "")}
+                                  onChange={(e) => update(idx, pair[1].key, toDot(e.target.value))}
+                                  className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </div>
                 {fields.filter((f) => f.type === "textarea").map((f) => readOnly ? (
                   <div key={String(f.key)} className="py-1">
@@ -647,8 +695,8 @@ export default function RegisterPage() {
               { key: "school_name", label: "학교명" },
               { key: "major", label: "전공" },
               { key: "degree", label: "학위" },
-              { key: "startDate", label: "입학일" },
-              { key: "endDate", label: "졸업일" },
+              { key: "startDate", label: "입학일", type: "date" },
+              { key: "endDate", label: "졸업일", type: "date" },
             ]}
           />
         </div>
@@ -663,7 +711,7 @@ export default function RegisterPage() {
             readOnly={readOnly}
             fields={[
               { key: "name", label: "자격면허명" },
-              { key: "acquisition_date", label: "취득일" },
+              { key: "acquisition_date", label: "취득일", type: "date" },
               { key: "issuer", label: "발급기관" },
               { key: "license_number", label: "면허번호" },
             ]}
@@ -682,8 +730,8 @@ export default function RegisterPage() {
               { key: "company", label: "회사명" },
               { key: "position", label: "직위" },
               { key: "task", label: "담당업무" },
-              { key: "startDate", label: "입사일" },
-              { key: "endDate", label: "퇴직일" },
+              { key: "startDate", label: "입사일", type: "date" },
+              { key: "endDate", label: "퇴직일", type: "date" },
               { key: "description", label: "상세 업무 / 프로젝트", type: "textarea" },
             ]}
           />
@@ -715,7 +763,7 @@ export default function RegisterPage() {
             emptyItem={emptyAppointment}
             readOnly={readOnly}
             fields={[
-              { key: "date", label: "발령일자" },
+              { key: "date", label: "발령일자", type: "date" },
               { key: "type", label: "발령구분" },
               { key: "position", label: "직위" },
               { key: "department", label: "소속부서" },
