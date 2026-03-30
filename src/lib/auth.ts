@@ -40,9 +40,10 @@ function sign(payload: string): string {
 }
 
 // 세션 쿠키 값 생성 (API Route에서 NextResponse에 직접 설정용)
+// base64url 사용: +/= 문자가 없어 쿠키 URL 인코딩 문제 방지
 export function buildSessionCookie(user: { id: number; role: string; name: string }) {
   const payload = JSON.stringify({ userId: user.id, role: user.role, name: user.name });
-  const encoded = Buffer.from(payload).toString("base64");
+  const encoded = Buffer.from(payload).toString("base64url");
   const signature = sign(encoded);
   return {
     name: "session",
@@ -63,7 +64,13 @@ export async function getSession(): Promise<Session | null> {
   if (signature !== expectedSig) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf-8"));
+    // base64url과 base64 모두 지원 (기존 세션 호환)
+    let payload;
+    try {
+      payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf-8"));
+    } catch {
+      payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf-8"));
+    }
     return payload as Session;
   } catch {
     return null;
