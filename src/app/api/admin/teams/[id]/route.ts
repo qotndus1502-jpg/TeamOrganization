@@ -18,7 +18,7 @@ export async function PUT(
 
   const { id } = await params;
   const teamId = Number(id);
-  const { name, locationId, description, imageUrl, imageStyle } = await request.json();
+  const { name, locationId, description, imageUrl, imageStyle, category } = await request.json();
 
   const team = await prisma.team.update({
     where: { id: teamId },
@@ -27,6 +27,7 @@ export async function PUT(
       description: description ?? undefined,
       imageUrl: imageUrl !== undefined ? imageUrl : undefined,
       imageStyle: imageStyle !== undefined ? imageStyle : undefined,
+      category: category !== undefined ? category : undefined,
     },
     include: { location: true },
   });

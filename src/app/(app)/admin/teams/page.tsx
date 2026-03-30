@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
 const COMPANIES = ["3사 통합관리", "남광토건", "극동건설", "금광기업"];
+const CATEGORIES = ["건축사업본부", "토목사업본부", "경영지원실", "기타"];
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES_LIST = ["팀원", "팀장", "부서장"];
 
@@ -19,6 +20,7 @@ interface Team {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  category: string | null;
   locationId: number;
   location: Location;
   _count: { employees: number };
@@ -51,6 +53,7 @@ export default function AdminTeamsPage() {
   const [teamName, setTeamName] = useState("");
   const [teamDesc, setTeamDesc] = useState("");
   const [teamImage, setTeamImage] = useState("");
+  const [teamCategory, setTeamCategory] = useState("");
 
   // 팀원 관리
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
@@ -86,7 +89,7 @@ export default function AdminTeamsPage() {
 
   const resetForm = () => {
     setSelCompany(""); setSelType("HQ"); setSelLocationId(""); setNewSiteName("");
-    setTeamName(""); setTeamDesc(""); setTeamImage(""); setEditId(null); setError("");
+    setTeamName(""); setTeamDesc(""); setTeamImage(""); setTeamCategory(""); setEditId(null); setError("");
   };
 
   // 팀 CRUD
@@ -110,7 +113,7 @@ export default function AdminTeamsPage() {
     }
     const url = editId ? `/api/admin/teams/${editId}` : "/api/admin/teams";
     const method = editId ? "PUT" : "POST";
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, locationId, description: teamDesc || null, imageUrl: teamImage || null }) });
+    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, locationId, description: teamDesc || null, imageUrl: teamImage || null, category: teamCategory || null }) });
     if (!res.ok) { setError((await res.json()).error); return; }
     resetForm(); setShowForm(false); load();
   };
@@ -119,7 +122,7 @@ export default function AdminTeamsPage() {
     setSelCompany(team.location.company); setSelType(team.location.type as "HQ" | "SITE");
     setSelLocationId(String(team.locationId)); setTeamName(team.name);
     setTeamDesc(team.description || ""); setTeamImage(team.imageUrl || "");
-    setEditId(team.id); setShowForm(true); setError("");
+    setTeamCategory(team.category || ""); setEditId(team.id); setShowForm(true); setError("");
   };
 
   const handleDeleteTeam = async (id: number) => {
@@ -329,8 +332,16 @@ export default function AdminTeamsPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none" placeholder="예: 서울 강남현장" />
               </div>
             )}
+            <div className="w-36">
+              <label className="block text-sm font-medium text-gray-700 mb-1"><span className="text-orange-500 mr-1">{selType === "SITE" ? "4" : "3"}</span>본부</label>
+              <select value={teamCategory} onChange={(e) => setTeamCategory(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none">
+                <option value="">선택</option>
+                {CATEGORIES.map((c) => (<option key={c} value={c}>{c}</option>))}
+              </select>
+            </div>
             <div className="flex-1 min-w-[140px]">
-              <label className="block text-sm font-medium text-gray-700 mb-1"><span className="text-orange-500 mr-1">{selType === "SITE" ? "4" : "3"}</span>팀명</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1"><span className="text-orange-500 mr-1">{selType === "SITE" ? "5" : "4"}</span>팀명</label>
               <input type="text" required value={teamName} disabled={!selCompany || (selType === "SITE" && !selLocationId)}
                 onChange={(e) => setTeamName(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none disabled:bg-gray-100" placeholder="예: 경영지원팀" />
@@ -364,6 +375,7 @@ export default function AdminTeamsPage() {
                 <tr>
                   <th className="text-left px-5 py-3 font-medium text-gray-600">구분</th>
                   <th className="text-left px-5 py-3 font-medium text-gray-600">소속</th>
+                  <th className="text-left px-5 py-3 font-medium text-gray-600">본부</th>
                   <th className="text-left px-5 py-3 font-medium text-gray-600">팀명</th>
                   <th className="text-left px-5 py-3 font-medium text-gray-600">인원</th>
                   <th className="text-right px-5 py-3 font-medium text-gray-600">액션</th>
@@ -378,6 +390,7 @@ export default function AdminTeamsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-gray-600">{team.location.name}</td>
+                    <td className="px-5 py-3 text-gray-600">{team.category || "—"}</td>
                     <td className="px-5 py-3 font-medium text-orange-500">{team.name}</td>
                     <td className="px-5 py-3 text-gray-600">{team._count.employees}명</td>
                     <td className="px-5 py-3 text-right space-x-2" onClick={(e) => e.stopPropagation()}>
