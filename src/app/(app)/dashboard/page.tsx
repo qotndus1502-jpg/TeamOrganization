@@ -258,8 +258,8 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
           transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .premium-card:hover {
-          transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 20px 40px rgba(249,115,22,0.35), 0 0 0 1px rgba(249,115,22,0.2);
+          transform: translateY(-2px) scale(1.01);
+          box-shadow: 0 12px 24px rgba(249,115,22,0.2), 0 0 0 1px rgba(249,115,22,0.15);
         }
       `}</style>
 
