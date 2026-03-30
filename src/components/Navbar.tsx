@@ -41,7 +41,7 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-between h-16 items-center">
-      <Link href={user ? `/dashboard?company=${encodeURIComponent("남광토건")}` : "/"} className="flex items-center gap-2.5 group">
+      <Link href={`/dashboard?company=${encodeURIComponent("남광토건")}`} className="flex items-center gap-2.5 group">
         <div className="w-8 h-8 bg-[#C1FD3C] rounded-lg flex items-center justify-center group-hover:bg-[#b0ec2b] transition">
           <svg className="w-4.5 h-4.5 text-[#2B3037]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
