@@ -319,8 +319,8 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                 )}
             </div>
             <div className="flex items-baseline gap-2">
-              <h2 className="text-xl font-black text-[#2B3037]" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>{employee.name}</h2>
-              <span className="text-base font-medium text-gray-400" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-base font-bold text-[#555]"> ({age})</span>}</span>
+              <h2 className="text-lg font-bold text-[#2B3037]">{employee.name}</h2>
+              <span className="text-lg font-bold text-gray-400">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-[#2B3037]"> ({age})</span>}</span>
             </div>
                       </div>
         </div>
