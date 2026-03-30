@@ -711,7 +711,7 @@ export default function TeamOrgChart({
                   onMouseLeave={() => setHoveredId(null)}
                 >
                   <div
-                    className="org-node w-60 h-60 rounded-full overflow-hidden relative flex items-center justify-center"
+                    className="org-node w-60 h-60 rounded-full overflow-hidden relative flex items-center justify-center bg-white"
                   >
                     <span className="relative z-10">
                       {leader.photoUrl ? (
