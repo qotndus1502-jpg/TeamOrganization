@@ -455,7 +455,10 @@ function DashboardContent() {
   const isAdmin = user?.role.includes("ADMIN");
 
   useEffect(() => {
-    fetch("/api/auth/me").then((r) => r.json()).then(setUser);
+    fetch("/api/auth/me").then((r) => r.json()).then((data) => {
+      if (!data) { window.location.href = "/login"; return; }
+      setUser(data);
+    });
   }, []);
 
   const loadTeams = useCallback(async () => {
