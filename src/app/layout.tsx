@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+
+const notoSansKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-noto-sans-kr",
+});
 
 export const metadata: Metadata = {
   title: "TeamWork",
@@ -13,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body className="bg-[#F5F5F0] min-h-screen font-sans">
+    <html lang="ko" className={notoSansKR.variable}>
+      <body className="bg-background min-h-screen font-sans">
         {children}
       </body>
     </html>
