@@ -122,33 +122,60 @@ function TeamSection({ title, teams, onSelect, isAdmin, onImageUpdate }: {
   );
 }
 
-function TreeNode({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`relative ${className}`}>{children}</div>;
-}
+// 브래킷 트리 라인: 부모 오른쪽 → 수평 → 수직 스파인 → 수평 → 자식 왼쪽
+function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
+  const rect = container.getBoundingClientRect();
+  svg.setAttribute("width", String(rect.width));
+  svg.setAttribute("height", String(rect.height));
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-function TreeConnector({ direction = "right" }: { direction?: "right" | "down" }) {
-  if (direction === "down") return <div className="w-px h-6 bg-gray-300 mx-auto" />;
-  return <div className="w-8 h-px bg-gray-300 flex-shrink-0" />;
-}
+  const line = (x1: number, y1: number, x2: number, y2: number) => {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    el.setAttribute("x1", String(x1)); el.setAttribute("y1", String(y1));
+    el.setAttribute("x2", String(x2)); el.setAttribute("y2", String(y2));
+    el.setAttribute("stroke", "#d1d5db"); el.setAttribute("stroke-width", "1.5");
+    svg.appendChild(el);
+  };
 
-function TreeBranch({ children }: { children: React.ReactNode }) {
-  const items = React.Children.toArray(children);
-  if (items.length === 0) return null;
-  return (
-    <div className="relative flex flex-col gap-0">
-      {/* 수직선 */}
-      {items.length > 1 && (
-        <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300" style={{ top: "50%" }} />
-      )}
-      {items.map((child, i) => (
-        <div key={i} className="relative flex items-center">
-          {/* 수평 연결선 */}
-          <div className="w-6 h-px bg-gray-300 flex-shrink-0" />
-          {child}
-        </div>
-      ))}
-    </div>
-  );
+  const connectParentToChildren = (parentEl: Element, childEls: Element[]) => {
+    if (childEls.length === 0) return;
+    const pr = parentEl.getBoundingClientRect();
+    const px = pr.right - rect.left;
+    const py = pr.top + pr.height / 2 - rect.top;
+
+    const childMids = childEls.map((el) => {
+      const cr = el.getBoundingClientRect();
+      return { x: cr.left - rect.left, y: cr.top + cr.height / 2 - rect.top };
+    });
+
+    const spineX = px + 24;
+    // 부모 → 스파인
+    line(px, py, spineX, py);
+
+    if (childEls.length === 1) {
+      // 1개면 직선
+      line(spineX, py, childMids[0].x, childMids[0].y);
+    } else {
+      // 수직 스파인
+      const minY = Math.min(...childMids.map((c) => c.y));
+      const maxY = Math.max(...childMids.map((c) => c.y));
+      line(spineX, minY, spineX, maxY);
+      // 각 자식으로 수평선
+      childMids.forEach((c) => { line(spineX, c.y, c.x, c.y); });
+    }
+  };
+
+  // 회사 → 소속
+  const companyEl = container.querySelector("[data-node='company']");
+  const locEls = Array.from(container.querySelectorAll("[data-node='location']"));
+  if (companyEl && locEls.length > 0) connectParentToChildren(companyEl, locEls);
+
+  // 소속 → 카테고리
+  locEls.forEach((locEl) => {
+    const locId = locEl.getAttribute("data-loc-id");
+    const catEls = Array.from(container.querySelectorAll(`[data-node='category'][data-parent='${locId}']`));
+    if (catEls.length > 0) connectParentToChildren(locEl, catEls);
+  });
 }
 
 function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
@@ -159,48 +186,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // SVG 라인 그리기
   useEffect(() => {
-    const svg = svgRef.current;
-    const container = containerRef.current;
-    if (!svg || !container) return;
-
-    const rect = container.getBoundingClientRect();
-    svg.setAttribute("width", String(rect.width));
-    svg.setAttribute("height", String(rect.height));
-
-    // 기존 라인 제거
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-
-    const drawLine = (from: Element, to: Element) => {
-      const fr = from.getBoundingClientRect();
-      const tr = to.getBoundingClientRect();
-      const x1 = fr.right - rect.left;
-      const y1 = fr.top + fr.height / 2 - rect.top;
-      const x2 = tr.left - rect.left;
-      const y2 = tr.top + tr.height / 2 - rect.top;
-      const midX = (x1 + x2) / 2;
-
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute("d", `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`);
-      path.setAttribute("stroke", "#d1d5db");
-      path.setAttribute("stroke-width", "1.5");
-      path.setAttribute("fill", "none");
-      svg.appendChild(path);
-    };
-
-    // 회사 → 소속
-    const companyEl = container.querySelector("[data-node='company']");
-    const locEls = container.querySelectorAll("[data-node='location']");
-    locEls.forEach((el) => { if (companyEl) drawLine(companyEl, el); });
-
-    // 소속 → 카테고리
-    locEls.forEach((locEl) => {
-      const locId = locEl.getAttribute("data-loc-id");
-      const catEls = container.querySelectorAll(`[data-node='category'][data-parent='${locId}']`);
-      catEls.forEach((catEl) => drawLine(locEl, catEl));
-    });
-
+    if (svgRef.current && containerRef.current) {
+      drawBracketLines(svgRef.current, containerRef.current);
+    }
   });
 
   const allLocs = locations.filter((l) => l.categories.length > 0 || l.teams.length > 0);
@@ -209,9 +198,9 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
     <div ref={containerRef} className="relative p-10 min-w-fit">
       <svg ref={svgRef} className="absolute top-0 left-0 pointer-events-none" style={{ zIndex: 0 }} />
 
-      <div className="relative flex items-start gap-0" style={{ zIndex: 1 }}>
-        {/* 회사 */}
-        <div className="flex-shrink-0 flex items-center" style={{ minHeight: allLocs.length > 1 ? `${allLocs.length * 200}px` : "auto", alignItems: "center" }}>
+      <div className="relative flex items-start" style={{ zIndex: 1 }}>
+        {/* 회사 — 소속 그룹 중앙 정렬 */}
+        <div className="flex-shrink-0 self-center">
           <div data-node="company" className="bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl px-8 py-6 shadow-[0_4px_24px_rgba(0,0,0,0.06)] text-center">
             <span className="px-2.5 py-0.5 rounded-full bg-[#111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
             <h2 className="text-xl font-bold text-[#111] mt-2">{companyFilter || "남광토건"}</h2>
@@ -219,11 +208,11 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
         </div>
 
         {/* 소속 열 */}
-        <div className="flex-shrink-0 flex flex-col justify-center gap-12 ml-16">
+        <div className="flex flex-col gap-10 ml-16">
           {allLocs.map((loc) => (
-            <div key={loc.label} className="flex items-start gap-0">
-              {/* 소속 카드 */}
-              <div className="flex-shrink-0 flex items-center" style={{ minHeight: loc.categories.length > 1 ? `${loc.categories.length * 120}px` : "auto", alignItems: "center" }}>
+            <div key={loc.label} className="flex items-start">
+              {/* 소속 — 카테고리 그룹 중앙 정렬 */}
+              <div className="flex-shrink-0 self-center">
                 <button
                   data-node="location" data-loc-id={loc.label}
                   onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
@@ -235,11 +224,11 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
               </div>
 
               {/* 카테고리 열 */}
-              <div className="flex-shrink-0 flex flex-col justify-center gap-8 ml-14">
+              <div className="flex flex-col gap-6 ml-16">
                 {loc.categories.length > 0 ? loc.categories.map((cat) => (
-                  <div key={cat.label} className="flex items-start gap-0">
-                    {/* 카테고리 카드 */}
-                    <div className="flex-shrink-0 flex items-center" style={{ minHeight: cat.teams.length > 3 ? `${Math.ceil(cat.teams.length / 3) * 80}px` : "auto", alignItems: "center" }}>
+                  <div key={cat.label} className="flex items-center gap-0">
+                    {/* 카테고리 — 팀 그룹 중앙 정렬 */}
+                    <div className="flex-shrink-0 self-center">
                       <button
                         data-node="category" data-cat-id={`${loc.label}-${cat.label}`} data-parent={loc.label}
                         onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
@@ -252,7 +241,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
 
                     {/* 팀 그리드 */}
                     {cat.teams.length > 0 && (
-                      <div className="flex flex-col gap-2 ml-12">
+                      <div className="flex flex-col gap-2 ml-10">
                         {(() => {
                           const rows = [];
                           for (let i = 0; i < cat.teams.length; i += 3) {
@@ -262,7 +251,6 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
                             <div key={ri} className="flex gap-2">
                               {row.map((team) => (
                                 <button key={team.id}
-                                  data-node="team" data-parent={`${loc.label}-${cat.label}`}
                                   onClick={() => onSelectTeam(team.id)}
                                   className="premium-card relative rounded-2xl p-4 text-left overflow-hidden min-w-[130px] min-h-[80px] flex flex-col justify-between"
                                   style={{ background: "linear-gradient(135deg, #C1FD3C 60%, #d9fea0 100%)" }}>
