@@ -375,7 +375,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       </p>
                       {(a.description || (i === 0 && ((extra.taskDetail?.trim()) || extra.jobRole))) && (
                         <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-[#2B3037]/15" : "border-t border-gray-200"}`}>
-                          {i === 0 && ([extra.taskDetail, extra.jobRole].filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => (
+                          {i === 0 && ((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => (
                             <li key={`task-${j}`} className="text-base font-bold text-[#2B3037] flex items-center gap-2.5">
                               <span className="w-2 h-2 rounded-full bg-[#2B3037] flex-shrink-0" />
                               {line}
@@ -395,7 +395,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       <p className="text-base font-bold text-[#2B3037]">{employee.team?.name || "—"} | {employee.joinDate ? `${fmtDateShort(employee.joinDate)} ~ 현재` : "—"}</p>
                       {((extra.taskDetail?.trim()) || extra.jobRole) && (
                         <ul className="mt-4 space-y-2 border-t border-[#2B3037]/15 pt-4">
-                          {([extra.taskDetail, extra.jobRole].filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => (
+                          {((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => (
                             <li key={i} className="text-sm text-[#2B3037]/70 flex items-center gap-2.5">
                               <span className="w-2 h-2 rounded-full bg-green-600 flex-shrink-0" />
                               {line}
