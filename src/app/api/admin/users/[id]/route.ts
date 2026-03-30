@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { auditLog } from "@/lib/audit";
 
 // PUT: update user role / approve or reject pending role
 export async function PUT(
@@ -36,6 +37,13 @@ export async function PUT(
       where: { id: userId },
       data: { role: user.pendingRole, pendingRole: null },
     });
+    await auditLog({
+      action: "ROLE_APPROVE",
+      userId: session.userId,
+      targetType: "User",
+      targetId: userId,
+      detail: JSON.stringify({ from: user.role, to: user.pendingRole }),
+    });
     return NextResponse.json({ id: updated.id, role: updated.role, pendingRole: updated.pendingRole });
   }
 
@@ -44,6 +52,13 @@ export async function PUT(
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { pendingRole: null },
+    });
+    await auditLog({
+      action: "ROLE_REJECT",
+      userId: session.userId,
+      targetType: "User",
+      targetId: userId,
+      detail: JSON.stringify({ rejectedRole: user.pendingRole }),
     });
     return NextResponse.json({ id: updated.id, role: updated.role, pendingRole: updated.pendingRole });
   }
@@ -57,6 +72,13 @@ export async function PUT(
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { role: newRole, pendingRole: null },
+    });
+    await auditLog({
+      action: "ROLE_CHANGE",
+      userId: session.userId,
+      targetType: "User",
+      targetId: userId,
+      detail: JSON.stringify({ from: user.role, to: newRole }),
     });
     return NextResponse.json({ id: updated.id, role: updated.role, pendingRole: updated.pendingRole });
   }

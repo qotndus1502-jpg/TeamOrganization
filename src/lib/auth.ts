@@ -3,12 +3,20 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createHmac } from "crypto";
 
-const SECRET = process.env.SESSION_SECRET || "fallback-dev-secret";
+// [보안] 폴백 시크릿 제거 — 환경변수 필수
+function getSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error("SESSION_SECRET 환경변수가 설정되지 않았습니다. 서버를 시작할 수 없습니다.");
+  }
+  return secret;
+}
 
+// [보안] secure 플래그를 프로덕션에서 활성화, sameSite strict 적용
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: false,
-  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
   path: "/",
   maxAge: 60 * 60 * 24 * 7, // 7일
 };
@@ -28,7 +36,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 function sign(payload: string): string {
-  return createHmac("sha256", SECRET).update(payload).digest("hex");
+  return createHmac("sha256", getSecret()).update(payload).digest("hex");
 }
 
 // 세션 쿠키 값 생성 (API Route에서 NextResponse에 직접 설정용)
@@ -80,4 +88,21 @@ export async function requireAdmin(): Promise<Session> {
   const session = await requireAuth();
   if (session.role !== "ADMIN") redirect("/");
   return session;
+}
+
+// [보안] 비밀번호 정책 검증 (KISA 기준: 8자 이상, 영문+숫자+특수문자 조합)
+export function validatePassword(password: string): string | null {
+  if (password.length < 8) {
+    return "비밀번호는 8자 이상이어야 합니다.";
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    return "비밀번호에 영문자를 포함해야 합니다.";
+  }
+  if (!/\d/.test(password)) {
+    return "비밀번호에 숫자를 포함해야 합니다.";
+  }
+  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+    return "비밀번호에 특수문자를 포함해야 합니다.";
+  }
+  return null;
 }

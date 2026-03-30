@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import TeamOrgChart from "@/components/TeamOrgChart";
 
@@ -122,6 +122,102 @@ function TeamSection({ title, teams, onSelect, isAdmin, onImageUpdate }: {
   );
 }
 
+function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
+  companyFilter: string | null;
+  locations: { label: string; teams: Team[]; categories: { label: string; teams: Team[] }[] }[];
+  onSelectTeam: (id: number) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const companyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const company = companyRef.current;
+    if (!container || !company) return;
+    const nodes = container.querySelectorAll('[data-loc-node]');
+    if (nodes.length < 2) return;
+    const containerRect = container.getBoundingClientRect();
+    const first = nodes[0].getBoundingClientRect();
+    const last = nodes[nodes.length - 1].getBoundingClientRect();
+    const midY = (first.top + first.height / 2 + last.top + last.height / 2) / 2;
+    const companyH = company.offsetHeight;
+    const targetTop = midY - containerRect.top - companyH / 2;
+    company.style.position = "relative";
+    company.style.top = `${targetTop}px`;
+  });
+
+  return (
+    <div ref={containerRef} className="flex justify-center p-10 gap-0">
+      {/* 회사 카드 */}
+      <div ref={companyRef} className="flex-shrink-0">
+        <div className="flex items-center">
+          <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[32px] px-10 py-8 shadow-[0_8px_40px_rgba(167,199,200,0.2)] text-center overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden rounded-[32px]">
+              <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
+            </div>
+            <div className="relative z-10">
+              <span className="px-3 py-1 rounded-full bg-[#111111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
+              <h2 className="text-2xl font-bold text-[#111111] mt-3">{companyFilter || "남광토건"}</h2>
+            </div>
+          </div>
+          <div className="w-12 h-px bg-gradient-to-r from-gray-400 to-gray-300" />
+        </div>
+      </div>
+
+      {/* 본사/현장 열 */}
+      <div className="flex flex-col">
+        {locations.map((loc, locIdx) => (
+          <div key={loc.label} className={`flex items-center gap-0 ${locIdx > 0 ? "mt-14" : ""}`}>
+            <div className="flex-shrink-0" data-loc-node>
+              <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[24px] px-10 py-8 shadow-[0_4px_24px_rgba(167,199,200,0.15)] text-center overflow-hidden">
+                <div className="absolute inset-0 overflow-hidden rounded-[24px]">
+                  <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
+                </div>
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-bold text-[#111111]">{loc.label}</h2>
+                  <p className="text-base text-[#999999] mt-1">{loc.teams.length}팀</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex-shrink-0"><div className="w-8 h-px bg-gray-400" /></div>
+            <div className="flex flex-col gap-8">
+              {loc.categories.length > 0 ? loc.categories.map((cat) => (
+                <div key={cat.label} className="flex items-center gap-0">
+                  <div className="flex-shrink-0">
+                    <div className="bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl px-6 py-4 shadow-[0_2px_16px_rgba(167,199,200,0.1)] text-center min-w-[120px]">
+                      <p className="text-xl font-bold text-[#111111]">{cat.label}</p>
+                      <p className="text-base text-[#999999] mt-1">{cat.teams.length}팀</p>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0"><div className="w-6 h-px bg-gray-400" /></div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {cat.teams.map((team) => (
+                      <button key={team.id} onClick={() => onSelectTeam(team.id)}
+                        className="premium-card relative rounded-[20px] p-5 text-left overflow-hidden group min-h-[100px] flex flex-col justify-between"
+                        style={{ background: "linear-gradient(135deg, #C1FD3C 60%, #d9fea0 100%)" }}>
+                        <div className="relative z-10 flex flex-col justify-between h-full gap-3">
+                          <h3 className="text-xl font-extrabold text-[#2B3037] leading-tight">{team.name}</h3>
+                          <div className="flex items-center justify-between">
+                            <span className="px-3 py-1 rounded-full bg-white text-base font-bold text-[#2B3037]">{team._count.employees}명</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )) : (
+                <div className="bg-white/50 backdrop-blur-[20px] border border-white/50 rounded-[20px] p-6 text-center text-sm text-[#999999]">
+                  등록된 팀이 없습니다
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TeamListView({ teams, companyFilter, onSelectTeam }: {
   teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void;
 }) {
@@ -146,7 +242,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
   ];
 
   return (
-    <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]" style={{ background: "#EEF2F6" }}>
+    <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]" style={{ background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" }}>
       <style>{`
         @keyframes cardSweep {
           0% { transform: translateX(-100%) rotate(25deg); }
@@ -161,97 +257,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
         }
       `}</style>
 
-      <div className="flex justify-center p-10 gap-0">
-
-        {/* 왼쪽: 회사 + 연결선 (본사/현장 세로 중앙) */}
-        <div className="flex-shrink-0 flex flex-col justify-center">
-          <div className="flex items-center">
-            <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[32px] px-10 py-8 shadow-[0_8px_40px_rgba(167,199,200,0.2)] text-center overflow-hidden">
-              <div className="absolute inset-0 overflow-hidden rounded-[32px]">
-                <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
-              </div>
-              <div className="relative z-10">
-                <span className="px-3 py-1 rounded-full bg-[#111111] text-white text-[10px] font-semibold tracking-wider uppercase">Company</span>
-                <h2 className="text-2xl font-bold text-[#111111] mt-3">{companyFilter || "남광토건"}</h2>
-              </div>
-            </div>
-            <div className="w-12 h-px bg-gradient-to-r from-gray-400 to-gray-300" />
-          </div>
-        </div>
-
-        {/* 2단: 본사/현장 → 3단: 카테고리 → 4단: 팀 */}
-        <div className="flex flex-col gap-14">
-          {locations.map((loc) => (
-            <div key={loc.label} className="flex items-center gap-0">
-              {/* 본사/현장 노드 */}
-              <div className="flex-shrink-0">
-                <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[24px] px-10 py-8 shadow-[0_4px_24px_rgba(167,199,200,0.15)] text-center overflow-hidden">
-                  <div className="absolute inset-0 overflow-hidden rounded-[24px]">
-                    <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
-                  </div>
-                  <div className="relative z-10">
-                    <h2 className="text-2xl font-bold text-[#111111]">{loc.label}</h2>
-                    <p className="text-base text-[#999999] mt-1">{loc.teams.length}팀</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 연결선 2→3 */}
-              <div className="flex-shrink-0">
-                <div className="w-8 h-px bg-gray-400" />
-              </div>
-
-              {/* 카테고리 → 팀 */}
-              <div className="flex flex-col gap-8">
-                {loc.categories.length > 0 ? loc.categories.map((cat) => (
-                  <div key={cat.label} className="flex items-center gap-0">
-                    {/* 카테고리 노드 */}
-                    <div className="flex-shrink-0">
-                      <div className="bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl px-6 py-4 shadow-[0_2px_16px_rgba(167,199,200,0.1)] text-center min-w-[120px]">
-                        <p className="text-base font-bold text-[#111111]">{cat.label}</p>
-                        <p className="text-xs text-[#999999] mt-0.5">{cat.teams.length}팀</p>
-                      </div>
-                    </div>
-
-                    {/* 연결선 3→4 */}
-                    <div className="flex-shrink-0">
-                      <div className="w-6 h-px bg-gray-400" />
-                    </div>
-
-                    {/* 팀 카드 그리드 */}
-                    <div className="grid grid-cols-3 gap-3">
-                      {cat.teams.map((team) => (
-                        <button
-                          key={team.id}
-                          onClick={() => onSelectTeam(team.id)}
-                          className="premium-card relative rounded-[20px] p-5 text-left overflow-hidden group min-h-[100px] flex flex-col justify-between"
-                          style={{ background: "linear-gradient(135deg, #F97316 0%, #EA580C 50%, #DC2626 100%)" }}
-                        >
-                          {/* 장식 원 */}
-                          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
-                          <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-white/5" />
-                          <div className="relative z-10 flex flex-col justify-between h-full gap-3">
-                            <h3 className="text-xl font-extrabold text-white leading-tight">{team.name}</h3>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-white/50 font-medium uppercase tracking-wider">Members</span>
-                              <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-base font-bold text-white">{team._count.employees}명</span>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )) : (
-                  <div className="bg-white/50 backdrop-blur-[20px] border border-white/50 rounded-[20px] p-6 text-center text-sm text-[#999999]">
-                    등록된 팀이 없습니다
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-      </div>
+      <CompanyTreeLayout companyFilter={companyFilter} locations={locations} onSelectTeam={onSelectTeam} />
     </div>
   );
 }
@@ -333,6 +339,13 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState<"HQ" | "SITE">("HQ");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [employeePanelOpen, setEmployeePanelOpen] = useState(false);
+
+  // URL의 team 파라미터 변경 시 반영
+  useEffect(() => {
+    if (teamParam) {
+      setSelectedTeamId(Number(teamParam));
+    }
+  }, [teamParam]);
   const [slidePhase, setSlidePhase] = useState(0); // 0=정상, 1=나감, 2=들어옴
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
@@ -341,7 +354,7 @@ function DashboardContent() {
     setTimeout(() => {
       action();
       setSlidePhase(2);
-    }, 400);
+    }, 250);
   };
 
   // phase 2가 되면 바로 0으로 전환 (들어오는 애니메이션 시작)
@@ -368,11 +381,26 @@ function DashboardContent() {
       ? `/api/teams?company=${encodeURIComponent(companyFilter)}`
       : "/api/teams";
     const mainTeams: Team[] = await fetch(url).then((r) => r.json());
+
+    // "나의 팀" 파라미터로 진입 시, 해당 팀이 목록에 없으면 전체에서 추가
+    if (teamParam) {
+      const tid = Number(teamParam);
+      const found = mainTeams.find((t) => t.id === tid);
+      if (!found) {
+        const allRes: Team[] = await fetch("/api/teams").then((r) => r.json());
+        const myTeam = allRes.find((t) => t.id === tid);
+        if (myTeam) mainTeams.push(myTeam);
+        setAllTeams(allRes);
+        setTeams(mainTeams);
+        return;
+      }
+    }
+
     setTeams(mainTeams);
 
     // 부서이동용 전체 팀 목록
     fetch("/api/teams").then((r) => r.json()).then(setAllTeams);
-  }, [companyFilter]);
+  }, [companyFilter, teamParam]);
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 
@@ -427,8 +455,8 @@ function DashboardContent() {
     <div
       className="h-full overflow-hidden relative origin-center"
       style={{
-        transition: slidePhase === 2 ? "none" : "transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease",
-        transform: slidePhase === 1 ? "scale(1.3)" : slidePhase === 2 ? "scale(0.9)" : "scale(1)",
+        transition: slidePhase === 2 ? "none" : "transform 0.3s ease-out, opacity 0.3s ease-out",
+        transform: slidePhase === 1 ? "translateX(-30px)" : slidePhase === 2 ? "translateX(30px)" : "translateX(0)",
         opacity: slidePhase === 0 ? 1 : 0,
       }}
     >
@@ -446,9 +474,9 @@ function DashboardContent() {
       >
         <div className="p-5 h-full flex flex-col">
           <div className="mb-5">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">
-              {companyFilter || "전체"} 팀 목록
-            </h2>
+            <div className="px-3 pb-4 mb-2 border-b border-gray-200">
+              <h2 className="text-2xl font-black text-gray-900">{companyFilter || "전체"} 팀 목록</h2>
+            </div>
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mt-3">
               <button
                 onClick={() => setActiveTab("HQ")}
@@ -468,23 +496,20 @@ function DashboardContent() {
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto space-y-1.5">
+          <div className="flex-1 overflow-y-auto space-y-0.5">
             {filteredTeams.map((team) => (
               <button
                 key={team.id}
                 onClick={() => handleSelectTeam(team.id)}
-                className={`w-full p-3 rounded-xl text-left transition ${
+                className={`w-full flex items-center gap-3.5 px-3 py-2 rounded-xl text-left transition-all duration-200 ${
                   selectedTeamId === team.id
-                    ? "bg-gray-100 shadow-sm"
-                    : "hover:bg-gray-50"
+                    ? "bg-gray-100 border border-gray-200"
+                    : "hover:bg-[#faf7f2] border border-transparent"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-gray-900 text-sm">{team.name}</div>
-                    <span className="text-xs text-gray-400">{team.location.name}</span>
-                  </div>
-                  <span className="text-xs text-gray-400 font-medium bg-gray-100 px-2 py-0.5 rounded-full">{team._count.employees}명</span>
+                <div className="min-w-0 flex-1 flex items-baseline gap-2">
+                  <p className={`text-lg font-semibold truncate ${selectedTeamId === team.id ? "text-gray-900" : "text-gray-700"}`}>{team.name}</p>
+                  <p className={`text-sm flex-shrink-0 ${selectedTeamId === team.id ? "text-gray-500" : "text-gray-400"}`}>{team._count.employees}명</p>
                 </div>
               </button>
             ))}

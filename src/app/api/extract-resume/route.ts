@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI, SchemaType, type Schema } from "@google/generative-ai";
+import { getSession } from "@/lib/auth";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -119,6 +120,12 @@ const SYSTEM_PROMPT = `당신은 기업의 인사부서에서 근무하는 "인�
 
 export async function POST(request: NextRequest) {
   try {
+    // [보안] 인증 확인
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -137,6 +144,12 @@ export async function POST(request: NextRequest) {
     // PDF를 base64로 변환
     const bytes = await file.arrayBuffer();
     const base64 = Buffer.from(bytes).toString("base64");
+
+    // [보안] PDF 매직넘버 검증
+    const buffer = Buffer.from(bytes);
+    if (buffer.length < 5 || buffer.toString("utf-8", 0, 5) !== "%PDF-") {
+      return NextResponse.json({ error: "유효한 PDF 파일이 아닙니다." }, { status: 400 });
+    }
 
     // Gemini Flash 호출
     const model = genAI.getGenerativeModel({

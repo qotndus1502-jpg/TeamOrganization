@@ -88,8 +88,8 @@ function EditableSection<T extends Record<string, string>>({
               <div className="flex-1 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   {fields.filter((f) => f.type !== "textarea").map((f) => readOnly ? (
-                    <div key={String(f.key)} className="px-2 py-1.5 text-sm text-gray-900">
-                      <span className="text-xs text-gray-400">{f.label}: </span>
+                    <div key={String(f.key)} className={`px-2 py-1.5 text-gray-900 ${String(f.key) === "school_name" ? "text-xl font-bold col-span-2" : "text-sm"}`}>
+                      {String(f.key) !== "school_name" && <span className="text-xs text-gray-400">{f.label}: </span>}
                       {item[f.key] || "-"}
                     </div>
                   ) : (
@@ -208,7 +208,6 @@ export default function RegisterPage() {
         const empRes = await fetch(`/api/employees/${data.employeeId}`);
         const emp = await empRes.json();
         // resumeData에서 배열 데이터 복원
-        let extra: Record<string, string> = {};
         if (emp.resumeData) {
           try {
             const rd = JSON.parse(emp.resumeData);
@@ -217,7 +216,6 @@ export default function RegisterPage() {
             if (rd.experience?.length) setExperience(rd.experience.map((e: Partial<Experience>) => ({ ...emptyExperience(), ...e })));
             if (rd.familyRelations?.length) setFamilyRelations(rd.familyRelations.map((f: Partial<FamilyRelation>) => ({ ...emptyFamily(), ...f })));
             if (rd.appointmentHistory?.length) setAppointmentHistory(rd.appointmentHistory.map((a: Partial<Appointment>) => ({ ...emptyAppointment(), ...a })));
-            if (rd.extra) extra = rd.extra;
           } catch { /* ignore parse error */ }
         }
 
@@ -232,16 +230,16 @@ export default function RegisterPage() {
           role: emp.role || "",
           teamId: String(emp.teamId),
           joinDate: emp.joinDate || "",
-          birthDate: extra.birthDate || "",
-          address: extra.address || "",
-          jobCategory: extra.jobCategory || "",
-          jobRole: extra.jobRole || "",
-          employmentType: extra.employmentType || "",
-          entryType: extra.entryType || "",
-          specialty: extra.specialty || "",
-          hobby: extra.hobby || "",
-          taskDetail: extra.taskDetail || "",
-          skills: extra.skills || "",
+          birthDate: emp.birthDate || "",
+          address: emp.address || "",
+          jobCategory: emp.jobCategory || "",
+          jobRole: emp.jobRole || "",
+          employmentType: emp.employmentType || "",
+          entryType: emp.entryType || "",
+          specialty: emp.specialty || "",
+          hobby: emp.hobby || "",
+          taskDetail: emp.taskDetail || "",
+          skills: emp.skills || "",
         });
         setResumePath(emp.resumePath || null);
         setPhotoUrl(emp.photoUrl || null);
@@ -309,7 +307,6 @@ export default function RegisterPage() {
 
     const resumeDataJson = JSON.stringify({
       education, certifications, experience, familyRelations, appointmentHistory,
-      extra: { birthDate: form.birthDate, address: form.address, jobCategory: form.jobCategory, jobRole: form.jobRole, employmentType: form.employmentType, entryType: form.entryType, specialty: form.specialty, hobby: form.hobby, taskDetail: form.taskDetail, skills: form.skills },
     });
 
     const body = {
@@ -422,10 +419,17 @@ export default function RegisterPage() {
                     setPhotoUploading(true);
                     const fd = new FormData();
                     fd.append("file", file);
-                    const res = await fetch("/api/upload/photo", { method: "POST", body: fd });
-                    if (res.ok) {
-                      const { url } = await res.json();
-                      setPhotoUrl(url);
+                    try {
+                      const res = await fetch("/api/upload/photo", { method: "POST", body: fd });
+                      if (res.ok) {
+                        const { url } = await res.json();
+                        setPhotoUrl(url);
+                      } else {
+                        const err = await res.json().catch(() => ({ error: "업로드 실패" }));
+                        alert(err.error || "사진 업로드에 실패했습니다.");
+                      }
+                    } catch {
+                      alert("사진 업로드 중 오류가 발생했습니다.");
                     }
                     setPhotoUploading(false);
                     e.target.value = "";

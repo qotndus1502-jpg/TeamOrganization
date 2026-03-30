@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // 사용자 계정
@@ -41,26 +42,48 @@ model Team {
   employees   Employee[]
 }
 
+// [보안] 감사 로그
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String   // "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | "ROLE_CHANGE" 등
+  userId     Int      // 수행한 사용자 ID
+  targetType String   // "Employee" | "Team" | "User" | "Location"
+  targetId   Int      // 대상 레코드 ID
+  detail     String?  // 추가 상세 정보 (JSON)
+  createdAt  DateTime @default(now())
+}
+
 // 직원
 model Employee {
-  id         Int      @id @default(autoincrement())
-  name       String
-  nameEn     String?  // 영어 이름
-  email      String   @unique
-  phone      String?
-  phoneWork  String?  // 회사 번호
-  emailWork  String?  // 회사 이메일
-  position   String   // 직급: 사원, 대리, 과장, 차장, 부장
-  role       String   // 직책: 팀원, 팀장, 부서장
-  teamId     Int
-  team       Team     @relation(fields: [teamId], references: [id])
-  resumePath String?  // 이력서 PDF 파일 경로
-  photoUrl   String?  // 프로필 사진 URL
-  joinDate   String?  // 입사일
-  resumeData String?  // 이력서 추출 데이터 (JSON)
-  status     String   @default("ACTIVE") // "ACTIVE" | "INACTIVE"
-  userId     Int?     @unique
-  user       User?    @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  name           String
+  nameEn         String?  // 영어 이름
+  email          String   @unique
+  phone          String?
+  phoneWork      String?  // 회사 번호
+  emailWork      String?  // 회사 이메일
+  position       String   // 직급: 사원, 대리, 과장, 차장, 부장
+  role           String   // 직책: 팀원, 팀장, 부서장
+  teamId         Int
+  team           Team     @relation(fields: [teamId], references: [id])
+  resumePath     String?  // 이력서 PDF 파일 경로
+  photoUrl       String?  // 프로필 사진 URL
+  joinDate       String?  // 입사일
+  resumeData     String?  // 이력서 추출 데이터 (JSON)
+  status         String   @default("ACTIVE") // "ACTIVE" | "INACTIVE"
+  userId         Int?     @unique
+  user           User?    @relation(fields: [userId], references: [id])
+  // 기본 인사정보 추가 필드
+  birthDate      String?  // 생년월일
+  address        String?  // 주소
+  jobCategory    String?  // 직종 (예: 건축)
+  jobRole        String?  // 직무 (예: 공사관리)
+  employmentType String?  // 직원구분 (예: 일반직)
+  entryType      String?  // 입사경위
+  specialty      String?  // 특기
+  hobby          String?  // 취미
+  taskDetail     String?  // 상세 업무
+  skills         String?  // 스킬 (콤마 구분)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

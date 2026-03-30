@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { randomUUID } from "crypto";
+import { getSession } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+
+const BUCKET = "insa-uploads";
 
 export async function POST(request: NextRequest) {
+  // [보안] 인증 확인
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "인증이 필요합니다." }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
 
@@ -10,7 +19,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "파일이 없습니다." }, { status: 400 });
   }
 
-  // PDF만 허용
+  // MIME 타입 검사
   if (file.type !== "application/pdf") {
     return NextResponse.json({ error: "PDF 파일만 업로드 가능합니다." }, { status: 400 });
   }
@@ -23,17 +32,33 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  // 고유한 파일명 생성
-  const timestamp = Date.now();
-  const sanitizedName = file.name.replace(/[^a-zA-Z0-9가-힣._-]/g, "_");
-  const fileName = `${timestamp}_${sanitizedName}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  const filePath = path.join(uploadDir, fileName);
+  // [보안] PDF 매직넘버 검증 (%PDF-)
+  if (buffer.length < 5 || buffer.toString("utf-8", 0, 5) !== "%PDF-") {
+    return NextResponse.json({ error: "유효한 PDF 파일이 아닙니다." }, { status: 400 });
+  }
 
-  await writeFile(filePath, buffer);
+  // [보안] 랜덤 파일명 사용
+  const fileName = `resumes/${randomUUID()}.pdf`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(fileName, buffer, {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Supabase upload error:", error);
+    return NextResponse.json({ error: "파일 업로드에 실패했습니다." }, { status: 500 });
+  }
+
+  // signed URL 생성 (1년 유효)
+  const { data: urlData } = await supabase.storage
+    .from(BUCKET)
+    .createSignedUrl(fileName, 60 * 60 * 24 * 365);
 
   return NextResponse.json({
-    path: `/uploads/${fileName}`,
+    path: urlData?.signedUrl || fileName,
     name: file.name,
   });
 }

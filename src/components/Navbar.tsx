@@ -11,6 +11,7 @@ interface User {
   pendingRole: string | null;
   hasEmployee: boolean;
   teamId: number | null;
+  teamCompany: string | null;
 }
 
 export default function Navbar() {
@@ -41,8 +42,8 @@ export default function Navbar() {
   return (
     <div className="flex justify-between h-16 items-center">
       <Link href="/" className="flex items-center gap-2.5 group">
-        <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:bg-gray-700 transition">
-          <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-8 h-8 bg-[#C1FD3C] rounded-lg flex items-center justify-center group-hover:bg-[#b0ec2b] transition">
+          <svg className="w-4.5 h-4.5 text-[#2B3037]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -56,8 +57,8 @@ export default function Navbar() {
       <div className="flex items-center gap-5">
         {user ? (
           <>
-            {user.role === "EMPLOYEE" && user.teamId && (
-              <Link href={`/dashboard?company=${encodeURIComponent("남광토건")}&team=${user.teamId}`} className="text-gray-600 hover:text-gray-900 font-medium text-sm">
+            {user.teamId && (
+              <Link href={`/dashboard?company=${encodeURIComponent(user.teamCompany || "")}&team=${user.teamId}`} className="text-gray-600 hover:text-gray-900 font-medium text-sm">
                 나의 팀
               </Link>
             )}

@@ -119,11 +119,11 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 (6자 이상)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 (8자 이상, 영문+숫자+특수문자)</label>
           <input
             type="password"
             required
-            minLength={6}
+            minLength={8}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"

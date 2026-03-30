@@ -10,7 +10,7 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    include: { employee: { select: { id: true, teamId: true } } },
+    include: { employee: { select: { id: true, teamId: true, team: { select: { location: { select: { company: true } } } } } } },
   });
 
   if (!user) {
@@ -26,5 +26,6 @@ export async function GET() {
     hasEmployee: !!user.employee,
     employeeId: user.employee?.id || null,
     teamId: user.employee?.teamId || null,
+    teamCompany: user.employee?.team?.location?.company || null,
   });
 }

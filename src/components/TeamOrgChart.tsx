@@ -18,6 +18,16 @@ interface Employee {
   photoUrl: string | null;
   resumeData: string | null;
   team?: { name: string; location: { name: string; company: string } };
+  birthDate?: string | null;
+  address?: string | null;
+  jobCategory?: string | null;
+  jobRole?: string | null;
+  employmentType?: string | null;
+  entryType?: string | null;
+  specialty?: string | null;
+  hobby?: string | null;
+  taskDetail?: string | null;
+  skills?: string | null;
 }
 
 interface ResumeExtra {
@@ -129,7 +139,19 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
 /* ── 우측 프로필 대시보드 (SalesMonk 스타일) ── */
 function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () => void }) {
   const parsed = parseResumeData(employee.resumeData);
-  const { education, certifications, extra } = parsed;
+  const { education, certifications } = parsed;
+  const extra = {
+    birthDate: employee.birthDate || undefined,
+    address: employee.address || undefined,
+    jobCategory: employee.jobCategory || undefined,
+    jobRole: employee.jobRole || undefined,
+    employmentType: employee.employmentType || undefined,
+    entryType: employee.entryType || undefined,
+    specialty: employee.specialty || undefined,
+    hobby: employee.hobby || undefined,
+    taskDetail: employee.taskDetail || undefined,
+    skills: employee.skills || undefined,
+  };
   const experience = [...parsed.experience].sort((a, b) => {
     const dateA = (a.period || "").replace(/\./g, "-");
     const dateB = (b.period || "").replace(/\./g, "-");
@@ -140,6 +162,19 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
     const dateB = (b.date || "").replace(/\./g, "-");
     return dateB.localeCompare(dateA);
   });
+  // 만 나이 계산
+  let age: number | null = null;
+  if (extra.birthDate) {
+    const bd = extra.birthDate.replace(/\./g, "-");
+    const birth = new Date(bd);
+    if (!isNaN(birth.getTime())) {
+      const today = new Date();
+      age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    }
+  }
+
   const workRef = useRef<HTMLDivElement>(null);
   const schoolRef = useRef<HTMLDivElement>(null);
   const teamRef = useRef<HTMLDivElement>(null);
@@ -265,8 +300,11 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
             {/* 클립 하단 */}
             <div className="w-6 h-4 bg-gradient-to-b from-[#A8A8A8] to-[#909090]" style={{ boxShadow: "inset -1px 0 2px rgba(0,0,0,0.1), inset 1px 0 2px rgba(255,255,255,0.15)" }} />
           </div>
-          {/* 카드 상단 구멍 (슬롯) */}
-          <div className="relative z-10 flex justify-center mb-5 mt-1">
+          {/* 카드 상단 구멍 (슬롯) + 직종 태그 */}
+          <div className="relative z-10 flex justify-center items-center gap-2 mb-5 mt-1">
+            {extra.jobCategory && (
+              <span className="absolute left-0 px-4 py-1 rounded-full bg-orange-500 text-white text-base font-bold">{extra.jobCategory}</span>
+            )}
             <div className="w-16 h-4 rounded-md bg-gray-200 border border-gray-300" style={{ boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)" }} />
           </div>
           <div className="flex flex-col items-center">
@@ -282,48 +320,36 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
             </div>
             <div className="flex items-baseline gap-2">
               <h2 className="text-3xl font-black text-[#2B3037]" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>{employee.name}</h2>
-              <span className="text-2xl font-medium text-gray-400" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>{employee.role === "팀장" ? employee.role : employee.position}</span>
+              <span className="text-2xl font-medium text-gray-400" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-2xl font-bold text-[#2B3037]"> ({age})</span>}</span>
             </div>
-          </div>
+                      </div>
         </div>
 
         {/* 근속/경력 카드 */}
-        <div className="flex gap-3">
-          <div className="flex-1 bg-white rounded-md border border-gray-200 py-4 text-center">
+        <div className="bg-white rounded-md border border-gray-200 py-4 flex">
+          <div className="flex-1 text-center border-r border-gray-200">
             <p className="text-xl font-bold text-[#2B3037] leading-none">{yearsWorked}</p>
             <p className="text-base text-gray-500 mt-0.5">근속</p>
           </div>
-          <div className="flex-1 bg-white rounded-md border border-gray-200 py-4 text-center">
+          <div className="flex-1 text-center">
             <p className="text-xl font-bold text-[#2B3037] leading-none">{totalCareer}</p>
             <p className="text-base text-gray-500 mt-0.5">경력</p>
           </div>
         </div>
 
         {/* 학력 카드 */}
-        <div className="bg-white rounded-md border border-gray-200 p-4">
-          <p className="text-lg font-bold text-gray-600 uppercase tracking-normal mb-3">Education</p>
-          <div className="space-y-2">
-            {education.length > 0 ? education.map((e, i) => (
-              <div key={i} className="p-3 flex items-center gap-3">
-                {e.logoUrl ? (
-                  <img src={e.logoUrl} alt={e.school_name} className="w-10 h-10 rounded-lg object-contain flex-shrink-0" />
-                ) : (
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 ${
-                    e.degree?.includes("박사") ? "bg-yellow-100" : e.degree?.includes("석사") ? "bg-blue-100" : "bg-green-100"
-                  }`}>
-                    <span className={
-                      e.degree?.includes("박사") ? "text-yellow-600" : e.degree?.includes("석사") ? "text-blue-600" : "text-green-600"
-                    }>🎓</span>
-                  </div>
-                )}
+        <div className="bg-white rounded-md border border-gray-200 px-4 py-3">
+          <div className="space-y-1">
+            {education.length > 0 ? education.slice(0, 3).map((e, i) => (
+              <div key={i} className="py-1.5 flex items-center gap-2.5">
+                <span className="text-3xl flex-shrink-0">🎓</span>
                 <div className="min-w-0">
-                  <p className="text-lg font-bold text-[#2B3037] truncate">{e.school_name}</p>
-                  {e.major && <p className="text-base text-gray-600 mt-0.5">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
-                  <p className="text-base text-gray-600 mt-1">{fmtPeriod(e.period)}</p>
+                  <p className="text-xl font-bold text-[#2B3037] truncate">{e.school_name}</p>
+                  {e.major && <p className="text-base text-gray-500">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
                 </div>
               </div>
             )) : (
-              <p className="text-xs text-gray-400 text-center py-3">등록된 학력이 없습니다.</p>
+              <p className="text-xs text-gray-400 text-center py-2">등록된 학력이 없습니다.</p>
             )}
           </div>
         </div>
@@ -335,29 +361,28 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
         <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-4 pt-8 pr-8 pb-4 pl-1">
           {/* Career 카드 */}
           <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-3xl font-bold text-gray-600 uppercase tracking-normal mb-8">Career</p>
+            <p className="text-xl font-bold text-[#2B3037] uppercase tracking-normal mb-6">Career</p>
             <div className="grid grid-cols-2 gap-10">
               {/* 자사 경력 */}
               <div>
                 <h4 className="text-lg font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">자사 경력</h4>
                 <div className="space-y-3">
                   {appointmentHistory.length > 0 ? appointmentHistory.map((a, i) => (
-                    <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-[#C1FD3C]" : "bg-white border border-gray-200"}`}>
-                      <p className={`text-lg font-bold ${i === 0 ? "text-[#2B3037]" : "text-[#2B3037]"}`}>
-                        {i === 0 && <span className="mr-2 text-sm font-bold text-[#2B3037] bg-white px-3 py-1 rounded-full uppercase tracking-widest">Now</span>}
-                        {a.department || "—"}{a.position ? ` | ${a.position}` : ""}
+                    <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-white border-2 border-gray-200" : "bg-white border border-gray-200"}`}>
+                      <p className={`font-bold ${i === 0 ? "text-lg text-[#2B3037]" : "text-lg text-[#2B3037]"}`}>
+                        {i === 0 && <span className="mr-2 text-sm font-bold text-[#2B3037] bg-[#C1FD3C] px-3 py-1 rounded-full uppercase tracking-widest">Now</span>}
+                        {a.department || "—"}{a.position ? ` | ${a.position}` : ""} | {i === 0 ? `${fmtDateShort(a.date)} ~ ing` : fmtDateShort(a.date)}
                       </p>
-                      <p className={`text-base mt-1.5 ${i === 0 ? "text-[#2B3037]/70" : "text-gray-600"}`}>{i === 0 ? `${fmtDateShort(a.date)} ~ ing` : fmtDateShort(a.date)}</p>
-                      {(a.description || (i === 0 && (extra.taskDetail || extra.jobRole))) && (
+                      {(a.description || (i === 0 && ((extra.taskDetail?.trim()) || extra.jobRole))) && (
                         <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-[#2B3037]/15" : "border-t border-gray-200"}`}>
-                          {i === 0 && (extra.taskDetail || extra.jobRole || "").split("\n").filter(Boolean).map((line: string, j: number) => (
+                          {i === 0 && ([extra.taskDetail, extra.jobRole].filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => (
                             <li key={`task-${j}`} className="text-lg font-bold text-[#2B3037] flex items-center gap-2.5">
                               <span className="w-2 h-2 rounded-full bg-[#2B3037] flex-shrink-0" />
                               {line}
                             </li>
                           ))}
                           {a.description && a.description.split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                            <li key={j} className={`text-lg font-bold flex items-center gap-2.5 ${i === 0 ? "text-[#2B3037]" : "text-gray-600"}`}>
+                            <li key={j} className={`flex items-center gap-2.5 ${i === 0 ? "text-lg font-bold text-[#2B3037]" : "text-base text-gray-600"}`}>
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${i === 0 ? "bg-[#2B3037]" : "bg-gray-400"}`} />
                               {line}
                             </li>
@@ -366,12 +391,11 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       )}
                     </div>
                   )) : (
-                    <div className="p-6 rounded-md bg-[#C1FD3C]">
-                      <p className="text-lg font-bold text-[#2B3037]">{employee.team?.name || "—"}</p>
-                      <p className="text-base text-[#2B3037]/70 mt-1.5">{employee.joinDate ? (fmtDateShort(employee.joinDate) + " ~ 현재") : "—"}</p>
-                      {(extra.taskDetail || extra.jobRole) && (
+                    <div className="p-6 rounded-md bg-white border-2 border-gray-200">
+                      <p className="text-lg font-bold text-[#2B3037]">{employee.team?.name || "—"} | {employee.joinDate ? `${fmtDateShort(employee.joinDate)} ~ 현재` : "—"}</p>
+                      {((extra.taskDetail?.trim()) || extra.jobRole) && (
                         <ul className="mt-4 space-y-2 border-t border-[#2B3037]/15 pt-4">
-                          {(extra.taskDetail || extra.jobRole || "").split("\n").filter(Boolean).map((line: string, i: number) => (
+                          {([extra.taskDetail, extra.jobRole].filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => (
                             <li key={i} className="text-base text-[#2B3037]/70 flex items-center gap-2.5">
                               <span className="w-2 h-2 rounded-full bg-green-600 flex-shrink-0" />
                               {line}
@@ -389,8 +413,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
                     <div key={i} className="p-6 rounded-md bg-white border-2 border-gray-200">
-                      <p className="text-lg font-bold text-[#2B3037]">{e.company}{e.position ? ` | ${e.position}` : ""}</p>
-                      <p className="text-base text-gray-600 mt-1.5">{fmtPeriod(e.period)}</p>
+                      <p className="text-lg font-bold text-[#2B3037]">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtPeriod(e.period)}</p>
                       {(e.task || e.description) && (
                         <ul className="mt-4 space-y-2 border-t border-gray-200 pt-4">
                           {e.task && (
@@ -418,7 +441,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
 
           {/* Education 카드 */}
           <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-3xl font-bold text-gray-600 uppercase tracking-normal mb-8">Skills</p>
+            <p className="text-xl font-bold text-[#2B3037] uppercase tracking-normal mb-6">Skills</p>
             <div className="space-y-3">
               {/* 자격증 + 스킬 (2열) */}
               <div className="grid grid-cols-2 gap-10">
@@ -455,7 +478,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
 
           {/* Information 카드 */}
           <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-3xl font-bold text-gray-600 uppercase tracking-normal mb-8">Information</p>
+            <p className="text-xl font-bold text-[#2B3037] uppercase tracking-normal mb-6">Information</p>
             <div className="grid grid-cols-2 gap-10">
               {/* Info */}
               <div>
@@ -628,7 +651,7 @@ export default function TeamOrgChart({
     <div className="flex w-full h-full gap-3" style={{ background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" }}>
       {/* 좌측 */}
       <div className={`transition-all duration-500 ease-in-out flex-shrink-0 ${isPanelOpen ? "w-64 overflow-y-auto flex-shrink-0 scrollbar-hide bg-white" : "w-full overflow-auto"}`}>
-        <div className={`h-full transition-all duration-500 ${isPanelOpen ? "bg-white p-4" : "bg-[#EEF2F6] p-8 flex justify-center items-center overflow-visible"}`}>
+        <div className={`h-full transition-all duration-500 ${isPanelOpen ? "bg-white p-4" : "p-8 flex justify-center items-center overflow-visible"}`} style={!isPanelOpen ? { background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" } : undefined}>
 
           {isPanelOpen ? (
             /* ── 패널 열림: 세로 리스트 ── */
@@ -649,10 +672,10 @@ export default function TeamOrgChart({
                     key={emp.id}
                     onClick={() => selectEmployee(emp)}
                     className={`w-full flex items-center gap-3.5 px-3 py-2 rounded-xl text-left transition-all duration-200 ${
-                      isActive ? "bg-white/80" : "hover:bg-white/50"
+                      isActive ? "bg-gray-100 border border-gray-200" : "hover:bg-[#faf7f2]"
                     }`}
                   >
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-base font-bold flex-shrink-0 overflow-hidden ${
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 overflow-hidden ${
                       isLeader
                         ? "bg-gray-700 text-white"
                         : "bg-gray-300 text-gray-600"
