@@ -58,9 +58,9 @@ export default function Navbar() {
         {user ? (
           <>
             {user.teamId && (
-              <Link href={`/dashboard?company=${encodeURIComponent(user.teamCompany || "")}&team=${user.teamId}`} className="text-gray-600 hover:text-gray-900 font-medium text-sm">
+              <a href={`/dashboard?company=${encodeURIComponent(user.teamCompany || "")}&team=${user.teamId}`} className="text-gray-600 hover:text-gray-900 font-medium text-sm">
                 나의 팀
-              </Link>
+              </a>
             )}
             {user.role === "ADMIN" && (
               <Link href="/admin" className="text-gray-600 hover:text-gray-900 font-medium text-sm">
