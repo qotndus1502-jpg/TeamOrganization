@@ -169,7 +169,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
         {locations.map((loc, locIdx) => (
           <div key={loc.label} className={`flex items-center gap-0 ${locIdx > 0 ? "mt-14" : ""}`}>
             <div className="flex-shrink-0" data-loc-node>
-              <div className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[24px] px-10 py-8 shadow-[0_4px_24px_rgba(167,199,200,0.15)] text-center overflow-hidden">
+              <button
+                onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
+                className="relative bg-white/70 backdrop-blur-[20px] border border-white/50 rounded-[24px] px-10 py-8 shadow-[0_4px_24px_rgba(167,199,200,0.15)] text-center overflow-hidden hover:bg-white/90 hover:shadow-[0_8px_32px_rgba(167,199,200,0.3)] transition-all cursor-pointer"
+              >
                 <div className="absolute inset-0 overflow-hidden rounded-[24px]">
                   <div className="absolute -inset-full w-[50%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: "cardSweep 5s ease-in-out infinite" }} />
                 </div>
@@ -177,17 +180,20 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
                   <h2 className="text-2xl font-bold text-[#111111]">{loc.label}</h2>
                   <p className="text-base text-[#999999] mt-1">{loc.teams.length}팀</p>
                 </div>
-              </div>
+              </button>
             </div>
             <div className="flex-shrink-0"><div className="w-8 h-px bg-gray-400" /></div>
             <div className="flex flex-col gap-8">
               {loc.categories.length > 0 ? loc.categories.map((cat) => (
                 <div key={cat.label} className="flex items-center gap-0">
                   <div className="flex-shrink-0">
-                    <div className="bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl px-6 py-4 shadow-[0_2px_16px_rgba(167,199,200,0.1)] text-center min-w-[120px]">
+                    <button
+                      onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
+                      className="bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl px-6 py-4 shadow-[0_2px_16px_rgba(167,199,200,0.1)] text-center min-w-[120px] hover:bg-white/80 hover:shadow-[0_4px_20px_rgba(167,199,200,0.25)] transition-all cursor-pointer"
+                    >
                       <p className="text-xl font-bold text-[#111111]">{cat.label}</p>
                       <p className="text-base text-[#999999] mt-1">{cat.teams.length}팀</p>
-                    </div>
+                    </button>
                   </div>
                   <div className="flex-shrink-0"><div className="w-6 h-px bg-gray-400" /></div>
                   <div className="grid grid-cols-3 gap-3">
