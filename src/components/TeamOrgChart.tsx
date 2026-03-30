@@ -371,7 +371,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                     <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-white border-2 border-gray-200" : "bg-white border border-gray-200"}`}>
                       <p className={`font-bold ${i === 0 ? "text-base text-[#2B3037]" : "text-base text-[#2B3037]"}`}>
                         {i === 0 && <span className="mr-2 text-xs font-bold text-[#2B3037] bg-[#C1FD3C] px-3 py-1 rounded-full uppercase tracking-widest">Now</span>}
-                        {a.department || "—"}{a.position ? ` | ${a.position}` : ""} | {i === 0 ? `${fmtDateShort(a.date)} ~ ing` : fmtDateShort(a.date)}
+                        {a.department || "—"}{a.position ? ` | ${a.position}` : ""} | {fmtDateShort(a.date)}
                       </p>
                       {(a.description || (i === 0 && ((extra.taskDetail?.trim()) || extra.jobRole))) && (
                         <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-[#2B3037]/15" : "border-t border-gray-200"}`}>
