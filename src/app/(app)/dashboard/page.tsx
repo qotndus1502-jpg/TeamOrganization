@@ -227,7 +227,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
 function TeamListView({ teams, companyFilter, onSelectTeam }: {
   teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void;
 }) {
-  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string; locationId: number }[]>([]);
 
   useEffect(() => {
     fetch("/api/admin/categories").then((r) => r.ok ? r.json() : []).then(setDbCategories).catch(() => {});
@@ -236,13 +236,14 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
   const hqTeams = teams.filter((t) => t.location.type === "HQ");
   const siteTeams = teams.filter((t) => t.location.type === "SITE");
 
-  const companyCategories = dbCategories.filter((c) => c.company === companyFilter);
-
-  const groupByCategory = (teamList: Team[]) => {
+  const groupByCategory = (teamList: Team[], locationType: string) => {
     const grouped: { label: string; teams: Team[] }[] = [];
-    // DB에 등록된 카테고리 순서대로
+    // 해당 소속의 locationId 목록
+    const locationIds = [...new Set(teamList.map((t) => t.location.id))];
+    // DB에 등록된 카테고리 (해당 소속의 것만)
+    const locCats = dbCategories.filter((c) => locationIds.includes(c.locationId));
     const catNames = [...new Set([
-      ...companyCategories.map((c) => c.name),
+      ...locCats.map((c) => c.name),
       ...teamList.map((t) => t.category).filter(Boolean) as string[],
     ])];
     for (const cat of catNames) {
@@ -255,8 +256,8 @@ function TeamListView({ teams, companyFilter, onSelectTeam }: {
   };
 
   const locations = [
-    { label: "본사", teams: hqTeams, categories: groupByCategory(hqTeams) },
-    { label: "현장", teams: siteTeams, categories: groupByCategory(siteTeams) },
+    { label: "본사", teams: hqTeams, categories: groupByCategory(hqTeams, "HQ") },
+    { label: "현장", teams: siteTeams, categories: groupByCategory(siteTeams, "SITE") },
   ];
 
   return (

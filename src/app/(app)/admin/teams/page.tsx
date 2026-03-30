@@ -63,7 +63,7 @@ export default function AdminTeamsPage() {
 
   // 승인 대기 알림
   const [pendingCount, setPendingCount] = useState(0);
-  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string; locationId: number }[]>([]);
 
   const load = () => {
     fetch("/api/admin/teams").then((r) => r.json()).then((t: Team[]) => { setTeams(t); setAllTeams(t); });
@@ -338,7 +338,11 @@ export default function AdminTeamsPage() {
               <select value={teamCategory} onChange={(e) => setTeamCategory(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none">
                 <option value="">선택</option>
-                {dbCategories.filter((c) => c.company === selCompany || !selCompany).map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
+                {dbCategories.filter((c) => {
+                  if (selType === "HQ" && hqLocation) return c.locationId === hqLocation.id;
+                  if (selType === "SITE" && selLocationId && selLocationId !== "__new__") return c.locationId === Number(selLocationId);
+                  return c.company === selCompany;
+                }).map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
               </select>
             </div>
             <div className="flex-1 min-w-[140px]">

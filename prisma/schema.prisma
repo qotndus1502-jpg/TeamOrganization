@@ -25,8 +25,9 @@ model Location {
   id      Int      @id @default(autoincrement())
   company String   // "남광토건" | "극동건설" | "금광기업"
   name    String   // e.g. "본사", "서울현장", "부산현장"
-  type    String   // "HQ" | "SITE"
-  teams   Team[]
+  type       String     // "HQ" | "SITE"
+  teams      Team[]
+  categories Category[]
 }
 
 // 팀
@@ -44,12 +45,13 @@ model Team {
 
 // 본부 (카테고리)
 model Category {
-  id         Int    @id @default(autoincrement())
-  name       String // e.g. "건축사업본부", "토목사업본부"
-  company    String // "남광토건" | "극동건설" | "금광기업" | "3사 통합관리"
-  locationId Int?   // 특정 소속에 연결 (null이면 회사 전체)
+  id         Int      @id @default(autoincrement())
+  name       String   // e.g. "건축사업본부", "토목사업본부"
+  company    String   // "남광토건" | "극동건설" | "금광기업" | "3사 통합관리"
+  locationId Int      // 소속 ID (본사/현장)
+  location   Location @relation(fields: [locationId], references: [id])
 
-  @@unique([name, company])
+  @@unique([name, locationId])
 }
 
 // [보안] 감사 로그
