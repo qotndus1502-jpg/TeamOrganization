@@ -778,10 +778,23 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* ── 발령사항 ── */}
+        {/* ── 현재 발령 (자동) ── */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-sm font-bold text-gray-700 mb-3">현재 발령</h3>
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div><span className="text-xs text-gray-400">소속부서</span><p className="font-medium text-gray-900">{teams.find((t) => String(t.id) === form.teamId)?.name || "—"}</p></div>
+              <div><span className="text-xs text-gray-400">직위</span><p className="font-medium text-gray-900">{form.position || "—"}</p></div>
+              <div><span className="text-xs text-gray-400">직책</span><p className="font-medium text-gray-900">{form.role || "—"}</p></div>
+              <div><span className="text-xs text-gray-400">입사일</span><p className="font-medium text-gray-900">{form.joinDate || "—"}</p></div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── 이전 발령사항 ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <EditableSection
-            title="발령사항"
+            title="이전 발령사항"
             items={appointmentHistory}
             setItems={setAppointmentHistory}
             emptyItem={emptyAppointment}
