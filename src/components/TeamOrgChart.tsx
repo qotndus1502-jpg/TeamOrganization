@@ -569,7 +569,7 @@ function MemberProfile({
       {/* 이름 위에 (아래쪽 팀원) */}
       {!labelBelow && <div className="flex flex-col items-center mb-3">{nameLabel}</div>}
       <div
-        className={`org-node w-48 h-48 rounded-full bg-gradient-to-br from-gray-50 via-white to-gray-100 backdrop-blur-sm border border-gray-200 shadow-[0_6px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-4xl font-light text-gray-400 overflow-hidden relative`}
+        className={`org-node w-48 h-48 rounded-full bg-white backdrop-blur-sm border border-gray-200 shadow-[0_6px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-4xl font-light text-gray-400 overflow-hidden relative`}
         style={{ "--node-glow": glow } as React.CSSProperties}
       >
         <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/60 via-transparent to-transparent" />
