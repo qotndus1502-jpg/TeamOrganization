@@ -65,18 +65,24 @@ function TeamCard({ team, onSelect, isAdmin, onImageUpdate }: {
   return (
     <div
       onClick={() => onSelect(team.id)}
-      className="relative rounded-2xl bg-white shadow-sm hover:shadow-xl border border-gray-100 text-left transition-all duration-300 group overflow-hidden cursor-pointer p-6 flex flex-col justify-between h-40"
+      className="relative rounded-2xl bg-white shadow-sm hover:shadow-xl border border-gray-100/80 text-left transition-all duration-300 group overflow-hidden cursor-pointer p-6 flex flex-col justify-between h-40 hover:border-primary/20"
     >
-      <h3 className="text-2xl font-bold text-gray-900">{team.name}</h3>
+      <div className="flex items-start justify-between">
+        <h3 className="text-xl font-bold text-gray-900 leading-tight">{team.name}</h3>
+        <div className="w-8 h-8 rounded-lg bg-gray-50 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+          <svg className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
 
-      {/* 호버 블러 오버레이 — 우측에서 등장 */}
-      <div className="absolute top-0 bottom-0 right-0 bg-black/40 backdrop-blur-xl translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out z-20 rounded-l-3xl border-l border-white/10" style={{ width: "60%" }}>
+      {/* 호버 블러 오버레이 */}
+      <div className="absolute top-0 bottom-0 right-0 bg-black/50 backdrop-blur-xl translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out z-20 rounded-l-3xl border-l border-white/10" style={{ width: "60%" }}>
         <div className="h-full flex flex-col justify-between p-5 pt-5">
-          {/* 팀장 */}
           <div>
-            <p className="text-white/50 text-[10px] font-medium tracking-widest uppercase mb-3">Team Leader</p>
+            <p className="text-white/40 text-[10px] font-semibold tracking-[0.15em] uppercase mb-3">Team Leader</p>
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-white/15 overflow-hidden flex-shrink-0 ring-1 ring-white/20">
+              <div className="w-10 h-10 rounded-full bg-white/15 overflow-hidden flex-shrink-0 ring-1 ring-white/20">
                 {team.leader?.photoUrl ? (
                   <img src={team.leader.photoUrl} alt={team.leader.name} className="w-full h-full object-cover" />
                 ) : (
@@ -91,13 +97,12 @@ function TeamCard({ team, onSelect, isAdmin, onImageUpdate }: {
               </div>
             </div>
           </div>
-          {/* 하단 */}
           <div className="flex items-end justify-between">
             <div>
-              <span className="text-3xl font-bold text-white">{String(memberCount).padStart(2, "0")}</span>
-              <span className="text-sm text-white/40 ml-1.5">명</span>
+              <span className="text-3xl font-black text-white tabular-nums">{String(memberCount).padStart(2, "0")}</span>
+              <span className="text-sm text-white/40 ml-1">명</span>
             </div>
-            <span className="text-xs text-white/30 font-medium tracking-wider uppercase">Members</span>
+            <span className="text-[10px] text-white/25 font-medium tracking-wider uppercase">Members</span>
           </div>
         </div>
       </div>
@@ -202,8 +207,8 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
       <div className="relative flex items-start" style={{ zIndex: 1 }}>
         {/* 회사 — 소속 그룹 중앙 정렬 */}
         <div className="flex-shrink-0 self-center">
-          <div data-node="company" className="bg-white/80 backdrop-blur-md border border-white/60 rounded-xl w-[160px] h-[80px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-center">
-            <h2 className="text-base font-bold text-[#111]">{companyFilter || "남광토건"}</h2>
+          <div data-node="company" className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
+            <h2 className="text-base font-bold text-white">{companyFilter || "남광토건"}</h2>
           </div>
         </div>
 
@@ -216,7 +221,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                 <button
                   data-node="location" data-loc-id={loc.label}
                   onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
-                  className="bg-white/80 backdrop-blur-md border border-white/60 rounded-xl w-[160px] h-[80px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-center hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all cursor-pointer"
+                  className="bg-white border border-gray-200/60 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer"
                 >
                   <h3 className="text-base font-bold text-[#111]">{loc.label}</h3>
                   <p className="text-xs text-[#999] mt-0.5">{loc.teams.length}팀</p>
@@ -232,7 +237,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                       <button
                         data-node="category" data-cat-id={`${loc.label}-${cat.label}`} data-parent={loc.label}
                         onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
-                        className="bg-white/70 backdrop-blur-md border border-white/50 rounded-xl w-[160px] h-[80px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all cursor-pointer"
+                        className="bg-white/90 border border-gray-200/50 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/15 transition-all duration-200 cursor-pointer"
                       >
                         <p className="text-base font-bold text-[#111]">{cat.label}</p>
                         <p className="text-xs text-[#999] mt-0.5">{cat.teams.length}팀</p>
@@ -318,7 +323,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
   ];
 
   return (
-    <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]" style={{ background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" }}>
+    <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]">
       <style>{`
         @keyframes cardSweep {
           0% { transform: translateX(-100%) rotate(25deg); }
@@ -329,7 +334,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
         }
         .premium-card:hover {
           transform: translateY(-2px) scale(1.01);
-          box-shadow: 0 12px 24px rgba(249,115,22,0.2), 0 0 0 1px rgba(249,115,22,0.15);
+          box-shadow: 0 12px 24px rgba(37,99,235,0.2), 0 0 0 1px rgba(37,99,235,0.15);
         }
       `}</style>
 
@@ -529,7 +534,7 @@ function DashboardContent() {
             setSelectedTeamId(null);
           }
         }}
-        className="fixed bottom-8 right-8 z-50 bg-[#F97316] hover:bg-[#F97316] text-white px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all text-sm font-medium flex items-center gap-2"
+        className="fixed bottom-8 right-8 z-50 bg-white hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-full shadow-xl border border-gray-200/80 hover:shadow-2xl transition-all duration-200 text-sm font-semibold flex items-center gap-2 active:scale-95"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -552,54 +557,55 @@ function DashboardContent() {
 
       {/* 사이드바 */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-72 bg-white/95 backdrop-blur-md shadow-2xl z-40 transform transition-transform duration-300 ease-in-out border-r border-gray-100 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         onMouseLeave={() => setSidebarOpen(false)}
       >
         <div className="p-5 h-full flex flex-col">
           <div className="mb-5">
-            <div className="px-3 pb-4 mb-2 border-b border-gray-200">
-              <h2 className="text-2xl font-black text-gray-900">{companyFilter || "전체"} 팀 목록</h2>
+            <div className="px-1 pb-4 mb-2">
+              <h2 className="text-xl font-bold text-gray-900">{companyFilter || "전체"}</h2>
+              <p className="text-xs text-gray-400 mt-0.5">팀 목록</p>
             </div>
-            <div className="flex gap-1 bg-gray-100 rounded-lg p-1 mt-3">
+            <div className="flex gap-1 bg-gray-100/80 rounded-xl p-1">
               <button
                 onClick={() => setActiveTab("HQ")}
-                className={`flex-1 py-1.5 rounded-md text-sm font-medium transition ${
-                  activeTab === "HQ" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  activeTab === "HQ" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 본사
               </button>
               <button
                 onClick={() => setActiveTab("SITE")}
-                className={`flex-1 py-1.5 rounded-md text-sm font-medium transition ${
-                  activeTab === "SITE" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  activeTab === "SITE" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 현장
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto space-y-0.5">
+          <div className="flex-1 overflow-y-auto space-y-0.5 pr-1">
             {filteredTeams.map((team) => (
               <button
                 key={team.id}
                 onClick={() => handleSelectTeam(team.id)}
-                className={`w-full flex items-center gap-3.5 px-3 py-2 rounded-xl text-left transition-all duration-200 ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 ${
                   selectedTeamId === team.id
-                    ? "bg-gray-100 border border-gray-200"
-                    : "hover:bg-[#faf7f2] border border-transparent"
+                    ? "bg-primary/10 text-primary border border-primary/15"
+                    : "hover:bg-gray-50 border border-transparent text-gray-700"
                 }`}
               >
-                <div className="min-w-0 flex-1 flex items-baseline gap-2">
-                  <p className={`text-lg font-semibold truncate ${selectedTeamId === team.id ? "text-gray-900" : "text-gray-700"}`}>{team.name}</p>
-                  <p className={`text-sm flex-shrink-0 ${selectedTeamId === team.id ? "text-gray-500" : "text-gray-400"}`}>{team._count.employees}명</p>
-                </div>
+                <p className={`text-sm font-semibold truncate ${selectedTeamId === team.id ? "text-primary" : ""}`}>{team.name}</p>
+                <span className={`text-xs font-medium flex-shrink-0 ml-2 tabular-nums ${selectedTeamId === team.id ? "text-primary/60" : "text-gray-400"}`}>{team._count.employees}명</span>
               </button>
             ))}
             {filteredTeams.length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-8">등록된 팀이 없습니다.</p>
+              <div className="text-center py-10">
+                <p className="text-sm text-gray-400">등록된 팀이 없습니다</p>
+              </div>
             )}
           </div>
         </div>
@@ -608,13 +614,25 @@ function DashboardContent() {
       {/* 메인 콘텐츠 */}
       <div className="h-full flex flex-col">
         {selectedTeamId ? (
-          <div className="fixed inset-0 top-0 z-20 bg-white flex flex-col">
+          <div className="fixed inset-0 top-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col">
             {/* 조직도 — 전체 영역 */}
             <div className="flex-1 overflow-auto">
               {loadingEmployees ? (
-                <p className="text-gray-500 mt-20 text-center">불러오는 중...</p>
+                <div className="mt-32 text-center">
+                  <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-gray-50 text-gray-500 text-sm">
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                    불러오는 중...
+                  </div>
+                </div>
               ) : employees.length === 0 ? (
-                <p className="text-gray-500 mt-20 text-center">등록된 팀원이 없습니다.</p>
+                <div className="mt-32 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 text-sm">등록된 팀원이 없습니다</p>
+                </div>
               ) : (
                 <TeamOrgChart
                   leader={leader}

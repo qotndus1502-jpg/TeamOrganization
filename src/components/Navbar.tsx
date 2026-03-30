@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface User {
   id: number;
@@ -39,11 +41,13 @@ export default function Navbar() {
     return labels.join(" · ");
   };
 
+  const isActive = (path: string) => pathname?.startsWith(path);
+
   return (
     <div className="flex justify-between h-16 items-center">
       <a href={`/dashboard?company=${encodeURIComponent("남광토건")}`} className="flex items-center gap-2.5 group cursor-pointer">
-        <div className="w-8 h-8 bg-[#C1FD3C] rounded-lg flex items-center justify-center group-hover:bg-[#b0ec2b] transition">
-          <svg className="w-4.5 h-4.5 text-[#2B3037]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center group-hover:shadow-md group-hover:shadow-primary/25 transition-all duration-200">
+          <svg className="w-4 h-4 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -51,59 +55,65 @@ export default function Navbar() {
           </svg>
         </div>
         <div className="text-xl tracking-tight">
-          <span className="font-black text-gray-900" style={{ fontFamily: "'Inter', sans-serif", letterSpacing: "-0.03em" }}>Team</span><span className="font-light text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>Work</span>
+          <span className="font-black text-foreground" style={{ letterSpacing: "-0.03em" }}>Team</span>
+          <span className="font-light text-muted-foreground">Work</span>
         </div>
       </a>
-      <div className="flex items-center gap-5">
+
+      <div className="flex items-center gap-1">
         {user ? (
           <>
             {user.teamId && (
-              <a href={`/dashboard?company=${encodeURIComponent(user.teamCompany || "")}&team=${user.teamId}`} className="text-gray-600 hover:text-gray-900 font-medium text-sm">
+              <a
+                href={`/dashboard?company=${encodeURIComponent(user.teamCompany || "")}&team=${user.teamId}`}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
+              >
                 나의 팀
               </a>
             )}
             {user.role.includes("ADMIN") && (
-              <Link href="/admin" className="text-gray-600 hover:text-gray-900 font-medium text-sm">
+              <Link
+                href="/admin"
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  isActive("/admin")
+                    ? "text-primary bg-accent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                }`}
+              >
                 관리자
               </Link>
             )}
-            {/* EXECUTIVE: no register/edit link, only view */}
-            {/* EMPLOYEE/ADMIN: show profile link to register page */}
-            <div className="flex items-center gap-3 border-l border-gray-200 pl-5">
-              <Link
-                href={user.role.includes("EMPLOYEE") ? "/register" : "/dashboard"}
-                className="flex items-center gap-2 hover:opacity-80 transition"
-              >
-                <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-white">
-                  {user.name.charAt(0)}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700 leading-tight">{user.name}</span>
-                  <span className="text-[10px] text-gray-400 leading-tight">
-                    {roleLabel(user.role)}
-                    {user.pendingRole && (
-                      <span className="text-orange-500 ml-1">(승인 대기)</span>
-                    )}
-                  </span>
-                </div>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-xs text-gray-400 hover:text-red-500 transition"
-              >
-                로그아웃
-              </button>
-            </div>
+            <Separator orientation="vertical" className="h-5 mx-2" />
+            <Link
+              href={user.role.includes("EMPLOYEE") ? "/register" : "/dashboard"}
+              className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/60 transition-all duration-200"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-sm">
+                {user.name.charAt(0)}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-foreground leading-tight">{user.name}</span>
+                <span className="text-[10px] text-muted-foreground leading-tight">
+                  {roleLabel(user.role)}
+                  {user.pendingRole && (
+                    <span className="text-primary font-medium ml-1">(승인 대기)</span>
+                  )}
+                </span>
+              </div>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="ml-1 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive-muted">
+              로그아웃
+            </Button>
           </>
         ) : (
-          <>
-            <Link href="/login" className="text-gray-600 hover:text-gray-900 font-medium text-sm">
-              로그인
-            </Link>
-            <Link href="/signup" className="bg-orange-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-600 transition">
-              회원가입
-            </Link>
-          </>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/login">로그인</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/signup">회원가입</Link>
+            </Button>
+          </div>
         )}
       </div>
     </div>

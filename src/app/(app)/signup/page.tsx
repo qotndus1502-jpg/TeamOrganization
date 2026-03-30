@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const ROLE_OPTIONS = [
   { value: "EMPLOYEE", label: "직원", desc: "인사정보 등록 및 수정" },
@@ -47,113 +52,134 @@ export default function SignupPage() {
       return;
     }
 
-    // 승인 대기 중이면 로그인 페이지로 안내
     if (data.needsApproval) {
       alert("회원가입이 완료되었습니다.\n관리자 승인 후 로그인할 수 있습니다.");
       window.location.href = "/login";
       return;
     }
 
-    // Redirect based on role (full page reload to ensure cookie is sent)
     window.location.href = "/register";
   };
 
   return (
-    <div className="max-w-md mx-auto mt-16">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">회원가입</h1>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        {/* Role Selection Pills */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">가입 유형</label>
-          <div className="flex gap-2">
-            {ROLE_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setSelectedRole(opt.value)}
-                className={`flex-1 py-2.5 px-3 rounded-full text-sm font-medium transition border-2 ${
-                  selectedRole === opt.value
-                    ? "bg-orange-500 text-white border-orange-500"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12" style={{ background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)" }}>
+      <Card className="w-full max-w-sm border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+        <CardHeader className="text-center pb-2">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-primary/20">
+            <svg className="w-6 h-6 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="19" y1="8" x2="19" y2="14" />
+              <line x1="22" y1="11" x2="16" y2="11" />
+            </svg>
           </div>
-          <p className="text-xs text-gray-400 mt-1.5">
-            {ROLE_OPTIONS.find((o) => o.value === selectedRole)?.desc}
-            {selectedRole === "ADMIN" && (
-              <span className="text-orange-500 ml-1">* 관리자 승인 필요</span>
-            )}
-          </p>
-        </div>
+          <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">새 계정을 만들어 시작하세요</p>
+        </CardHeader>
+        <CardContent className="px-8 pb-8">
+          {error && (
+            <div className="mb-4 p-3 bg-destructive-muted border border-destructive-border text-destructive-muted-foreground rounded-lg text-sm flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Role Selection */}
+            <div className="space-y-2">
+              <Label>가입 유형</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {ROLE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelectedRole(opt.value)}
+                    className={cn(
+                      "py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200",
+                      selectedRole === opt.value
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-[1.02]"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                {ROLE_OPTIONS.find((o) => o.value === selectedRole)?.desc}
+                {(selectedRole === "ADMIN" || selectedRole === "EXECUTIVE") && (
+                  <span className="text-primary font-medium ml-1">* 관리자 승인 필요</span>
+                )}
+              </p>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
-            placeholder="홍길동"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-          <input
-            type="email"
-            required
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
-            placeholder="hong@company.com"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 (8자 이상, 영문+숫자+특수문자)</label>
-          <input
-            type="password"
-            required
-            minLength={8}
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
-          <input
-            type="password"
-            required
-            value={form.passwordConfirm}
-            onChange={(e) => setForm({ ...form, passwordConfirm: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-orange-500 text-white py-2.5 rounded-lg font-medium hover:bg-orange-600 transition disabled:bg-gray-400"
-        >
-          {loading ? "가입 중..." : "회원가입"}
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-500">
-        이미 계정이 있으신가요?{" "}
-        <Link href="/login" className="text-orange-500 hover:underline font-medium">
-          로그인
-        </Link>
-      </p>
+            <div className="space-y-1.5">
+              <Label htmlFor="name">이름</Label>
+              <Input
+                id="name"
+                type="text"
+                required
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="홍길동"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">이메일</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="hong@company.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="password">비밀번호 <span className="text-muted-foreground font-normal">(8자 이상)</span></Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                minLength={8}
+                placeholder="영문 + 숫자 + 특수문자"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="passwordConfirm">비밀번호 확인</Label>
+              <Input
+                id="passwordConfirm"
+                type="password"
+                required
+                placeholder="비밀번호를 다시 입력하세요"
+                value={form.passwordConfirm}
+                onChange={(e) => setForm({ ...form, passwordConfirm: e.target.value })}
+              />
+            </div>
+            <Button type="submit" disabled={loading} size="lg" className="w-full mt-2">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                  가입 중...
+                </span>
+              ) : "회원가입"}
+            </Button>
+          </form>
+          <div className="mt-6 pt-4 border-t border-border/50 text-center">
+            <p className="text-sm text-muted-foreground">
+              이미 계정이 있으신가요?{" "}
+              <Link href="/login" className="text-primary hover:underline font-semibold">
+                로그인
+              </Link>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
