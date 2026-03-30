@@ -61,8 +61,21 @@ function EditableSection<T extends Record<string, string>>({
   emptyItem: () => T;
   readOnly?: boolean;
 }) {
+  // 2자리 연도 → 4자리 연도 변환
+  const normalizeYear = (d: string) => {
+    if (!d) return d;
+    const m = d.match(/^(\d{2})([.\-/])(\d{1,2})\2(\d{1,2})/);
+    if (m) return `${Number(m[1]) < 50 ? "20" : "19"}${m[1]}${m[2]}${m[3]}${m[2]}${m[4]}`;
+    return d;
+  };
   // YYYY.MM.DD → YYYY-MM-DD (input[type=date]용)
-  const toIso = (d: string) => d ? d.replace(/\./g, "-").replace(/(\d{4})-(\d{1,2})-(\d{1,2}).*/, "$1-$2-$3") : "";
+  const toIso = (d: string) => {
+    if (!d) return "";
+    const n = normalizeYear(d).replace(/\./g, "-");
+    const m = n.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+    return "";
+  };
   // YYYY-MM-DD → YYYY.MM.DD (표시/저장용)
   const toDot = (d: string) => d ? d.replace(/-/g, ".") : "";
 
@@ -259,10 +272,12 @@ export default function RegisterPage() {
         if (emp.resumeData) {
           try {
             const rd = JSON.parse(emp.resumeData);
+            const fy = (d: string) => { if (!d) return d; const m = d.trim().match(/^(\d{2})([.\-/])(\d{1,2})\2(\d{1,2})/); if (m) return `${Number(m[1])<50?"20":"19"}${m[1]}.${m[3].padStart(2,"0")}.${m[4].padStart(2,"0")}`; return d.trim(); };
             const splitP = (item: Record<string, string>) => {
-              if (item.startDate || item.endDate) return item;
-              if (item.period) { const p = item.period.split(/[~\-–—]/).map((s: string) => s.trim()); return { ...item, startDate: p[0] || "", endDate: p[1] || "" }; }
-              return item;
+              const f = { ...item }; if (f.startDate) f.startDate = fy(f.startDate); if (f.endDate) f.endDate = fy(f.endDate);
+              if (f.startDate || f.endDate) return f;
+              if (f.period) { const p = f.period.split(/[~\-–—]/).map((s: string) => s.trim()); return { ...f, startDate: fy(p[0]||""), endDate: fy(p[1]||"") }; }
+              return f;
             };
             if (rd.education?.length) setEducation(rd.education.map((e: Partial<Education>) => ({ ...emptyEducation(), ...splitP(e as Record<string, string>) })));
             if (rd.certifications?.length) setCertifications(rd.certifications.map((c: Partial<Certification>) => ({ ...emptyCertification(), ...c })));
@@ -331,14 +346,23 @@ export default function RegisterPage() {
       return updated;
     });
 
-    // period → startDate/endDate 호환 변환
+    // period → startDate/endDate 호환 변환 + 2자리 연도 → 4자리
+    const fixYear = (d: string) => {
+      if (!d) return d;
+      const m = d.trim().match(/^(\d{2})([.\-/])(\d{1,2})\2(\d{1,2})/);
+      if (m) return `${Number(m[1]) < 50 ? "20" : "19"}${m[1]}.${m[3].padStart(2,"0")}.${m[4].padStart(2,"0")}`;
+      return d.trim();
+    };
     const splitPeriod = (item: Record<string, string>) => {
-      if (item.startDate || item.endDate) return item;
-      if (item.period) {
-        const parts = item.period.split(/[~\-–—]/).map((s: string) => s.trim());
-        return { ...item, startDate: parts[0] || "", endDate: parts[1] || "" };
+      const fixed = { ...item };
+      if (fixed.startDate) fixed.startDate = fixYear(fixed.startDate);
+      if (fixed.endDate) fixed.endDate = fixYear(fixed.endDate);
+      if (fixed.startDate || fixed.endDate) return fixed;
+      if (fixed.period) {
+        const parts = fixed.period.split(/[~\-–—]/).map((s: string) => s.trim());
+        return { ...fixed, startDate: fixYear(parts[0] || ""), endDate: fixYear(parts[1] || "") };
       }
-      return item;
+      return fixed;
     };
 
     // 배열 데이터 매핑
