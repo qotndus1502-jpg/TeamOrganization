@@ -201,13 +201,6 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam }: {
       catEls.forEach((catEl) => drawLine(locEl, catEl));
     });
 
-    // 카테고리 → 팀
-    const catEls = container.querySelectorAll("[data-node='category']");
-    catEls.forEach((catEl) => {
-      const catId = catEl.getAttribute("data-cat-id");
-      const teamEls = container.querySelectorAll(`[data-node='team'][data-parent='${catId}']`);
-      teamEls.forEach((teamEl) => drawLine(catEl, teamEl));
-    });
   });
 
   const allLocs = locations.filter((l) => l.categories.length > 0 || l.teams.length > 0);
