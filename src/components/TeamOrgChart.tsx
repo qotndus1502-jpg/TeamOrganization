@@ -788,6 +788,7 @@ export default function TeamOrgChart({
   onPanelChange,
   isAdmin,
   onUpdate,
+  currentEmployeeId,
 }: {
   leader: Employee | undefined;
   members: Employee[];
