@@ -98,8 +98,8 @@ const POSITION_RING_COLORS: Record<string, string> = {
   차장: "border-gray-500/30",
   과장: "border-gray-400/30",
   대리: "border-gray-400/25",
-  주임: "border-gray-300/30",
-  사원: "border-gray-300/25",
+  주임: "border-input/30",
+  사원: "border-input/25",
 };
 
 const POSITION_GLOW: Record<string, string> = {
@@ -140,8 +140,8 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <div>
-      <p className="text-sm text-gray-400 uppercase tracking-wider font-medium mb-1">{label}</p>
-      <p className="text-lg text-gray-800">{value}</p>
+      <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium mb-1">{label}</p>
+      <p className="text-lg text-foreground">{value}</p>
     </div>
   );
 }
@@ -300,7 +300,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
       {/* ── 프로필 사이드바 (고정) ── */}
       <div className="w-80 flex flex-col gap-4 flex-shrink-0 pt-8 pl-8 pr-4 pb-4 overflow-y-auto scrollbar-hide">
         {/* 프로필 카드 (사원증) */}
-        <div className="relative bg-white rounded-xl border border-gray-200 p-5 pb-6 w-full shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+        <div className="relative bg-card rounded-xl border border-border p-5 pb-6 w-full shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
           {/* 끈+클립 (구멍 관통해서 위로) */}
           <div className="absolute left-1/2 -translate-x-1/2 -top-14 z-20 flex flex-col items-center">
             {/* 끈 */}
@@ -315,9 +315,9 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
           {/* 카드 상단 구멍 (슬롯) + 직종 태그 */}
           <div className="relative z-10 flex justify-center items-center gap-2 mb-5 mt-1">
             {extra.jobCategory && (
-              <span className="absolute left-0 px-4 py-1 rounded-full bg-orange-500 text-white text-base font-bold">{extra.jobCategory}</span>
+              <span className="absolute left-0 px-4 py-1 rounded-full bg-orange-muted-foreground text-primary-foreground text-base font-bold">{extra.jobCategory}</span>
             )}
-            <div className="w-16 h-4 rounded-md bg-gray-200 border border-gray-300" style={{ boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)" }} />
+            <div className="w-16 h-4 rounded-md bg-muted border border-input" style={{ boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)" }} />
           </div>
           <div className="flex flex-col items-center">
             {/* 증명사진 */}
@@ -325,43 +325,43 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                 {employee.photoUrl ? (
                   <img src={employee.photoUrl} alt={employee.name} className="w-full h-full object-cover object-top" />
                 ) : (
-                  <div className="w-full h-full bg-[#EEF2F6] flex items-center justify-center text-3xl font-bold text-gray-400">
+                  <div className="w-full h-full bg-muted flex items-center justify-center text-3xl font-bold text-muted-foreground">
                     {employee.name.charAt(0)}
                   </div>
                 )}
             </div>
             <div className="flex items-baseline gap-2">
-              <h2 className="text-lg font-bold text-[#2B3037]">{employee.name}</h2>
-              <span className="text-lg font-bold text-gray-400">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-[#2B3037]"> ({age}세)</span>}</span>
+              <h2 className="text-lg font-bold text-foreground">{employee.name}</h2>
+              <span className="text-lg font-bold text-muted-foreground">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-foreground"> ({age}세)</span>}</span>
             </div>
                       </div>
         </div>
 
         {/* 근속/경력 카드 */}
-        <div className="bg-white rounded-md border border-gray-200 py-4 flex">
-          <div className="flex-1 text-center border-r border-gray-200">
-            <p className="text-base font-bold text-[#2B3037] leading-none">{yearsWorked}</p>
-            <p className="text-xs text-gray-500 mt-0.5">근속</p>
+        <div className="bg-card rounded-md border border-border py-4 flex">
+          <div className="flex-1 text-center border-r border-border">
+            <p className="text-base font-bold text-foreground leading-none">{yearsWorked}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">근속</p>
           </div>
           <div className="flex-1 text-center">
-            <p className="text-base font-bold text-[#2B3037] leading-none">{totalCareer}</p>
-            <p className="text-xs text-gray-500 mt-0.5">경력</p>
+            <p className="text-base font-bold text-foreground leading-none">{totalCareer}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">경력</p>
           </div>
         </div>
 
         {/* 학력 카드 */}
-        <div className="bg-white rounded-md border border-gray-200 px-4 py-3">
+        <div className="bg-card rounded-md border border-border px-4 py-3">
           <div className="space-y-1">
             {education.length > 0 ? education.slice(0, 3).map((e, i) => (
               <div key={i} className="py-1.5 flex items-center gap-2.5">
                 <span className="text-3xl flex-shrink-0">🎓</span>
                 <div className="min-w-0">
-                  <p className="text-base font-bold text-[#2B3037] truncate">{e.school_name}</p>
-                  {e.major && <p className="text-xs text-gray-500">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
+                  <p className="text-base font-bold text-foreground truncate">{e.school_name}</p>
+                  {e.major && <p className="text-xs text-muted-foreground">{e.major}{e.degree ? ` · ${e.degree}` : ""}</p>}
                 </div>
               </div>
             )) : (
-              <p className="text-xs text-gray-400 text-center py-2">등록된 학력이 없습니다.</p>
+              <p className="text-xs text-muted-foreground text-center py-2">등록된 학력이 없습니다.</p>
             )}
           </div>
         </div>
@@ -372,30 +372,30 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-4 pt-8 pr-8 pb-4 pl-1">
           {/* Career 카드 */}
-          <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-lg font-bold text-[#2B3037] uppercase tracking-normal mb-6">Career</p>
+          <div className="bg-card rounded-md border border-border p-5">
+            <p className="text-lg font-bold text-foreground uppercase tracking-normal mb-6">Career</p>
             <div className="grid grid-cols-2 gap-10">
               {/* 자사 경력 */}
               <div>
-                <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">자사 경력</h4>
+                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">자사 경력</h4>
                 <div className="space-y-3">
                   {appointmentHistory.length > 0 ? appointmentHistory.map((a, i) => (
-                    <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-white border-2 border-gray-200" : "bg-white border border-gray-200"}`}>
-                      <p className={`font-bold ${i === 0 ? "text-base text-[#2B3037]" : "text-base text-[#2B3037]"}`}>
-                        {i === 0 && <span className="mr-2 text-xs font-bold text-[#2B3037] bg-[#C1FD3C] px-3 py-1 rounded-full uppercase tracking-widest">Now</span>}
+                    <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-card border-2 border-border" : "bg-card border border-border"}`}>
+                      <p className={`font-bold ${i === 0 ? "text-base text-foreground" : "text-base text-foreground"}`}>
+                        {i === 0 && <span className="mr-2 text-xs font-bold text-foreground bg-accent px-3 py-1 rounded-full uppercase tracking-widest">Now</span>}
                         {a.department || "—"}{a.position ? ` | ${a.position}` : ""} | {fmtDateShort(a.date)}
                       </p>
                       {(a.description || (i === 0 && ((extra.taskDetail?.trim()) || extra.jobRole))) && (
-                        <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-[#2B3037]/15" : "border-t border-gray-200"}`}>
+                        <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-foreground/15" : "border-t border-border"}`}>
                           {i === 0 && !a.description && ((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => (
-                            <li key={`task-${j}`} className="text-base font-bold text-[#2B3037] flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-[#2B3037] flex-shrink-0" />
+                            <li key={`task-${j}`} className="text-base font-bold text-foreground flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full bg-foreground flex-shrink-0" />
                               {line}
                             </li>
                           ))}
                           {a.description && a.description.split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                            <li key={j} className={`flex items-center gap-2.5 ${i === 0 ? "text-base font-bold text-[#2B3037]" : "text-sm text-gray-600"}`}>
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${i === 0 ? "bg-[#2B3037]" : "bg-gray-400"}`} />
+                            <li key={j} className={`flex items-center gap-2.5 ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${i === 0 ? "bg-foreground" : "bg-muted-foreground"}`} />
                               {line}
                             </li>
                           ))}
@@ -403,13 +403,13 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       )}
                     </div>
                   )) : (
-                    <div className="p-6 rounded-md bg-white border-2 border-gray-200">
-                      <p className="text-base font-bold text-[#2B3037]">{employee.team?.name || "—"} | {employee.joinDate ? `${fmtDateShort(employee.joinDate)} ~ 현재` : "—"}</p>
+                    <div className="p-6 rounded-md bg-card border-2 border-border">
+                      <p className="text-base font-bold text-foreground">{employee.team?.name || "—"} | {employee.joinDate ? `${fmtDateShort(employee.joinDate)} ~ 현재` : "—"}</p>
                       {((extra.taskDetail?.trim()) || extra.jobRole) && (
-                        <ul className="mt-4 space-y-2 border-t border-[#2B3037]/15 pt-4">
+                        <ul className="mt-4 space-y-2 border-t border-foreground/15 pt-4">
                           {((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => (
-                            <li key={i} className="text-sm text-[#2B3037]/70 flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-green-600 flex-shrink-0" />
+                            <li key={i} className="text-sm text-foreground/70 flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full bg-success flex-shrink-0" />
                               {line}
                             </li>
                           ))}
@@ -421,22 +421,22 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
               </div>
               {/* 타사 경력 */}
               <div>
-                <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">타사 경력</h4>
+                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">타사 경력</h4>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
-                    <div key={i} className="p-6 rounded-md bg-white border-2 border-gray-200">
-                      <p className="text-base font-bold text-[#2B3037]">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtRange(e)}</p>
+                    <div key={i} className="p-6 rounded-md bg-card border-2 border-border">
+                      <p className="text-base font-bold text-foreground">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtRange(e)}</p>
                       {(e.task || e.description) && (
-                        <ul className="mt-4 space-y-2 border-t border-gray-200 pt-4">
+                        <ul className="mt-4 space-y-2 border-t border-border pt-4">
                           {e.task && !e.description && (
-                            <li className="text-sm text-gray-600 flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
+                            <li className="text-sm text-muted-foreground flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full bg-muted-foreground flex-shrink-0" />
                               {e.task}
                             </li>
                           )}
                           {e.description && e.description.split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                            <li key={j} className="text-sm text-gray-600 flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
+                            <li key={j} className="text-sm text-muted-foreground flex items-center gap-2.5">
+                              <span className="w-2 h-2 rounded-full bg-muted-foreground flex-shrink-0" />
                               {line}
                             </li>
                           ))}
@@ -444,7 +444,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
                       )}
                     </div>
                   )) : (
-                    <p className="text-sm text-gray-400 text-center py-10">등록된 타사 경력이 없습니다.</p>
+                    <p className="text-sm text-muted-foreground text-center py-10">등록된 타사 경력이 없습니다.</p>
                   )}
                 </div>
               </div>
@@ -452,35 +452,35 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
           </div>
 
           {/* Education 카드 */}
-          <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-lg font-bold text-[#2B3037] uppercase tracking-normal mb-6">Skills</p>
+          <div className="bg-card rounded-md border border-border p-5">
+            <p className="text-lg font-bold text-foreground uppercase tracking-normal mb-6">Skills</p>
             <div className="space-y-3">
               {/* 자격증 + 스킬 (2열) */}
               <div className="grid grid-cols-2 gap-10">
                 {/* 자격증 및 면허 */}
                 <div>
-                  <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">자격증 및 면허</h4>
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">자격증 및 면허</h4>
                   {certifications.length > 0 ? (
                     <div className="space-y-3">
                       {certifications.map((c, i) => (
-                        <div key={i} className="px-6 py-5 rounded-md bg-white border-2 border-gray-200">
-                          <p className="text-base font-bold text-[#2B3037]">{c.name}</p>
-                          <p className="text-xs text-gray-500 mt-1">{fmtDateShort(c.acquisition_date)}{c.issuer ? ` · ${c.issuer}` : ""}</p>
+                        <div key={i} className="px-6 py-5 rounded-md bg-card border-2 border-border">
+                          <p className="text-base font-bold text-foreground">{c.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{fmtDateShort(c.acquisition_date)}{c.issuer ? ` · ${c.issuer}` : ""}</p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400 text-center py-6">등록된 자격증이 없습니다.</p>
+                    <p className="text-sm text-muted-foreground text-center py-6">등록된 자격증이 없습니다.</p>
                   )}
                 </div>
                 {/* 스킬 */}
                 <div>
-                  <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">스킬</h4>
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">스킬</h4>
                   <div className="flex flex-wrap gap-3">
                     {extra.skills ? extra.skills.split(",").map((s: string, i: number) => (
-                      <span key={i} className="px-5 py-2.5 rounded-full bg-gray-200 text-sm font-bold text-[#2B3037]">{s.trim()}</span>
+                      <span key={i} className="px-5 py-2.5 rounded-full bg-muted text-sm font-bold text-foreground">{s.trim()}</span>
                     )) : (
-                      <p className="text-sm text-gray-400 py-6 w-full text-center">등록된 스킬이 없습니다.</p>
+                      <p className="text-sm text-muted-foreground py-6 w-full text-center">등록된 스킬이 없습니다.</p>
                     )}
                   </div>
                 </div>
@@ -489,48 +489,48 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
           </div>
 
           {/* Information 카드 */}
-          <div className="bg-white rounded-md border border-gray-200 p-5">
-            <p className="text-lg font-bold text-[#2B3037] uppercase tracking-normal mb-6">Information</p>
+          <div className="bg-card rounded-md border border-border p-5">
+            <p className="text-lg font-bold text-foreground uppercase tracking-normal mb-6">Information</p>
             <div className="grid grid-cols-2 gap-10">
               {/* Info */}
               <div>
-                <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">인사정보</h4>
+                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">인사정보</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                    <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
                     </div>
-                    <span className="text-sm text-gray-600">{fmtDate(extra.birthDate)}</span>
+                    <span className="text-sm text-muted-foreground">{fmtDate(extra.birthDate)}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                    <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
                     </div>
-                    <span className="text-sm text-gray-600">{extra.address ? extra.address.split(" ").slice(0, 2).join(" ") : "—"}</span>
+                    <span className="text-sm text-muted-foreground">{extra.address ? extra.address.split(" ").slice(0, 2).join(" ") : "—"}</span>
                   </div>
                 </div>
               </div>
               {/* Contact */}
               <div>
-                <h4 className="text-base font-bold text-gray-500 uppercase tracking-widest mb-5 pb-2 border-b border-gray-200">연락처</h4>
+                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">연락처</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
+                    <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
                     </div>
-                    <span className="text-sm text-gray-600">{employee.phoneWork || "—"}</span>
+                    <span className="text-sm text-muted-foreground">{employee.phoneWork || "—"}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+                    <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
                     </div>
-                    <span className="text-sm text-gray-600">{employee.phone || "—"}</span>
+                    <span className="text-sm text-muted-foreground">{employee.phone || "—"}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+                    <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
                     </div>
-                    <span className="text-sm text-gray-600">{employee.email || "—"}</span>
+                    <span className="text-sm text-muted-foreground">{employee.email || "—"}</span>
                   </div>
                 </div>
               </div>
@@ -559,15 +559,15 @@ function MemberProfile({
   isHovered: boolean;
   labelBelow?: boolean;
 }) {
-  const borderColor = POSITION_RING_COLORS[employee.position] || "border-gray-300/25";
+  const borderColor = POSITION_RING_COLORS[employee.position] || "border-input/25";
   const glow = POSITION_GLOW[employee.position] || "rgba(160,160,160,0.1)";
 
   const nameLabel = (
     <>
-      <span className="font-bold text-[#111111] text-xl group-hover:text-[#111111] transition tracking-tight">
+      <span className="font-bold text-foreground text-xl group-hover:text-foreground transition tracking-tight">
         {employee.name}
       </span>
-      <span className="text-base text-gray-400 font-light">{employee.position}</span>
+      <span className="text-base text-muted-foreground font-light">{employee.position}</span>
     </>
   );
 
@@ -581,7 +581,7 @@ function MemberProfile({
       {/* 이름 위에 (아래쪽 팀원) */}
       {!labelBelow && <div className="flex flex-col items-center mb-3">{nameLabel}</div>}
       <div
-        className={`org-node w-48 h-48 rounded-full bg-white backdrop-blur-sm border border-gray-200 shadow-[0_6px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-4xl font-light text-gray-400 overflow-hidden relative`}
+        className={`org-node w-48 h-48 rounded-full bg-card backdrop-blur-sm border border-border shadow-[0_6px_30px_rgba(0,0,0,0.08)] flex items-center justify-center text-4xl font-light text-muted-foreground overflow-hidden relative`}
         style={{ "--node-glow": glow } as React.CSSProperties}
       >
         <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/60 via-transparent to-transparent" />
@@ -592,7 +592,7 @@ function MemberProfile({
           {employee.photoUrl ? (
             <img src={employee.photoUrl} alt={employee.name} className="w-48 h-48 object-cover" />
           ) : (
-            <span className="text-xs text-gray-400">사진없음</span>
+            <span className="text-xs text-muted-foreground">사진없음</span>
           )}
         </span>
       </div>
@@ -660,19 +660,19 @@ export default function TeamOrgChart({
   ];
 
   return (
-    <div className="flex w-full h-full gap-3" style={{ background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" }}>
+    <div className="flex w-full h-full gap-3" style={{ background: "linear-gradient(160deg, var(--background) 0%, var(--secondary) 30%, var(--muted) 60%, var(--background) 100%)" }}>
       {/* 좌측 */}
-      <div className={`transition-all duration-500 ease-in-out flex-shrink-0 ${isPanelOpen ? "w-64 overflow-y-auto flex-shrink-0 scrollbar-hide bg-white" : "w-full overflow-auto"}`}>
-        <div className={`h-full transition-all duration-500 ${isPanelOpen ? "bg-white p-4" : "p-8 flex justify-center items-center overflow-visible"}`} style={!isPanelOpen ? { background: "linear-gradient(160deg, #fdfcf9 0%, #faf8f3 30%, #f7f4ee 60%, #fbf9f5 100%)" } : undefined}>
+      <div className={`transition-all duration-500 ease-in-out flex-shrink-0 ${isPanelOpen ? "w-64 overflow-y-auto flex-shrink-0 scrollbar-hide bg-card" : "w-full overflow-auto"}`}>
+        <div className={`h-full transition-all duration-500 ${isPanelOpen ? "bg-card p-4" : "p-8 flex justify-center items-center overflow-visible"}`} style={!isPanelOpen ? { background: "linear-gradient(160deg, var(--background) 0%, var(--secondary) 30%, var(--muted) 60%, var(--background) 100%)" } : undefined}>
 
           {isPanelOpen ? (
             /* ── 패널 열림: 세로 리스트 ── */
             <div>
               {/* 팀명 */}
               {teamName && (
-                <div className="px-3 pb-4 mb-5 border-b border-gray-200">
-                  <h2 className="text-2xl font-black text-gray-900">{teamName}</h2>
-                  {teamSub && <p className="text-sm text-gray-400 mt-1.5">{teamSub}</p>}
+                <div className="px-3 pb-4 mb-5 border-b border-border">
+                  <h2 className="text-2xl font-black text-foreground">{teamName}</h2>
+                  {teamSub && <p className="text-sm text-muted-foreground mt-1.5">{teamSub}</p>}
                 </div>
               )}
               <div className="space-y-0.5">
@@ -684,13 +684,13 @@ export default function TeamOrgChart({
                     key={emp.id}
                     onClick={() => selectEmployee(emp)}
                     className={`w-full flex items-center gap-3.5 px-3 py-2 rounded-xl text-left transition-all duration-200 ${
-                      isActive ? "bg-gray-100 border border-gray-200" : "hover:bg-[#faf7f2]"
+                      isActive ? "bg-primary/10 border border-primary/15" : "hover:bg-muted"
                     }`}
                   >
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 overflow-hidden ${
                       isLeader
-                        ? "bg-gray-700 text-white"
-                        : "bg-gray-300 text-gray-600"
+                        ? "bg-foreground/80 text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
                     }`}>
                       {emp.photoUrl ? (
                         <img src={emp.photoUrl} alt={emp.name} className="w-full h-full object-cover" />
@@ -699,8 +699,8 @@ export default function TeamOrgChart({
                       )}
                     </div>
                     <div className="min-w-0 flex items-baseline gap-2">
-                      <p className={`text-lg font-semibold truncate ${isActive ? "text-gray-900" : "text-gray-700"}`}>{emp.name}</p>
-                      <p className={`text-sm flex-shrink-0 ${isActive ? "text-gray-500" : "text-gray-400"}`}>{emp.position}{emp.role !== "팀원" ? ` · ${emp.role}` : ""}</p>
+                      <p className={`text-lg font-semibold truncate ${isActive ? "text-foreground" : "text-foreground/80"}`}>{emp.name}</p>
+                      <p className={`text-sm flex-shrink-0 ${isActive ? "text-muted-foreground" : "text-muted-foreground"}`}>{emp.position}{emp.role !== "팀원" ? ` · ${emp.role}` : ""}</p>
                     </div>
                   </button>
                 );
@@ -723,18 +723,18 @@ export default function TeamOrgChart({
                   onMouseLeave={() => setHoveredId(null)}
                 >
                   <div
-                    className="org-node w-60 h-60 rounded-full overflow-hidden relative flex items-center justify-center bg-white"
+                    className="org-node w-60 h-60 rounded-full overflow-hidden relative flex items-center justify-center bg-card"
                   >
                     <span className="relative z-10">
                       {leader.photoUrl ? (
                         <img src={leader.photoUrl} alt={leader.name} className="w-60 h-60 object-cover" />
                       ) : (
-                        <span className="text-sm text-white/50">사진없음</span>
+                        <span className="text-sm text-primary-foreground/50">사진없음</span>
                       )}
                     </span>
                   </div>
-                  <span className="mt-4 font-bold text-[#111111] text-3xl tracking-tight">{leader.name}</span>
-                  <span className="text-lg text-gray-400 font-light">{leader.position} · {leader.role}</span>
+                  <span className="mt-4 font-bold text-foreground text-3xl tracking-tight">{leader.name}</span>
+                  <span className="text-lg text-muted-foreground font-light">{leader.position} · {leader.role}</span>
                 </div>
               )}
 
@@ -760,7 +760,7 @@ export default function TeamOrgChart({
                   <div key={member.id}>
                     {/* 노드 점 — 미니멀 */}
                     <div
-                      className="absolute rounded-full bg-gray-400 shadow-[0_0_10px_rgba(0,0,0,0.15)]"
+                      className="absolute rounded-full bg-muted-foreground shadow-[0_0_10px_rgba(0,0,0,0.15)]"
                       style={{ left: cx - NODE_R / 2, top: lineY - NODE_R / 2, width: NODE_R, height: NODE_R }}
                     />
                     {/* 수직선 — 페이드 */}
