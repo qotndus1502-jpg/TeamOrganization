@@ -75,7 +75,7 @@ export default function Navbar() {
               </Link>
             )}
             <Separator orientation="vertical" className="h-5 mx-2" />
-            <Link
+            <a
               href={user.hasEmployee && user.teamId ? `/dashboard?company=${encodeURIComponent(user.teamCompany || "남광토건")}&team=${user.teamId}&employee=${user.employeeId}` : user.hasEmployee ? "/dashboard" : "/register"}
               className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/60 transition-all duration-200"
             >
@@ -91,7 +91,7 @@ export default function Navbar() {
                   )}
                 </span>
               </div>
-            </Link>
+            </a>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="ml-1 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive-muted">
               로그아웃
             </Button>
