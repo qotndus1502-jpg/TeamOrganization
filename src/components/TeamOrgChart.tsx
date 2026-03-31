@@ -68,16 +68,20 @@ function parseResumeData(data: string | null) {
 function fmtDate(d: string | null | undefined): string {
   if (!d) return "—";
   const s = d.replace(/[\/\-]/g, ".").replace(/\s+/g, "");
-  const m = s.match(/(\d{4})\.(\d{1,2})\.(\d{1,2})/);
-  if (m) return `${m[1]}.${m[2].padStart(2,"0")}.${m[3].padStart(2,"0")}`;
+  const m4 = s.match(/(\d{4})\.(\d{1,2})\.(\d{1,2})/);
+  if (m4) return `${m4[1]}.${m4[2].padStart(2,"0")}.${m4[3].padStart(2,"0")}`;
+  const m2 = s.match(/(\d{2})\.(\d{1,2})\.(\d{1,2})/);
+  if (m2) { const yr = Number(m2[1]) < 50 ? 2000 + Number(m2[1]) : 1900 + Number(m2[1]); return `${yr}.${m2[2].padStart(2,"0")}.${m2[3].padStart(2,"0")}`; }
   return d;
 }
 
 function fmtDateShort(d: string | null | undefined): string {
   if (!d) return "—";
   const s = d.replace(/[\/\-]/g, ".").replace(/\s+/g, "");
-  const m = s.match(/(\d{4})\.(\d{1,2})\.(\d{1,2})/);
-  if (m) return `${m[1]}.${m[2].padStart(2,"0")}`;
+  const m4 = s.match(/(\d{4})\.(\d{1,2})/);
+  if (m4) return `${m4[1]}.${m4[2].padStart(2,"0")}`;
+  const m2 = s.match(/(\d{2})\.(\d{1,2})/);
+  if (m2) { const yr = Number(m2[1]) < 50 ? 2000 + Number(m2[1]) : 1900 + Number(m2[1]); return `${yr}.${m2[2].padStart(2,"0")}`; }
   return d;
 }
 
