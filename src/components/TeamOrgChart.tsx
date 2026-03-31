@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import PdfModal from "@/components/PdfModal";
+import { Badge } from "@/components/ui/badge";
 
 interface Employee {
   id: number;
@@ -315,7 +316,7 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
           {/* 카드 상단 구멍 (슬롯) + 직종 태그 */}
           <div className="relative z-10 flex justify-center items-center gap-2 mb-5 mt-1">
             {extra.jobCategory && (
-              <span className="absolute left-0 px-4 py-1 rounded-full bg-orange-muted-foreground text-primary-foreground text-base font-bold">{extra.jobCategory}</span>
+              <Badge variant="orange" size="md" className="absolute left-0">{extra.jobCategory}</Badge>
             )}
             <div className="w-16 h-4 rounded-md bg-muted border border-input" style={{ boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)" }} />
           </div>
