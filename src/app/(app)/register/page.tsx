@@ -167,7 +167,7 @@ function EditableSection<T extends Record<string, string>>({
                 {fields.filter((f) => f.type === "textarea").map((f) => readOnly ? (
                   <div key={String(f.key)} className="py-1">
                     <ul className="space-y-1.5">
-                      {(item[f.key] || "").split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
+                      {(item[f.key] || "").split("\n").filter(Boolean).map((line: string, j: number) => (
                         <li key={j} className="flex items-center gap-2 text-sm text-foreground">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                           {line}
@@ -178,26 +178,33 @@ function EditableSection<T extends Record<string, string>>({
                   </div>
                 ) : (
                   <div key={String(f.key)} className="space-y-1.5">
-                    {[0, 1, 2, 3, 4].map((j) => {
+                    {(() => {
                       const lines = (item[f.key] || "").split("\n");
-                      return (
+                      if (lines.length === 0 || lines[lines.length - 1] !== "") lines.push("");
+                      return lines.map((line, j) => (
                         <div key={j} className="flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                           <input
                             type="text"
-                            value={lines[j] || ""}
+                            value={line}
                             onChange={(e) => {
                               const newLines = [...lines];
-                              while (newLines.length <= j) newLines.push("");
                               newLines[j] = e.target.value;
-                              update(idx, f.key, newLines.slice(0, 5).join("\n"));
+                              const trimmed = newLines.join("\n").replace(/\n+$/, "");
+                              update(idx, f.key, trimmed);
                             }}
                             placeholder={`${f.label.replace(/\s*\(.*\)/, "")} ${j + 1}`}
                             className="flex-1 border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none"
                           />
+                          {lines.filter(Boolean).length > 0 && line !== "" && (
+                            <button type="button" onClick={() => {
+                              const newLines = lines.filter((_, k) => k !== j);
+                              update(idx, f.key, newLines.join("\n").replace(/\n+$/, ""));
+                            }} className="text-destructive/60 hover:text-destructive text-lg px-1">×</button>
+                          )}
                         </div>
-                      );
-                    })}
+                      ));
+                    })()}
                   </div>
                 ))}
               </div>
