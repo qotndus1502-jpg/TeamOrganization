@@ -295,14 +295,11 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
     fetch("/api/admin/categories").then((r) => r.ok ? r.json() : []).then(setDbCategories).catch(() => {});
   }, []);
 
-  const hqTeams = teams.filter((t) => t.location.type === "HQ");
-  const siteTeams = teams.filter((t) => t.location.type === "SITE");
+  const companies = ["남광토건", "극동건설", "금광기업"];
 
-  const groupByCategory = (teamList: Team[], locationType: string) => {
+  const groupByCategory = (teamList: Team[]) => {
     const grouped: { label: string; teams: Team[] }[] = [];
-    // 해당 소속의 locationId 목록
     const locationIds = [...new Set(teamList.map((t) => t.location.id))];
-    // DB에 등록된 카테고리 (해당 소속의 것만)
     const locCats = dbCategories.filter((c) => locationIds.includes(c.locationId));
     const catNames = [...new Set([
       ...locCats.map((c) => c.name),
@@ -317,13 +314,21 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
     return grouped;
   };
 
-  const locations = [
-    { label: "본사", teams: hqTeams, categories: groupByCategory(hqTeams, "HQ") },
-    { label: "현장", teams: siteTeams, categories: groupByCategory(siteTeams, "SITE") },
-  ];
+  const companyData = companies.map((company) => {
+    const companyTeams = teams.filter((t) => t.location.company === company);
+    const hqTeams = companyTeams.filter((t) => t.location.type === "HQ");
+    const siteTeams = companyTeams.filter((t) => t.location.type === "SITE");
+    return {
+      company,
+      locations: [
+        { label: "본사", teams: hqTeams, categories: groupByCategory(hqTeams) },
+        { label: "현장", teams: siteTeams, categories: groupByCategory(siteTeams) },
+      ],
+    };
+  });
 
   return (
-    <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]">
+    <div className="flex-1 overflow-auto min-h-[calc(100vh-4rem)]">
       <style>{`
         .premium-card {
           transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
@@ -334,7 +339,17 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
         }
       `}</style>
 
-      <CompanyTreeLayout companyFilter={companyFilter} locations={locations} onSelectTeam={onSelectTeam} userTeamId={userTeamId} />
+      <div className="flex flex-col items-center gap-12 py-10">
+        {companyData.map((data) => (
+          <CompanyTreeLayout
+            key={data.company}
+            companyFilter={data.company}
+            locations={data.locations}
+            onSelectTeam={onSelectTeam}
+            userTeamId={userTeamId}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -466,30 +481,10 @@ function DashboardContent() {
   }, []);
 
   const loadTeams = useCallback(async () => {
-    const url = companyFilter
-      ? `/api/teams?company=${encodeURIComponent(companyFilter)}`
-      : "/api/teams";
-    const mainTeams: Team[] = await fetch(url).then((r) => r.json());
-
-    // "나의 팀" 파라미터로 진입 시, 해당 팀이 목록에 없으면 전체에서 추가
-    if (teamParam) {
-      const tid = Number(teamParam);
-      const found = mainTeams.find((t) => t.id === tid);
-      if (!found) {
-        const allRes: Team[] = await fetch("/api/teams").then((r) => r.json());
-        const myTeam = allRes.find((t) => t.id === tid);
-        if (myTeam) mainTeams.push(myTeam);
-        setAllTeams(allRes);
-        setTeams(mainTeams);
-        return;
-      }
-    }
-
-    setTeams(mainTeams);
-
-    // 부서이동용 전체 팀 목록
-    fetch("/api/teams").then((r) => r.json()).then(setAllTeams);
-  }, [companyFilter, teamParam]);
+    const allRes: Team[] = await fetch("/api/teams").then((r) => r.json());
+    setTeams(allRes);
+    setAllTeams(allRes);
+  }, []);
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 

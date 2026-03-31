@@ -47,7 +47,7 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-between h-16 items-center">
-      <a href={`/dashboard?company=${encodeURIComponent("남광토건")}`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all" title="홈">
+      <a href="/dashboard" className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all" title="홈">
         <Home className="w-5 h-5" />
       </a>
 
