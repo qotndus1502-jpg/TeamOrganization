@@ -180,7 +180,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [taskItems, setTaskItems] = useState<string[]>([]);
   const [contactForm, setContactForm] = useState({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" });
   const [certsItems, setCertsItems] = useState<{ name: string; acquisition_date: string; issuer: string }[]>([]);
-  const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string; description: string }[]>([]);
+  const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string; descItems: string[] }[]>([]);
   const [eduItems, setEduItems] = useState<{ school_name: string; major: string; degree: string }[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -513,16 +513,29 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                     <div><Label className="text-xs">기간</Label><Input value={item.period} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], period: e.target.value }; setExtCareerItems(n); }} placeholder="2020.01 ~ 2023.06" /></div>
                     <div><Label className="text-xs">담당 업무</Label><Input value={item.task} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], task: e.target.value }; setExtCareerItems(n); }} placeholder="업무 요약" /></div>
                   </div>
-                  <div><Label className="text-xs">상세 업무</Label><textarea value={item.description} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], description: e.target.value }; setExtCareerItems(n); }} rows={2} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="상세 업무 내용 (줄바꿈 가능)" /></div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-xs">상세 업무</Label>
+                      {item.descItems.length < 5 && <button type="button" className="text-xs text-primary font-medium" onClick={() => { const n = [...extCareerItems]; n[i] = { ...n[i], descItems: [...n[i].descItems, ""] }; setExtCareerItems(n); }}>+ 추가</button>}
+                    </div>
+                    <div className="space-y-1.5">
+                      {item.descItems.map((d, di) => (
+                        <div key={di} className="flex gap-1.5 items-center">
+                          <Input value={d} onChange={(e) => { const n = [...extCareerItems]; const ds = [...n[i].descItems]; ds[di] = e.target.value; n[i] = { ...n[i], descItems: ds }; setExtCareerItems(n); }} placeholder={`상세 업무 ${di + 1}`} />
+                          {item.descItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => { const n = [...extCareerItems]; n[i] = { ...n[i], descItems: n[i].descItems.filter((_, k) => k !== di) }; setExtCareerItems(n); }}>×</Button>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ))}
               {extCareerItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", description: "" }])}>+ 경력 추가</Button>
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", descItems: [""] }])}>+ 경력 추가</Button>
               )}
               <p className="text-xs text-muted-foreground">{extCareerItems.length}/5</p>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company).map(e => ({ ...e, description: e.descItems.filter(Boolean).join("\n"), descItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
@@ -681,7 +694,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "", description: e.description || "" })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", description: "" }]); setEditSection("extCareer"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "", descItems: (e.description || "").split("\n").filter(Boolean) })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", descItems: [""] }]); setEditSection("extCareer"); }} />}
                 </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
