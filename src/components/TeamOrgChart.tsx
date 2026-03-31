@@ -83,10 +83,11 @@ function fmtDateShort(d: string | null | undefined): string {
 
 function fmtPeriod(p: string | null | undefined): string {
   if (!p) return "—";
-  const parts = p.split(/[~\-–—]/).map(s => s.trim()).filter(Boolean);
+  const cleaned = p.replace(/\(.*?\)/g, "").trim();
+  const parts = cleaned.split(/[~\-–—]/).map(s => s.trim()).filter(Boolean);
   if (parts.length >= 2) return `${fmtDateShort(parts[0])} ~ ${fmtDateShort(parts[1])}`;
   if (parts.length === 1) return fmtDateShort(parts[0]);
-  return p;
+  return cleaned;
 }
 
 function fmtRange(item: { startDate?: string; endDate?: string; period?: string }): string {
@@ -699,8 +700,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
                     <div key={i} className="p-6 rounded-md bg-card border-2 border-border">
-                      <p className="text-base font-bold text-foreground">{e.company}{e.position ? ` | ${e.position}` : ""}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{fmtRange(e)}</p>
+                      <p className="text-base font-bold text-foreground">{e.company}{e.position ? ` | ${e.position}` : ""} | {fmtRange(e)}</p>
                       {(e.task || e.description) && (
                         <ul className="mt-4 space-y-2 border-t border-border pt-4">
                           {e.task && !e.description && (
