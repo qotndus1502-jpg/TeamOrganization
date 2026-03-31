@@ -188,15 +188,10 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
   });
 }
 
-const COMPANY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  "남광토건": { bg: "bg-blue-500", text: "text-white", border: "border-blue-400" },
-  "극동건설": { bg: "bg-emerald-500", text: "text-white", border: "border-emerald-400" },
-  "금광기업": { bg: "bg-amber-500", text: "text-white", border: "border-amber-400" },
-};
-
-const LOC_COLORS: Record<string, { gradient: string; shadow: string }> = {
-  "HQ": { gradient: "bg-gradient-to-br from-indigo-600 to-indigo-500", shadow: "shadow-indigo-200" },
-  "SITE": { gradient: "bg-gradient-to-br from-rose-500 to-rose-400", shadow: "shadow-rose-200" },
+const COMPANY_STYLES: Record<string, string> = {
+  "남광토건": "bg-primary text-primary-foreground",
+  "극동건설": "bg-foreground text-card",
+  "금광기업": "bg-primary/70 text-primary-foreground",
 };
 
 function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTeam, userTeamId }: {
@@ -222,7 +217,7 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
       <div className="relative flex items-center" style={{ zIndex: 1 }}>
         {/* 본사/현장 */}
         <div className="flex-shrink-0">
-          <div data-node="location" data-loc-id={locLabel} className={`${LOC_COLORS[locationType]?.gradient || "bg-gradient-to-br from-primary to-primary/85"} rounded-2xl w-[160px] h-[80px] shadow-lg ${LOC_COLORS[locationType]?.shadow || "shadow-primary/20"} flex flex-col items-center justify-center text-center`}>
+          <div data-node="location" data-loc-id={locLabel} className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
             <h2 className="text-base font-bold text-white">{locLabel}</h2>
           </div>
         </div>
@@ -235,10 +230,10 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
               <div className="flex-shrink-0">
                 <div
                   data-node="company" data-company-id={`${locLabel}-${cg.company}`} data-parent={locLabel}
-                  className={`${COMPANY_COLORS[cg.company]?.bg || "bg-card"} ${COMPANY_COLORS[cg.company]?.border || "border-border/40"} border rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center`}
+                  className={`${COMPANY_STYLES[cg.company] || "bg-card text-foreground"} rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center`}
                 >
-                  <h3 className={`text-base font-bold ${COMPANY_COLORS[cg.company]?.text || "text-foreground"}`}>{cg.company}</h3>
-                  <p className={`text-xs mt-0.5 ${COMPANY_COLORS[cg.company]?.text ? "text-white/70" : "text-muted-foreground"}`}>{cg.teams.length}팀</p>
+                  <h3 className="text-base font-bold">{cg.company}</h3>
+                  <p className="text-xs mt-0.5 opacity-70">{cg.teams.length}팀</p>
                 </div>
               </div>
 
