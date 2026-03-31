@@ -228,7 +228,7 @@ export default function RegisterPage() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
-  const [step, setStep] = useState<"upload" | "form">("upload");
+  const [step, setStep] = useState<"upload" | "form" | "quick">("upload");
 
   // 기본 정보 폼
   const [form, setForm] = useState({
@@ -385,7 +385,8 @@ export default function RegisterPage() {
     }
   }, [appointmentHistory, teams, form.teamId]);
 
-  const handleSkip = () => setStep("form");
+  const handleSkip = () => setStep("quick");
+  const [quickTasks, setQuickTasks] = useState<string[]>([""]);
   const companies = [...new Set(teams.map((t) => t.location.company))];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -409,8 +410,11 @@ export default function RegisterPage() {
 
     if (res.ok) {
       setLoading(false);
-      alert(isEdit ? "수정이 완료되었습니다." : "등록이 완료되었습니다.");
-      router.push("/profile");
+      const emp = await res.json();
+      const teamId = emp.teamId || form.teamId;
+      const empId = emp.id || user?.employeeId;
+      const company = teams.find(t => t.id === Number(teamId))?.location?.company || "남광토건";
+      window.location.href = `/dashboard?company=${encodeURIComponent(company)}&team=${teamId}&employee=${empId}`;
       return;
     } else {
       const err = await res.json();
@@ -421,6 +425,98 @@ export default function RegisterPage() {
 
   if (!user) return null;
   if (step === "upload") return <PdfDropzone onExtracted={handleExtracted} onSkip={handleSkip} />;
+
+  // ── 간편 등록 (PDF 없이) ──
+  if (step === "quick") {
+    const quickSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true); setError("");
+      if (!form.teamId) { setError("소속 팀을 선택해주세요."); setLoading(false); return; }
+      if (!form.position) { setError("직급을 선택해주세요."); setLoading(false); return; }
+      if (!form.role) { setError("직책을 선택해주세요."); setLoading(false); return; }
+      const body = {
+        name: form.name, email: form.email, phone: "", position: form.position, role: form.role,
+        teamId: form.teamId, joinDate: form.joinDate, userId: user.id,
+        taskDetail: quickTasks.filter(Boolean).join("\n"),
+      };
+      const res = await fetch("/api/employees", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (res.ok) {
+        const emp = await res.json();
+        const company = teams.find(t => t.id === Number(form.teamId))?.location?.company || "남광토건";
+        window.location.href = `/dashboard?company=${encodeURIComponent(company)}&team=${form.teamId}&employee=${emp.id}`;
+      } else {
+        const err = await res.json();
+        setError(err.error || "등록에 실패했습니다.");
+        setLoading(false);
+      }
+    };
+
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-auth-gradient">
+        <div className="w-full max-w-md bg-card/80 backdrop-blur-sm rounded-2xl shadow-xl border-0 p-8">
+          <h1 className="text-2xl font-bold text-foreground mb-1">인사정보 등록</h1>
+          <p className="text-sm text-muted-foreground mb-6">기본 정보를 입력하면 바로 시작할 수 있습니다</p>
+          {error && <div className="mb-4 p-3 bg-destructive-muted border border-destructive-border text-destructive-muted-foreground rounded-lg text-sm">{error}</div>}
+          <form onSubmit={quickSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">소속 팀</label>
+              <select value={form.teamId} onChange={(e) => setForm({ ...form, teamId: e.target.value })} className="flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15">
+                <option value="">선택</option>
+                {[...new Set(teams.map(t => t.location.company))].map(company => (
+                  <optgroup key={company} label={company}>
+                    {teams.filter(t => t.location.company === company).map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">직급</label>
+                <select value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} className="flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15">
+                  <option value="">선택</option>
+                  {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">직책</label>
+                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15">
+                  <option value="">선택</option>
+                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">입사일</label>
+              <input type="text" value={form.joinDate} onChange={(e) => setForm({ ...form, joinDate: e.target.value })} placeholder="2024.03.01" className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15" />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-foreground">담당 업무</label>
+                {quickTasks.length < 5 && <button type="button" className="text-xs text-primary font-medium" onClick={() => setQuickTasks([...quickTasks, ""])}>+ 추가</button>}
+              </div>
+              <div className="space-y-2">
+                {quickTasks.map((t, i) => (
+                  <div key={i} className="flex gap-1.5 items-center">
+                    <input value={t} onChange={(e) => { const n = [...quickTasks]; n[i] = e.target.value; setQuickTasks(n); }} placeholder={`업무 ${i + 1}`} className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15" />
+                    {quickTasks.length > 1 && <button type="button" onClick={() => setQuickTasks(quickTasks.filter((_, j) => j !== i))} className="text-destructive/60 hover:text-destructive text-lg px-1">×</button>}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">{quickTasks.length}/5</p>
+            </div>
+            <button type="submit" disabled={loading} className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-semibold text-sm shadow-xs hover:bg-primary/90 transition disabled:opacity-50">
+              {loading ? "등록 중..." : "등록하고 시작하기"}
+            </button>
+          </form>
+          <button onClick={() => setStep("upload")} className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition">
+            이력서 PDF로 등록하기
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const readOnly = isEdit && !editing;
   const inputCls = readOnly
