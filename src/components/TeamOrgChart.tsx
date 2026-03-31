@@ -176,12 +176,12 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   // 섹션별 수정 다이얼로그
   const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | "certs" | "career" | "extCareer" | "education" | null>(null);
   const [skillsForm, setSkillsForm] = useState({ skills: employee.skills || "" });
-  const [infoForm, setInfoForm] = useState({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: employee.taskDetail || "" });
+  const [infoForm, setInfoForm] = useState({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: "" });
+  const [taskItems, setTaskItems] = useState<string[]>([]);
   const [contactForm, setContactForm] = useState({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" });
-  const [certsForm, setCertsForm] = useState("");
-  const [careerForm, setCareerForm] = useState("");
-  const [extCareerForm, setExtCareerForm] = useState("");
-  const [educationForm, setEducationForm] = useState("");
+  const [certsItems, setCertsItems] = useState<{ name: string; acquisition_date: string; issuer: string }[]>([]);
+  const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string }[]>([]);
+  const [eduItems, setEduItems] = useState<{ school_name: string; major: string; degree: string }[]>([]);
   const [saving, setSaving] = useState(false);
 
   // resumeData의 특정 키를 업데이트
@@ -424,12 +424,12 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
         </Dialog>
 
         {/* 섹션별 수정 다이얼로그들 */}
-        {/* 스킬 수정 */}
+        {/* ── 스킬 수정 ── */}
         <Dialog open={editSection === "skills"} onOpenChange={(o) => !o && setEditSection(null)}>
           <DialogContent>
             <DialogHeader><DialogTitle>스킬 수정</DialogTitle></DialogHeader>
             <div className="space-y-1.5">
-              <Label>스킬 (쉼표로 구분)</Label>
+              <Label>보유 스킬 (쉼표로 구분)</Label>
               <Input value={skillsForm.skills} onChange={(e) => setSkillsForm({ skills: e.target.value })} placeholder="예: AutoCAD, Excel, BIM" />
             </div>
             <div className="flex gap-2 mt-2">
@@ -439,27 +439,14 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </DialogContent>
         </Dialog>
 
-        {/* 인사정보 수정 */}
+        {/* ── 인사정보 수정 ── */}
         <Dialog open={editSection === "info"} onOpenChange={(o) => !o && setEditSection(null)}>
           <DialogContent>
             <DialogHeader><DialogTitle>인사정보 수정</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label>생년월일</Label>
-                <Input value={infoForm.birthDate} onChange={(e) => setInfoForm({ ...infoForm, birthDate: e.target.value })} placeholder="예: 2000.01.01" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>주소</Label>
-                <Input value={infoForm.address} onChange={(e) => setInfoForm({ ...infoForm, address: e.target.value })} placeholder="예: 서울특별시 강남구" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>직종</Label>
-                <Input value={infoForm.jobCategory} onChange={(e) => setInfoForm({ ...infoForm, jobCategory: e.target.value })} placeholder="예: 건축, 토목" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>담당 업무</Label>
-                <Input value={infoForm.taskDetail} onChange={(e) => setInfoForm({ ...infoForm, taskDetail: e.target.value })} placeholder="예: 시공관리, 설계검토" />
-              </div>
+              <div className="space-y-1.5"><Label>생년월일</Label><Input value={infoForm.birthDate} onChange={(e) => setInfoForm({ ...infoForm, birthDate: e.target.value })} placeholder="2000.01.01" /></div>
+              <div className="space-y-1.5"><Label>주소</Label><Input value={infoForm.address} onChange={(e) => setInfoForm({ ...infoForm, address: e.target.value })} placeholder="서울특별시 강남구" /></div>
+              <div className="space-y-1.5"><Label>직종</Label><Input value={infoForm.jobCategory} onChange={(e) => setInfoForm({ ...infoForm, jobCategory: e.target.value })} placeholder="건축, 토목" /></div>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveFields(infoForm)} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -468,23 +455,14 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </DialogContent>
         </Dialog>
 
-        {/* 연락처 수정 */}
+        {/* ── 연락처 수정 ── */}
         <Dialog open={editSection === "contact"} onOpenChange={(o) => !o && setEditSection(null)}>
           <DialogContent>
             <DialogHeader><DialogTitle>연락처 수정</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label>회사 전화</Label>
-                <Input type="tel" value={contactForm.phoneWork} onChange={(e) => setContactForm({ ...contactForm, phoneWork: e.target.value })} placeholder="예: 02-1234-5678" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>휴대폰</Label>
-                <Input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} placeholder="예: 010-1234-5678" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>이메일</Label>
-                <Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} />
-              </div>
+              <div className="space-y-1.5"><Label>회사 전화</Label><Input type="tel" value={contactForm.phoneWork} onChange={(e) => setContactForm({ ...contactForm, phoneWork: e.target.value })} placeholder="02-1234-5678" /></div>
+              <div className="space-y-1.5"><Label>휴대폰</Label><Input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} placeholder="010-1234-5678" /></div>
+              <div className="space-y-1.5"><Label>이메일</Label><Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} /></div>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveFields(contactForm)} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -493,55 +471,117 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </DialogContent>
         </Dialog>
 
-        {/* 자격증 수정 */}
-        <Dialog open={editSection === "certs"} onOpenChange={(o) => !o && setEditSection(null)}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>자격증 및 면허 수정</DialogTitle></DialogHeader>
-            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: name, acquisition_date, issuer</p>
-            <textarea value={certsForm} onChange={(e) => setCertsForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
-            <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => { try { saveResumeKey("certifications", JSON.parse(certsForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
-              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* 자사 경력(담당업무) 수정 */}
+        {/* ── 현재 업무사항 수정 (최대 5개) ── */}
         <Dialog open={editSection === "career"} onOpenChange={(o) => !o && setEditSection(null)}>
           <DialogContent>
-            <DialogHeader><DialogTitle>담당 업무 수정</DialogTitle></DialogHeader>
-            <div className="space-y-1.5">
-              <Label>담당 업무 (줄바꿈으로 구분)</Label>
-              <textarea value={careerForm} onChange={(e) => setCareerForm(e.target.value)} rows={5} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-ring outline-none" placeholder="업무 자동화 시스템 개발&#10;데이터 분석 리포트 작성" />
+            <DialogHeader><DialogTitle>현재 업무사항 수정</DialogTitle></DialogHeader>
+            <div className="space-y-2">
+              {taskItems.map((item, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <Input value={item} onChange={(e) => { const n = [...taskItems]; n[i] = e.target.value; setTaskItems(n); }} placeholder={`업무 ${i + 1}`} />
+                  <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => setTaskItems(taskItems.filter((_, j) => j !== i))}>×</Button>
+                </div>
+              ))}
+              {taskItems.length < 5 && (
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setTaskItems([...taskItems, ""])}>+ 업무 추가</Button>
+              )}
+              <p className="text-xs text-muted-foreground">{taskItems.length}/5</p>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => saveFields({ taskDetail: careerForm })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveFields({ taskDetail: taskItems.filter(Boolean).join("\n") })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* 타사 경력 수정 */}
+        {/* ── 타사 경력 수정 (최대 5개) ── */}
         <Dialog open={editSection === "extCareer"} onOpenChange={(o) => !o && setEditSection(null)}>
-          <DialogContent>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
             <DialogHeader><DialogTitle>타사 경력 수정</DialogTitle></DialogHeader>
-            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: company, position, period, task, description</p>
-            <textarea value={extCareerForm} onChange={(e) => setExtCareerForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
+            <div className="space-y-4">
+              {extCareerItems.map((item, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">경력 {i + 1}</span>
+                    <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setExtCareerItems(extCareerItems.filter((_, j) => j !== i))}>×</Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">회사명</Label><Input value={item.company} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], company: e.target.value }; setExtCareerItems(n); }} placeholder="회사명" /></div>
+                    <div><Label className="text-xs">직책</Label><Input value={item.position} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], position: e.target.value }; setExtCareerItems(n); }} placeholder="사원, 대리 등" /></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">기간</Label><Input value={item.period} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], period: e.target.value }; setExtCareerItems(n); }} placeholder="2020.01 ~ 2023.06" /></div>
+                    <div><Label className="text-xs">담당 업무</Label><Input value={item.task} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], task: e.target.value }; setExtCareerItems(n); }} placeholder="업무 내용" /></div>
+                  </div>
+                </div>
+              ))}
+              {extCareerItems.length < 5 && (
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "" }])}>+ 경력 추가</Button>
+              )}
+              <p className="text-xs text-muted-foreground">{extCareerItems.length}/5</p>
+            </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => { try { saveResumeKey("experience", JSON.parse(extCareerForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
         </Dialog>
 
-        {/* 학력 수정 */}
-        <Dialog open={editSection === "education"} onOpenChange={(o) => !o && setEditSection(null)}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>학력 수정</DialogTitle></DialogHeader>
-            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: school_name, major, degree</p>
-            <textarea value={educationForm} onChange={(e) => setEducationForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
+        {/* ── 자격증 수정 (최대 5개) ── */}
+        <Dialog open={editSection === "certs"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>자격증 및 면허 수정</DialogTitle></DialogHeader>
+            <div className="space-y-4">
+              {certsItems.map((item, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">자격증 {i + 1}</span>
+                    <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setCertsItems(certsItems.filter((_, j) => j !== i))}>×</Button>
+                  </div>
+                  <div><Label className="text-xs">자격증명</Label><Input value={item.name} onChange={(e) => { const n = [...certsItems]; n[i] = { ...n[i], name: e.target.value }; setCertsItems(n); }} placeholder="건축기사" /></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">취득일</Label><Input value={item.acquisition_date} onChange={(e) => { const n = [...certsItems]; n[i] = { ...n[i], acquisition_date: e.target.value }; setCertsItems(n); }} placeholder="2024.06" /></div>
+                    <div><Label className="text-xs">발급기관</Label><Input value={item.issuer} onChange={(e) => { const n = [...certsItems]; n[i] = { ...n[i], issuer: e.target.value }; setCertsItems(n); }} placeholder="한국산업인력관리공단" /></div>
+                  </div>
+                </div>
+              ))}
+              {certsItems.length < 5 && (
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setCertsItems([...certsItems, { name: "", acquisition_date: "", issuer: "" }])}>+ 자격증 추가</Button>
+              )}
+              <p className="text-xs text-muted-foreground">{certsItems.length}/5</p>
+            </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => { try { saveResumeKey("education", JSON.parse(educationForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("certifications", certsItems.filter(c => c.name))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── 학력 수정 (최대 5개) ── */}
+        <Dialog open={editSection === "education"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>학력 수정</DialogTitle></DialogHeader>
+            <div className="space-y-4">
+              {eduItems.map((item, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">학력 {i + 1}</span>
+                    <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setEduItems(eduItems.filter((_, j) => j !== i))}>×</Button>
+                  </div>
+                  <div><Label className="text-xs">학교명</Label><Input value={item.school_name} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], school_name: e.target.value }; setEduItems(n); }} placeholder="OO대학교" /></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">전공</Label><Input value={item.major} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], major: e.target.value }; setEduItems(n); }} placeholder="건축공학과" /></div>
+                    <div><Label className="text-xs">학위</Label><Input value={item.degree} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], degree: e.target.value }; setEduItems(n); }} placeholder="학사" /></div>
+                  </div>
+                </div>
+              ))}
+              {eduItems.length < 5 && (
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setEduItems([...eduItems, { school_name: "", major: "", degree: "" }])}>+ 학력 추가</Button>
+              )}
+              <p className="text-xs text-muted-foreground">{eduItems.length}/5</p>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveResumeKey("education", eduItems.filter(e => e.school_name))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
@@ -563,7 +603,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
         <div className="bg-card rounded-md border border-border px-4 py-3">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">학력</span>
-            {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setEducationForm(JSON.stringify(rd.education || [], null, 2)); setEditSection("education"); }} />}
+            {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const edu = (rd.education || []).map((e: Record<string, string>) => ({ school_name: e.school_name || "", major: e.major || "", degree: e.degree || "" })); setEduItems(edu.length > 0 ? edu : [{ school_name: "", major: "", degree: "" }]); setEditSection("education"); }} />}
           </div>
           <div className="space-y-1">
             {education.length > 0 ? education.slice(0, 3).map((e, i) => (
@@ -593,7 +633,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { setCareerForm(employee.taskDetail || ""); setEditSection("career"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const tasks = (employee.taskDetail || "").split("\n").filter(Boolean); setTaskItems(tasks.length > 0 ? tasks : [""]); setEditSection("career"); }} />}
                 </div>
                 <div className="space-y-3">
                   {appointmentHistory.length > 0 ? appointmentHistory.map((a, i) => (
@@ -640,7 +680,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setExtCareerForm(JSON.stringify(rd.experience || [], null, 2)); setEditSection("extCareer"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "" })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "" }]); setEditSection("extCareer"); }} />}
                 </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
@@ -681,7 +721,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                 <div>
                   <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                     <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자격증 및 면허</h4>
-                    {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setCertsForm(JSON.stringify(rd.certifications || [], null, 2)); setEditSection("certs"); }} />}
+                    {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const certs = (rd.certifications || []).map((c: Record<string, string>) => ({ name: c.name || "", acquisition_date: c.acquisition_date || "", issuer: c.issuer || "" })); setCertsItems(certs.length > 0 ? certs : [{ name: "", acquisition_date: "", issuer: "" }]); setEditSection("certs"); }} />}
                   </div>
                   {certifications.length > 0 ? (
                     <div className="space-y-3">
