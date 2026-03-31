@@ -258,10 +258,9 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
                               {row.map((team) => (
                                 <button key={team.id}
                                   onClick={() => onSelectTeam(team.id)}
-                                  className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between bg-accent border border-primary/15 hover:border-primary/30">
+                                  className={`premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between bg-accent hover:border-primary/30 ${userTeamId === team.id ? "border-2 border-primary ring-2 ring-primary/20" : "border border-primary/15"}`}>
                                   <div className="flex items-center gap-1.5">
                                     <h4 className="text-base font-extrabold text-foreground leading-tight">{team.name}</h4>
-                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[9px] font-bold">MyTeam</span>}
                                   </div>
                                   <span className="mt-1 px-2.5 py-0.5 rounded-full bg-card text-sm font-bold text-foreground self-start">{team._count.employees}명</span>
                                 </button>
