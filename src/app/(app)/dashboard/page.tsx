@@ -188,11 +188,7 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
   });
 }
 
-const COMPANY_STYLES: Record<string, string> = {
-  "남광토건": "bg-[#2563EB] text-white",
-  "극동건설": "bg-[#3B82F6] text-white",
-  "금광기업": "bg-[#60A5FA] text-white",
-};
+const COMPANY_STYLE = "bg-[#3B82F6] text-white";
 
 const LOC_STYLE = "bg-gradient-to-br from-[#6366F1] to-[#818CF8] shadow-[#6366F1]/20";
 
@@ -232,7 +228,7 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
               <div className="flex-shrink-0">
                 <div
                   data-node="company" data-company-id={`${locLabel}-${cg.company}`} data-parent={locLabel}
-                  className={`${COMPANY_STYLES[cg.company] || "bg-card text-foreground"} rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center`}
+                  className={`${COMPANY_STYLE} rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center`}
                 >
                   <h3 className="text-base font-bold">{cg.company}</h3>
                   <p className="text-xs mt-0.5 opacity-70">{cg.teams.length}팀</p>
