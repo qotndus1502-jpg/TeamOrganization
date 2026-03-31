@@ -158,6 +158,21 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
+// 전화번호 자동 포맷 (숫자만 추출 후 하이픈 삽입)
+function formatPhone(val: string): string {
+  const nums = val.replace(/\D/g, "");
+  if (nums.startsWith("02")) {
+    if (nums.length <= 2) return nums;
+    if (nums.length <= 5) return `${nums.slice(0, 2)}-${nums.slice(2)}`;
+    if (nums.length <= 9) return `${nums.slice(0, 2)}-${nums.slice(2, 5)}-${nums.slice(5)}`;
+    return `${nums.slice(0, 2)}-${nums.slice(2, 6)}-${nums.slice(6, 10)}`;
+  }
+  if (nums.length <= 3) return nums;
+  if (nums.length <= 7) return `${nums.slice(0, 3)}-${nums.slice(3)}`;
+  if (nums.length <= 10) return `${nums.slice(0, 3)}-${nums.slice(3, 6)}-${nums.slice(6)}`;
+  return `${nums.slice(0, 3)}-${nums.slice(3, 7)}-${nums.slice(7, 11)}`;
+}
+
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES_LIST = ["팀원", "팀장", "부서장"];
 const nativeSelectClass = "flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15";
@@ -190,7 +205,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [eduItems, setEduItems] = useState<{ school_name: string; major: string; degree: string }[]>([]);
   const [teamForm, setTeamForm] = useState({ teamId: String(employee.teamId), joinDate: employee.joinDate || "" });
   const [allTeams, setAllTeams] = useState<{ id: number; name: string; location: { company: string; name: string } }[]>([]);
-  const [apptItems, setApptItems] = useState<{ date: string; department: string; position: string; description: string }[]>([]);
+  const [apptItems, setApptItems] = useState<{ date: string; department: string; position: string; taskItems: string[] }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -505,8 +520,8 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           <DialogContent>
             <DialogHeader><DialogTitle>연락처 수정</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <div className="space-y-1.5"><Label>회사 전화</Label><Input type="tel" value={contactForm.phoneWork} onChange={(e) => setContactForm({ ...contactForm, phoneWork: e.target.value })} placeholder="02-1234-5678" /></div>
-              <div className="space-y-1.5"><Label>휴대폰</Label><Input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} placeholder="010-1234-5678" /></div>
+              <div className="space-y-1.5"><Label>회사 전화</Label><Input type="tel" value={contactForm.phoneWork} onChange={(e) => setContactForm({ ...contactForm, phoneWork: formatPhone(e.target.value) })} placeholder="02-1234-5678" /></div>
+              <div className="space-y-1.5"><Label>휴대폰</Label><Input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: formatPhone(e.target.value) })} placeholder="010-1234-5678" /></div>
               <div className="space-y-1.5"><Label>이메일</Label><Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} /></div>
             </div>
             <div className="flex gap-2 mt-2">
@@ -677,38 +692,49 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               {apptItems.map((item, i) => (
                 <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground">발령 {i + 1}</span>
-                    <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setApptItems(apptItems.filter((_, j) => j !== i))}>×</Button>
+                    <span className="text-xs font-bold text-muted-foreground">{i === 0 ? "현 부서" : `발령 ${i}`}</span>
+                    {apptItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setApptItems(apptItems.filter((_, j) => j !== i))}>×</Button>}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div><Label className="text-xs">발령일</Label><Input value={item.date} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], date: e.target.value }; setApptItems(n); }} placeholder="2024.03.01" /></div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div><Label className="text-xs">발령일</Label><Input value={item.date} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], date: e.target.value }; setApptItems(n); }} placeholder="2024.03" /></div>
                     <div><Label className="text-xs">부서</Label><Input value={item.department} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], department: e.target.value }; setApptItems(n); }} placeholder="경영지원팀" /></div>
+                    <div><Label className="text-xs">직위</Label>
+                      <select value={item.position} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], position: e.target.value }; setApptItems(n); }} className={nativeSelectClass}>
+                        <option value="">선택</option>
+                        {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div><Label className="text-xs">직위</Label><Input value={item.position} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], position: e.target.value }; setApptItems(n); }} placeholder="사원, 대리 등" /></div>
-                    <div><Label className="text-xs">비고</Label><Input value={item.description} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], description: e.target.value }; setApptItems(n); }} placeholder="신규입사, 승진 등" /></div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-xs">세부 업무</Label>
+                      {item.taskItems.length < 5 && <button type="button" className="text-xs text-primary font-medium" onClick={() => { const n = [...apptItems]; n[i] = { ...n[i], taskItems: [...n[i].taskItems, ""] }; setApptItems(n); }}>+ 추가</button>}
+                    </div>
+                    <div className="space-y-1.5">
+                      {item.taskItems.map((t, ti) => (
+                        <div key={ti} className="flex gap-1.5 items-center">
+                          <Input value={t} onChange={(e) => { const n = [...apptItems]; const ts = [...n[i].taskItems]; ts[ti] = e.target.value; n[i] = { ...n[i], taskItems: ts }; setApptItems(n); }} placeholder={`업무 ${ti + 1}`} />
+                          {item.taskItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => { const n = [...apptItems]; n[i] = { ...n[i], taskItems: n[i].taskItems.filter((_, k) => k !== ti) }; setApptItems(n); }}>×</Button>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
               {apptItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", description: "" }])}>+ 발령 추가</Button>
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", taskItems: [""] }])}>+ 발령 추가</Button>
               )}
               <p className="text-xs text-muted-foreground">{apptItems.length}/5</p>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => saveResumeKey("appointmentHistory", apptItems.filter(a => a.date || a.department))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("appointmentHistory", apptItems.filter(a => a.date || a.department).map(a => ({ ...a, description: a.taskItems.filter(Boolean).join("\n"), taskItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* 근속/경력 카드 */}
-        <div className="bg-card rounded-md border border-border py-4 relative">
-          {canEdit && (
-            <button onClick={() => { setTeamForm({ teamId: String(employee.teamId), joinDate: employee.joinDate || "" }); loadTeams(); setEditSection("team"); }} className="absolute top-2 right-2 p-1 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all" title="소속/입사일 수정">
-              <Pencil className="w-3 h-3" />
-            </button>
-          )}
+        <div className="bg-card rounded-md border border-border py-4">
           <div className="flex">
             <div className="flex-1 text-center border-r border-border">
               <p className="text-base font-bold text-foreground leading-none">{yearsWorked}</p>
@@ -757,7 +783,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
                   {canEdit && (
                     <div className="flex gap-1">
-                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>) => ({ date: a.date || "", department: a.department || "", position: a.position || "", description: a.description || "" })); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", description: "" }]); setEditSection("appointment"); }} />
+                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>) => ({ date: a.date || "", department: a.department || "", position: a.position || "", taskItems: (a.description || "").split("\n").filter(Boolean) })); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", taskItems: [""] }]); setEditSection("appointment"); }} />
                     </div>
                   )}
                 </div>
@@ -909,7 +935,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">연락처</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { setContactForm({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" }); setEditSection("contact"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { setContactForm({ phone: formatPhone(employee.phone || ""), phoneWork: formatPhone(employee.phoneWork || ""), email: employee.email || "" }); setEditSection("contact"); }} />}
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
