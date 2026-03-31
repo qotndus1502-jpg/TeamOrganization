@@ -180,7 +180,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [taskItems, setTaskItems] = useState<string[]>([]);
   const [contactForm, setContactForm] = useState({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" });
   const [certsItems, setCertsItems] = useState<{ name: string; acquisition_date: string; issuer: string }[]>([]);
-  const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string }[]>([]);
+  const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string; description: string }[]>([]);
   const [eduItems, setEduItems] = useState<{ school_name: string; major: string; degree: string }[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -511,12 +511,13 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div><Label className="text-xs">기간</Label><Input value={item.period} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], period: e.target.value }; setExtCareerItems(n); }} placeholder="2020.01 ~ 2023.06" /></div>
-                    <div><Label className="text-xs">담당 업무</Label><Input value={item.task} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], task: e.target.value }; setExtCareerItems(n); }} placeholder="업무 내용" /></div>
+                    <div><Label className="text-xs">담당 업무</Label><Input value={item.task} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], task: e.target.value }; setExtCareerItems(n); }} placeholder="업무 요약" /></div>
                   </div>
+                  <div><Label className="text-xs">상세 업무</Label><textarea value={item.description} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], description: e.target.value }; setExtCareerItems(n); }} rows={2} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-ring outline-none resize-none" placeholder="상세 업무 내용 (줄바꿈 가능)" /></div>
                 </div>
               ))}
               {extCareerItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "" }])}>+ 경력 추가</Button>
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", description: "" }])}>+ 경력 추가</Button>
               )}
               <p className="text-xs text-muted-foreground">{extCareerItems.length}/5</p>
             </div>
@@ -680,7 +681,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "" })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "" }]); setEditSection("extCareer"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "", description: e.description || "" })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", description: "" }]); setEditSection("extCareer"); }} />}
                 </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
