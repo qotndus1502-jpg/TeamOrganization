@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const COMPANIES = ["3사 통합관리", "남광토건", "극동건설", "금광기업"];
+const COMPANIES = ["남광토건", "극동건설", "금광기업"];
 const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES_LIST = ["팀원", "팀장", "부서장"];
 
@@ -378,7 +378,6 @@ export default function AdminTeamsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>구분</TableHead>
                   <TableHead>소속</TableHead>
                   <TableHead>본부</TableHead>
                   <TableHead>팀명</TableHead>
@@ -391,10 +390,9 @@ export default function AdminTeamsPage() {
                   <TableRow key={team.id} className="cursor-pointer" onClick={() => setSelectedTeamId(team.id)}>
                     <TableCell>
                       <Badge variant={team.location.type === "HQ" ? "brand" : "gray"}>
-                        {team.location.type === "HQ" ? "본사" : "현장"}
+                        {team.location.type === "HQ" ? "본사" : team.location.name}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{team.location.name}</TableCell>
                     <TableCell className="text-muted-foreground">{team.category || "—"}</TableCell>
                     <TableCell className="font-medium text-foreground">{team.name}</TableCell>
                     <TableCell><Badge variant="gray">{team._count.employees}명</Badge></TableCell>
