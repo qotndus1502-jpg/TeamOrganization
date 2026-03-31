@@ -174,11 +174,22 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [editForm, setEditForm] = useState({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role });
 
   // 섹션별 수정 다이얼로그
-  const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | null>(null);
+  const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | "certs" | "career" | "extCareer" | "education" | null>(null);
   const [skillsForm, setSkillsForm] = useState({ skills: employee.skills || "" });
   const [infoForm, setInfoForm] = useState({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: employee.taskDetail || "" });
   const [contactForm, setContactForm] = useState({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" });
+  const [certsForm, setCertsForm] = useState("");
+  const [careerForm, setCareerForm] = useState("");
+  const [extCareerForm, setExtCareerForm] = useState("");
+  const [educationForm, setEducationForm] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // resumeData의 특정 키를 업데이트
+  const saveResumeKey = async (key: string, value: unknown) => {
+    const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {};
+    rd[key] = value;
+    await saveFields({ resumeData: JSON.stringify(rd) });
+  };
 
   const saveFields = async (fields: Record<string, unknown>) => {
     setSaving(true);
@@ -344,6 +355,11 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
       <div className="w-80 flex flex-col gap-4 flex-shrink-0 pt-8 pl-8 pr-4 pb-4 overflow-y-auto scrollbar-hide">
         {/* 프로필 카드 (사원증) */}
         <div className="relative bg-card rounded-xl border border-border p-5 pb-6 w-full shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+          {canEdit && (
+            <button onClick={() => { setEditForm({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role }); setEditOpen(true); }} className="absolute top-3 right-3 z-30 p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all" title="직급/직책 수정">
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          )}
           {/* 끈+클립 (구멍 관통해서 위로) */}
           <div className="absolute left-1/2 -translate-x-1/2 -top-14 z-20 flex flex-col items-center">
             {/* 끈 */}
@@ -377,43 +393,27 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <h2 className="text-lg font-bold text-foreground">{employee.name}</h2>
               <span className="text-lg font-bold text-muted-foreground">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-foreground"> ({age}세)</span>}</span>
             </div>
-            {canEdit && (
-              <Button variant="ghost" size="xs" className="mt-2 gap-1.5 text-muted-foreground" onClick={() => { setEditForm({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role }); setEditOpen(true); }}>
-                <Pencil className="w-3.5 h-3.5" />
-                수정
-              </Button>
-            )}
           </div>
         </div>
 
-        {/* 수정 다이얼로그 */}
+        {/* 직급/직책 수정 다이얼로그 */}
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{employee.name} 정보 수정</DialogTitle>
+              <DialogTitle>{employee.name} 직급/직책 수정</DialogTitle>
             </DialogHeader>
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>이름</Label>
-                <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+                <Label>직급</Label>
+                <select value={editForm.position} onChange={(e) => setEditForm({ ...editForm, position: e.target.value })} className={nativeSelectClass}>
+                  {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
               <div className="space-y-1.5">
-                <Label>연락처</Label>
-                <Input type="tel" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label>직급</Label>
-                  <select value={editForm.position} onChange={(e) => setEditForm({ ...editForm, position: e.target.value })} className={nativeSelectClass}>
-                    {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>직책</Label>
-                  <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className={nativeSelectClass}>
-                    {ROLES_LIST.map((r) => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </div>
+                <Label>직책</Label>
+                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className={nativeSelectClass}>
+                  {ROLES_LIST.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
               </div>
             </div>
             <div className="flex gap-2 mt-2">
@@ -493,6 +493,60 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </DialogContent>
         </Dialog>
 
+        {/* 자격증 수정 */}
+        <Dialog open={editSection === "certs"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>자격증 및 면허 수정</DialogTitle></DialogHeader>
+            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: name, acquisition_date, issuer</p>
+            <textarea value={certsForm} onChange={(e) => setCertsForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => { try { saveResumeKey("certifications", JSON.parse(certsForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 자사 경력(담당업무) 수정 */}
+        <Dialog open={editSection === "career"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>담당 업무 수정</DialogTitle></DialogHeader>
+            <div className="space-y-1.5">
+              <Label>담당 업무 (줄바꿈으로 구분)</Label>
+              <textarea value={careerForm} onChange={(e) => setCareerForm(e.target.value)} rows={5} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-ring outline-none" placeholder="업무 자동화 시스템 개발&#10;데이터 분석 리포트 작성" />
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveFields({ taskDetail: careerForm })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 타사 경력 수정 */}
+        <Dialog open={editSection === "extCareer"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>타사 경력 수정</DialogTitle></DialogHeader>
+            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: company, position, period, task, description</p>
+            <textarea value={extCareerForm} onChange={(e) => setExtCareerForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => { try { saveResumeKey("experience", JSON.parse(extCareerForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 학력 수정 */}
+        <Dialog open={editSection === "education"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>학력 수정</DialogTitle></DialogHeader>
+            <p className="text-xs text-muted-foreground">JSON 형식으로 수정합니다. 각 항목: school_name, major, degree</p>
+            <textarea value={educationForm} onChange={(e) => setEducationForm(e.target.value)} rows={8} className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-ring outline-none" />
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => { try { saveResumeKey("education", JSON.parse(educationForm)); } catch { alert("JSON 형식이 올바르지 않습니다."); } }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* 근속/경력 카드 */}
         <div className="bg-card rounded-md border border-border py-4 flex">
           <div className="flex-1 text-center border-r border-border">
@@ -507,6 +561,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
 
         {/* 학력 카드 */}
         <div className="bg-card rounded-md border border-border px-4 py-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">학력</span>
+            {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setEducationForm(JSON.stringify(rd.education || [], null, 2)); setEditSection("education"); }} />}
+          </div>
           <div className="space-y-1">
             {education.length > 0 ? education.slice(0, 3).map((e, i) => (
               <div key={i} className="py-1.5 flex items-center gap-2.5">
@@ -533,7 +591,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
             <div className="grid grid-cols-2 gap-10">
               {/* 자사 경력 */}
               <div>
-                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">자사 경력</h4>
+                <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
+                  {canEdit && <SectionEditBtn onClick={() => { setCareerForm(employee.taskDetail || ""); setEditSection("career"); }} />}
+                </div>
                 <div className="space-y-3">
                   {appointmentHistory.length > 0 ? appointmentHistory.map((a, i) => (
                     <div key={i} className={`p-6 rounded-md ${i === 0 ? "bg-card border-2 border-border" : "bg-card border border-border"}`}>
@@ -577,7 +638,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               </div>
               {/* 타사 경력 */}
               <div>
-                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">타사 경력</h4>
+                <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setExtCareerForm(JSON.stringify(rd.experience || [], null, 2)); setEditSection("extCareer"); }} />}
+                </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
                     <div key={i} className="p-6 rounded-md bg-card border-2 border-border">
@@ -609,16 +673,16 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
 
           {/* Education 카드 */}
           <div className="bg-card rounded-md border border-border p-5">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-lg font-bold text-foreground uppercase tracking-normal">Skills</p>
-              {canEdit && <SectionEditBtn onClick={() => { setSkillsForm({ skills: employee.skills || "" }); setEditSection("skills"); }} />}
-            </div>
+            <p className="text-lg font-bold text-foreground uppercase tracking-normal mb-6">Skills</p>
             <div className="space-y-3">
               {/* 자격증 + 스킬 (2열) */}
               <div className="grid grid-cols-2 gap-10">
                 {/* 자격증 및 면허 */}
                 <div>
-                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">자격증 및 면허</h4>
+                  <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                    <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자격증 및 면허</h4>
+                    {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; setCertsForm(JSON.stringify(rd.certifications || [], null, 2)); setEditSection("certs"); }} />}
+                  </div>
                   {certifications.length > 0 ? (
                     <div className="space-y-3">
                       {certifications.map((c, i) => (
@@ -634,7 +698,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                 </div>
                 {/* 스킬 */}
                 <div>
-                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">스킬</h4>
+                  <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                    <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">스킬</h4>
+                    {canEdit && <SectionEditBtn onClick={() => { setSkillsForm({ skills: employee.skills || "" }); setEditSection("skills"); }} />}
+                  </div>
                   <div className="flex flex-wrap gap-3">
                     {extra.skills ? extra.skills.split(",").map((s: string, i: number) => (
                       <span key={i} className="px-5 py-2.5 rounded-full bg-muted text-sm font-bold text-foreground">{s.trim()}</span>
