@@ -392,6 +392,7 @@ interface User {
   name: string;
   role: string;
   teamId: number | null;
+  employeeId: number | null;
 }
 
 
@@ -638,6 +639,7 @@ function DashboardContent() {
                   onPanelChange={(open) => { setEmployeePanelOpen(open); if (open) setSidebarOpen(false); }}
                   isAdmin={isAdmin}
                   onUpdate={loadEmployees}
+                  currentEmployeeId={user?.employeeId}
                 />
               )}
             </div>

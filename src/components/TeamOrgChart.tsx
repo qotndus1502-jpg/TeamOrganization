@@ -156,21 +156,39 @@ const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
 const ROLES_LIST = ["팀원", "팀장", "부서장"];
 const nativeSelectClass = "flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15";
 
+/* ── 섹션 수정 버튼 ── */
+function SectionEditBtn({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="p-1 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all" title="수정">
+      <Pencil className="w-3.5 h-3.5" />
+    </button>
+  );
+}
+
 /* ── 우측 프로필 대시보드 (SalesMonk 스타일) ── */
-function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Employee; onClose: () => void; isAdmin?: boolean; onUpdate?: () => void }) {
+function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId }: { employee: Employee; onClose: () => void; isAdmin?: boolean; onUpdate?: () => void; currentEmployeeId?: number | null }) {
+  const canEdit = isAdmin || (currentEmployeeId != null && currentEmployeeId === employee.id);
+
+  // 프로필 기본정보 수정
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role });
+
+  // 섹션별 수정 다이얼로그
+  const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | null>(null);
+  const [skillsForm, setSkillsForm] = useState({ skills: employee.skills || "" });
+  const [infoForm, setInfoForm] = useState({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: employee.taskDetail || "" });
+  const [contactForm, setContactForm] = useState({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" });
   const [saving, setSaving] = useState(false);
 
-  const handleSave = async () => {
+  const saveFields = async (fields: Record<string, unknown>) => {
     setSaving(true);
     const res = await fetch(`/api/employees/${employee.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...editForm, email: employee.email, teamId: employee.teamId, joinDate: employee.joinDate, resumePath: employee.resumePath }),
+      body: JSON.stringify({ name: employee.name, email: employee.email, phone: employee.phone, position: employee.position, role: employee.role, teamId: employee.teamId, joinDate: employee.joinDate, resumePath: employee.resumePath, ...fields }),
     });
     setSaving(false);
-    if (res.ok) { setEditOpen(false); onUpdate?.(); }
+    if (res.ok) { setEditSection(null); setEditOpen(false); onUpdate?.(); }
     else { alert("수정에 실패했습니다."); }
   };
   const parsed = parseResumeData(employee.resumeData);
@@ -359,7 +377,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Empl
               <h2 className="text-lg font-bold text-foreground">{employee.name}</h2>
               <span className="text-lg font-bold text-muted-foreground">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-foreground"> ({age}세)</span>}</span>
             </div>
-            {isAdmin && (
+            {canEdit && (
               <Button variant="ghost" size="xs" className="mt-2 gap-1.5 text-muted-foreground" onClick={() => { setEditForm({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role }); setEditOpen(true); }}>
                 <Pencil className="w-3.5 h-3.5" />
                 수정
@@ -399,8 +417,78 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Empl
               </div>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={handleSave} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveFields(editForm)} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditOpen(false)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 섹션별 수정 다이얼로그들 */}
+        {/* 스킬 수정 */}
+        <Dialog open={editSection === "skills"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>스킬 수정</DialogTitle></DialogHeader>
+            <div className="space-y-1.5">
+              <Label>스킬 (쉼표로 구분)</Label>
+              <Input value={skillsForm.skills} onChange={(e) => setSkillsForm({ skills: e.target.value })} placeholder="예: AutoCAD, Excel, BIM" />
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveFields({ skills: skillsForm.skills })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 인사정보 수정 */}
+        <Dialog open={editSection === "info"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>인사정보 수정</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label>생년월일</Label>
+                <Input value={infoForm.birthDate} onChange={(e) => setInfoForm({ ...infoForm, birthDate: e.target.value })} placeholder="예: 2000.01.01" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>주소</Label>
+                <Input value={infoForm.address} onChange={(e) => setInfoForm({ ...infoForm, address: e.target.value })} placeholder="예: 서울특별시 강남구" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>직종</Label>
+                <Input value={infoForm.jobCategory} onChange={(e) => setInfoForm({ ...infoForm, jobCategory: e.target.value })} placeholder="예: 건축, 토목" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>담당 업무</Label>
+                <Input value={infoForm.taskDetail} onChange={(e) => setInfoForm({ ...infoForm, taskDetail: e.target.value })} placeholder="예: 시공관리, 설계검토" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveFields(infoForm)} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* 연락처 수정 */}
+        <Dialog open={editSection === "contact"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>연락처 수정</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label>회사 전화</Label>
+                <Input type="tel" value={contactForm.phoneWork} onChange={(e) => setContactForm({ ...contactForm, phoneWork: e.target.value })} placeholder="예: 02-1234-5678" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>휴대폰</Label>
+                <Input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} placeholder="예: 010-1234-5678" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>이메일</Label>
+                <Input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveFields(contactForm)} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -521,7 +609,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Empl
 
           {/* Education 카드 */}
           <div className="bg-card rounded-md border border-border p-5">
-            <p className="text-lg font-bold text-foreground uppercase tracking-normal mb-6">Skills</p>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-lg font-bold text-foreground uppercase tracking-normal">Skills</p>
+              {canEdit && <SectionEditBtn onClick={() => { setSkillsForm({ skills: employee.skills || "" }); setEditSection("skills"); }} />}
+            </div>
             <div className="space-y-3">
               {/* 자격증 + 스킬 (2열) */}
               <div className="grid grid-cols-2 gap-10">
@@ -562,7 +653,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Empl
             <div className="grid grid-cols-2 gap-10">
               {/* Info */}
               <div>
-                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">인사정보</h4>
+                <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">인사정보</h4>
+                  {canEdit && <SectionEditBtn onClick={() => { setInfoForm({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: employee.taskDetail || "" }); setEditSection("info"); }} />}
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
@@ -580,7 +674,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Empl
               </div>
               {/* Contact */}
               <div>
-                <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest mb-5 pb-2 border-b border-border">연락처</h4>
+                <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
+                  <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">연락처</h4>
+                  {canEdit && <SectionEditBtn onClick={() => { setContactForm({ phone: employee.phone || "", phoneWork: employee.phoneWork || "", email: employee.email || "" }); setEditSection("contact"); }} />}
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-md bg-card flex items-center justify-center">
@@ -699,6 +796,7 @@ export default function TeamOrgChart({
   onPanelChange?: (open: boolean) => void;
   isAdmin?: boolean;
   onUpdate?: () => void;
+  currentEmployeeId?: number | null;
 }) {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
@@ -872,7 +970,7 @@ export default function TeamOrgChart({
       {/* 우측: 프로필 패널 */}
       <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isPanelOpen ? "flex-1" : "w-0"}`}>
         {selectedEmployee && (
-          <ProfilePanel employee={selectedEmployee} onClose={() => selectEmployee(null)} isAdmin={isAdmin} onUpdate={onUpdate} />
+          <ProfilePanel employee={selectedEmployee} onClose={() => selectEmployee(null)} isAdmin={isAdmin} onUpdate={onUpdate} currentEmployeeId={currentEmployeeId} />
         )}
       </div>
     </div>
