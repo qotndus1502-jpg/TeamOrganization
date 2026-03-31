@@ -246,7 +246,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
       body: JSON.stringify({ name: employee.name, email: employee.email, phone: employee.phone, position: employee.position, role: employee.role, teamId: employee.teamId, joinDate: employee.joinDate, resumePath: employee.resumePath, ...fields }),
     });
     setSaving(false);
-    if (res.ok) { setEditSection(null); setEditOpen(false); onUpdate?.(); }
+    if (res.ok) { setEditSection(null); onUpdate?.(); }
     else { alert("수정에 실패했습니다."); }
   };
   const parsed = parseResumeData(employee.resumeData);
@@ -810,7 +810,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                             const imp = line.startsWith("★");
                             const text = imp ? line.slice(1) : line;
                             return (
-                            <li key={j} className={`flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5 font-semibold" : ""} ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
+                            <li key={j} className={`flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5" : ""} ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : i === 0 ? "bg-foreground" : "bg-muted-foreground"}`} />
                               {text}
                             </li>
@@ -858,7 +858,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                             const imp = line.startsWith("★");
                             const text = imp ? line.slice(1) : line;
                             return (
-                            <li key={j} className={`text-sm flex items-center gap-2.5 ${imp ? "text-foreground bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5 font-semibold" : "text-muted-foreground"}`}>
+                            <li key={j} className={`text-sm flex items-center gap-2.5 ${imp ? "text-foreground bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5" : "text-muted-foreground"}`}>
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : "bg-muted-foreground"}`} />
                               {text}
                             </li>
