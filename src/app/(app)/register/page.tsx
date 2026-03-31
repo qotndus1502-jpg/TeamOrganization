@@ -489,7 +489,7 @@ export default function RegisterPage() {
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-foreground">입사일</label>
-              <input type="text" value={form.joinDate} onChange={(e) => setForm({ ...form, joinDate: e.target.value })} placeholder="2024.03.01" className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15" />
+              <input type="date" value={form.joinDate} onChange={(e) => setForm({ ...form, joinDate: e.target.value })} className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15" />
             </div>
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
