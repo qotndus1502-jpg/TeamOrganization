@@ -199,7 +199,7 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
     }
   });
 
-  const allLocs = locations.filter((l) => l.categories.length > 0 || l.teams.length > 0);
+  const allLocs = locations;
 
   return (
     <div ref={containerRef} className="relative p-10 min-w-fit">
