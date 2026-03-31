@@ -566,8 +566,9 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                     <div><Label className="text-xs">회사명</Label><Input value={item.company} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], company: e.target.value }; setExtCareerItems(n); }} placeholder="회사명" /></div>
                     <div><Label className="text-xs">직책</Label><Input value={item.position} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], position: e.target.value }; setExtCareerItems(n); }} placeholder="사원, 대리 등" /></div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div><Label className="text-xs">기간</Label><Input value={item.period} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], period: e.target.value }; setExtCareerItems(n); }} placeholder="2020.01 ~ 2023.06" /></div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div><Label className="text-xs">입사일</Label><input type="date" value={item.startDate || ""} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], startDate: e.target.value }; setExtCareerItems(n); }} className={nativeSelectClass} /></div>
+                    <div><Label className="text-xs">퇴사일</Label><input type="date" value={item.endDate || ""} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], endDate: e.target.value }; setExtCareerItems(n); }} className={nativeSelectClass} /></div>
                     <div><Label className="text-xs">담당 업무</Label><Input value={item.task} onChange={(e) => { const n = [...extCareerItems]; n[i] = { ...n[i], task: e.target.value }; setExtCareerItems(n); }} placeholder="업무 요약" /></div>
                   </div>
                   <div>
@@ -591,10 +592,10 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                 </div>
               ))}
-              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", descItems: [""] }])}>+ 경력 추가</Button>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", startDate: "", endDate: "", task: "", descItems: [""] }])}>+ 경력 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company).map(e => ({ ...e, description: e.descItems.filter(Boolean).join("\n"), descItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company).map(e => ({ ...e, startDate: e.startDate || "", endDate: e.endDate || "", period: [e.startDate, e.endDate].filter(Boolean).join(" ~ "), description: e.descItems.filter(Boolean).join("\n"), descItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
@@ -697,7 +698,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                     {apptItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setApptItems(apptItems.filter((_, j) => j !== i))}>×</Button>}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
-                    <div><Label className="text-xs">발령일</Label><Input value={item.date} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], date: e.target.value }; setApptItems(n); }} placeholder="2024.03" /></div>
+                    <div><Label className="text-xs">발령일</Label><input type="date" value={item.date} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], date: e.target.value }; setApptItems(n); }} className={nativeSelectClass} /></div>
                     <div><Label className="text-xs">부서</Label><Input value={item.department} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], department: e.target.value }; setApptItems(n); }} placeholder="경영지원팀" /></div>
                     <div><Label className="text-xs">직위</Label>
                       <select value={item.position} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], position: e.target.value }; setApptItems(n); }} className={nativeSelectClass}>
@@ -786,7 +787,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
                   {canEdit && (
                     <div className="flex gap-1">
-                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>) => ({ date: a.date || "", department: a.department || "", position: a.position || "", taskItems: (a.description || "").split("\n").filter(Boolean) })); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", taskItems: [""] }]); setEditSection("appointment"); }} />
+                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>) => ({ date: a.date || "", department: a.department || "", position: a.position || "", taskItems: (a.description || "").split("\n").filter(Boolean).length > 0 ? (a.description || "").split("\n").filter(Boolean) : [""] })); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", taskItems: [""] }]); setEditSection("appointment"); }} />
                     </div>
                   )}
                 </div>
@@ -839,7 +840,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: (() => { const raw = e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""); const fmt = fmtPeriod(raw || null); return fmt === "—" ? "" : fmt; })(), task: e.task || "", descItems: (e.description || "").split("\n").filter(Boolean) })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", descItems: [""] }]); setEditSection("extCareer"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || "", startDate: e.startDate || "", endDate: e.endDate || "", task: e.task || "", descItems: (e.description || "").split("\n").filter(Boolean).length > 0 ? (e.description || "").split("\n").filter(Boolean) : [""] })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", startDate: "", endDate: "", task: "", descItems: [""] }]); setEditSection("extCareer"); }} />}
                 </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
