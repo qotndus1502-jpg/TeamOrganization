@@ -495,14 +495,14 @@ function DashboardContent() {
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 
+  const initialLoadDone = useRef(false);
   const loadEmployees = useCallback(() => {
-    if (selectedTeamId === null) { setEmployees([]); return; }
-    // 최초 로딩 시에만 로딩 표시 (이미 데이터가 있으면 백그라운드 갱신)
-    if (employees.length === 0) setLoadingEmployees(true);
+    if (selectedTeamId === null) { setEmployees([]); initialLoadDone.current = false; return; }
+    if (!initialLoadDone.current) setLoadingEmployees(true);
     fetch(`/api/employees?teamId=${selectedTeamId}`)
       .then((r) => r.json())
-      .then((data: Employee[]) => { setEmployees(data); setLoadingEmployees(false); });
-  }, [selectedTeamId]); // eslint-disable-line react-hooks/exhaustive-deps
+      .then((data: Employee[]) => { setEmployees(data); setLoadingEmployees(false); initialLoadDone.current = true; });
+  }, [selectedTeamId]);
 
   useEffect(() => { loadEmployees(); }, [loadEmployees]);
 
