@@ -497,11 +497,12 @@ function DashboardContent() {
 
   const loadEmployees = useCallback(() => {
     if (selectedTeamId === null) { setEmployees([]); return; }
-    setLoadingEmployees(true);
+    // 최초 로딩 시에만 로딩 표시 (이미 데이터가 있으면 백그라운드 갱신)
+    if (employees.length === 0) setLoadingEmployees(true);
     fetch(`/api/employees?teamId=${selectedTeamId}`)
       .then((r) => r.json())
       .then((data: Employee[]) => { setEmployees(data); setLoadingEmployees(false); });
-  }, [selectedTeamId]);
+  }, [selectedTeamId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { loadEmployees(); }, [loadEmployees]);
 
