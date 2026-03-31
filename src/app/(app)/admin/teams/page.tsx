@@ -372,7 +372,6 @@ export default function AdminTeamsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>소속</TableHead>
                   <TableHead>본부</TableHead>
                   <TableHead>팀명</TableHead>
                   <TableHead>인원</TableHead>
@@ -382,11 +381,6 @@ export default function AdminTeamsPage() {
               <TableBody>
                 {g.teams.map((team) => (
                   <TableRow key={team.id} className="cursor-pointer" onClick={() => setSelectedTeamId(team.id)}>
-                    <TableCell>
-                      <Badge variant={team.location.type === "HQ" ? "brand" : "gray"}>
-                        {team.location.type === "HQ" ? "본사" : team.location.name}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-muted-foreground">{team.category || "—"}</TableCell>
                     <TableCell className="font-medium text-foreground">{team.name}</TableCell>
                     <TableCell><Badge variant="gray">{team._count.employees}명</Badge></TableCell>
