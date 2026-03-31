@@ -1095,6 +1095,15 @@ export default function TeamOrgChart({
     onPanelChange?.(emp !== null);
   };
 
+  // props 갱신 시 selectedEmployee도 최신 데이터로 교체
+  useEffect(() => {
+    if (selectedEmployee) {
+      const all = [...(leader ? [leader] : []), ...members];
+      const updated = all.find(e => e.id === selectedEmployee.id);
+      if (updated) setSelectedEmployee(updated);
+    }
+  }, [leader, members]);
+
   // URL에서 employee 파라미터로 자동 프로필 열기
   const autoOpened = useRef(false);
   useEffect(() => {
