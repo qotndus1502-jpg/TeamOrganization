@@ -208,9 +208,9 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
     <div ref={containerRef} className="relative p-10 min-w-fit">
       <svg ref={svgRef} className="absolute top-0 left-0 pointer-events-none" style={{ zIndex: 0 }} />
 
-      <div className="relative flex items-start" style={{ zIndex: 1 }}>
+      <div className="relative flex items-center" style={{ zIndex: 1 }}>
         {/* 본사/현장 */}
-        <div className="flex-shrink-0 self-center">
+        <div className="flex-shrink-0">
           <div data-node="location" data-loc-id={locLabel} className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
             <h2 className="text-base font-bold text-white">{locLabel}</h2>
           </div>
@@ -219,9 +219,9 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
         {/* 회사 열 */}
         <div className="flex flex-col gap-10 ml-16">
           {companyGroups.map((cg) => (
-            <div key={cg.company} className="flex items-start">
+            <div key={cg.company} className="flex items-center">
               {/* 회사 */}
-              <div className="flex-shrink-0 self-center">
+              <div className="flex-shrink-0">
                 <div
                   data-node="company" data-company-id={`${locLabel}-${cg.company}`} data-parent={locLabel}
                   className="bg-card border border-border/40 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center"
@@ -235,7 +235,7 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
               <div className="flex flex-col gap-6 ml-16">
                 {cg.categories.length > 0 ? cg.categories.map((cat) => (
                   <div key={cat.label} className="flex items-center gap-0">
-                    <div className="flex-shrink-0 self-center">
+                    <div className="flex-shrink-0">
                       <button
                         data-node="category" data-cat-id={`${locLabel}-${cg.company}-${cat.label}`} data-parent={`${locLabel}-${cg.company}`}
                         onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
