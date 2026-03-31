@@ -41,7 +41,8 @@ export async function PUT(
     return NextResponse.json({ error: "직원을 찾을 수 없습니다." }, { status: 404 });
   }
   const isOwner = existing.userId != null && existing.userId === session.userId;
-  const isPrivileged = session.role === "ADMIN" || session.role === "EXECUTIVE";
+  const roles = session.role.split(",");
+  const isPrivileged = roles.includes("ADMIN") || roles.includes("EXECUTIVE");
   if (!isOwner && !isPrivileged) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
