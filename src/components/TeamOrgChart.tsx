@@ -787,7 +787,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
                   {canEdit && (
                     <div className="flex gap-1">
-                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>, idx: number) => { const desc = a.description || (idx === 0 ? (extra.taskDetail || "") : ""); return { date: a.date || "", department: a.department || "", position: a.position || "", taskItems: desc.split("\n").filter(Boolean).length > 0 ? desc.split("\n").filter(Boolean) : [""] }; }); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", taskItems: [""] }]); setEditSection("appointment"); }} />
+                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>, idx: number) => { const desc = a.description || (idx === 0 ? (extra.taskDetail?.trim() || extra.jobRole || "") : ""); return { date: a.date || "", department: a.department || "", position: a.position || "", taskItems: desc.split("\n").filter(Boolean).length > 0 ? desc.split("\n").filter(Boolean) : [""] }; }); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", taskItems: [""] }]); setEditSection("appointment"); }} />
                     </div>
                   )}
                 </div>
