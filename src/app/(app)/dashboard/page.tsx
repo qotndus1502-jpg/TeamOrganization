@@ -636,6 +636,8 @@ function DashboardContent() {
                   teamName={selectedTeam?.name}
                   teamSub={`${selectedTeam?.location.company} · ${selectedTeam?.location.name}`}
                   onPanelChange={(open) => { setEmployeePanelOpen(open); if (open) setSidebarOpen(false); }}
+                  isAdmin={isAdmin}
+                  onUpdate={loadEmployees}
                 />
               )}
             </div>

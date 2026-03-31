@@ -3,6 +3,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import PdfModal from "@/components/PdfModal";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Pencil } from "lucide-react";
 
 interface Employee {
   id: number;
@@ -147,8 +152,27 @@ function InfoItem({ label, value }: { label: string; value?: string | null }) {
   );
 }
 
+const POSITIONS = ["부장", "차장", "과장", "대리", "주임", "사원"];
+const ROLES_LIST = ["팀원", "팀장", "부서장"];
+const nativeSelectClass = "flex h-10 w-full items-center rounded-lg border border-input bg-card px-3 py-2 text-sm font-medium text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[4px] focus-visible:ring-ring/15";
+
 /* ── 우측 프로필 대시보드 (SalesMonk 스타일) ── */
-function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () => void }) {
+function ProfilePanel({ employee, onClose, isAdmin, onUpdate }: { employee: Employee; onClose: () => void; isAdmin?: boolean; onUpdate?: () => void }) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const res = await fetch(`/api/employees/${employee.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...editForm, email: employee.email, teamId: employee.teamId, joinDate: employee.joinDate, resumePath: employee.resumePath }),
+    });
+    setSaving(false);
+    if (res.ok) { setEditOpen(false); onUpdate?.(); }
+    else { alert("수정에 실패했습니다."); }
+  };
   const parsed = parseResumeData(employee.resumeData);
   const { education, certifications } = parsed;
   const extra = {
@@ -335,8 +359,51 @@ function ProfilePanel({ employee, onClose }: { employee: Employee; onClose: () =
               <h2 className="text-lg font-bold text-foreground">{employee.name}</h2>
               <span className="text-lg font-bold text-muted-foreground">{employee.role === "팀장" ? employee.role : employee.position}{age !== null && <span className="text-lg font-bold text-foreground"> ({age}세)</span>}</span>
             </div>
-                      </div>
+            {isAdmin && (
+              <Button variant="ghost" size="xs" className="mt-2 gap-1.5 text-muted-foreground" onClick={() => { setEditForm({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role }); setEditOpen(true); }}>
+                <Pencil className="w-3.5 h-3.5" />
+                수정
+              </Button>
+            )}
+          </div>
         </div>
+
+        {/* 수정 다이얼로그 */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{employee.name} 정보 수정</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label>이름</Label>
+                <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>연락처</Label>
+                <Input type="tel" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>직급</Label>
+                  <select value={editForm.position} onChange={(e) => setEditForm({ ...editForm, position: e.target.value })} className={nativeSelectClass}>
+                    {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>직책</Label>
+                  <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className={nativeSelectClass}>
+                    {ROLES_LIST.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={handleSave} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditOpen(false)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* 근속/경력 카드 */}
         <div className="bg-card rounded-md border border-border py-4 flex">
@@ -622,12 +689,16 @@ export default function TeamOrgChart({
   teamName,
   teamSub,
   onPanelChange,
+  isAdmin,
+  onUpdate,
 }: {
   leader: Employee | undefined;
   members: Employee[];
   teamName?: string;
   teamSub?: string;
   onPanelChange?: (open: boolean) => void;
+  isAdmin?: boolean;
+  onUpdate?: () => void;
 }) {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
@@ -801,7 +872,7 @@ export default function TeamOrgChart({
       {/* 우측: 프로필 패널 */}
       <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isPanelOpen ? "flex-1" : "w-0"}`}>
         {selectedEmployee && (
-          <ProfilePanel employee={selectedEmployee} onClose={() => selectEmployee(null)} />
+          <ProfilePanel employee={selectedEmployee} onClose={() => selectEmployee(null)} isAdmin={isAdmin} onUpdate={onUpdate} />
         )}
       </div>
     </div>
