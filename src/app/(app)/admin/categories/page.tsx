@@ -127,8 +127,7 @@ export default function AdminCategoriesPage() {
           {g.locGroups.map(({ loc, cats }) => (
             <div key={loc.id} className="mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant={loc.type === "HQ" ? "brand" : "gray"}>{loc.type === "HQ" ? "본사" : "현장"}</Badge>
-                <span className="text-sm font-medium text-muted-foreground">{loc.name}</span>
+                <Badge variant={loc.type === "HQ" ? "brand" : "gray"}>{loc.type === "HQ" ? "본사" : loc.name}</Badge>
               </div>
               <Card>
                 <Table>

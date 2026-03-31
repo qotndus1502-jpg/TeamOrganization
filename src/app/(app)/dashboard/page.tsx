@@ -289,7 +289,7 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
 function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
   teams: Team[]; companyFilter: string | null; onSelectTeam: (id: number) => void; userTeamId?: number | null;
 }) {
-  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string; locationId: number }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ id: number; name: string; company: string; locationId: number; location: { id: number; company: string; type: string } }[]>([]);
 
   useEffect(() => {
     fetch("/api/admin/categories").then((r) => r.ok ? r.json() : []).then(setDbCategories).catch(() => {});
@@ -297,10 +297,10 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
 
   const companies = ["남광토건", "극동건설", "금광기업"];
 
-  const groupByCategory = (teamList: Team[]) => {
+  const groupByCategory = (teamList: Team[], company: string, locType: string) => {
     const grouped: { label: string; teams: Team[] }[] = [];
-    const locationIds = [...new Set(teamList.map((t) => t.location.id))];
-    const locCats = dbCategories.filter((c) => locationIds.includes(c.locationId));
+    // DB 카테고리에서 해당 회사+소속 타입에 맞는 것 가져오기
+    const locCats = dbCategories.filter((c) => c.location.company === company && c.location.type === locType);
     const catNames = [...new Set([
       ...locCats.map((c) => c.name),
       ...teamList.map((t) => t.category).filter(Boolean) as string[],
@@ -325,7 +325,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
       return {
         company,
         teams: companyTeams,
-        categories: groupByCategory(companyTeams),
+        categories: groupByCategory(companyTeams, company, type),
       };
     });
     return { type, label, companyGroups };
