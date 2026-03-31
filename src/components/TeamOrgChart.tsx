@@ -651,7 +651,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <Button variant="ghost" size="xs" className="text-primary" onClick={() => setEduItems([...eduItems, { school_name: "", major: "", degree: "" }])}>+ 학력 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => saveResumeKey("education", eduItems.filter(e => e.school_name))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => saveResumeKey("education", eduItems.filter(e => e.school_name).map(e => ({ ...e, school_name: e.school_name.replace(/\s*\((학사|석사|박사수료|박사)\)/g, "") })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
