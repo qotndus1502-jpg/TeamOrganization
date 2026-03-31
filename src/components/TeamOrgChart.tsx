@@ -636,7 +636,15 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   <div><Label className="text-xs">학교명</Label><Input value={item.school_name} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], school_name: e.target.value }; setEduItems(n); }} placeholder="OO대학교" /></div>
                   <div className="grid grid-cols-2 gap-2">
                     <div><Label className="text-xs">전공</Label><Input value={item.major} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], major: e.target.value }; setEduItems(n); }} placeholder="건축공학과" /></div>
-                    <div><Label className="text-xs">학위</Label><Input value={item.degree} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], degree: e.target.value }; setEduItems(n); }} placeholder="학사" /></div>
+                    <div><Label className="text-xs">학위</Label>
+                      <select value={item.degree} onChange={(e) => { const n = [...eduItems]; n[i] = { ...n[i], degree: e.target.value }; setEduItems(n); }} className={nativeSelectClass}>
+                        <option value="">선택</option>
+                        <option value="학사">학사</option>
+                        <option value="석사">석사</option>
+                        <option value="박사수료">박사수료</option>
+                        <option value="박사">박사</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               ))}
