@@ -811,7 +811,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                             const text = imp ? line.slice(1) : line;
                             return (
                             <li key={j} className={`flex items-center gap-2.5 ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
-                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded px-1 py-0.5" : ""}`}>
+                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded-sm px-2 py-0.5 -ml-2" : ""}`}>
                                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : i === 0 ? "bg-foreground" : "bg-muted-foreground"}`} />
                                 {text}
                               </span>
@@ -861,7 +861,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                             const text = imp ? line.slice(1) : line;
                             return (
                             <li key={j} className={`text-sm flex items-center gap-2.5 ${imp ? "text-foreground" : "text-muted-foreground"}`}>
-                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded px-1 py-0.5" : ""}`}>
+                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded-sm px-2 py-0.5 -ml-2" : ""}`}>
                                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : "bg-muted-foreground"}`} />
                                 {text}
                               </span>
