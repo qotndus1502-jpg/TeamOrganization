@@ -171,22 +171,27 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
     }
   };
 
-  // 회사 → 소속
-  const companyEl = container.querySelector("[data-node='company']");
+  // 소속(본사/현장) → 회사
   const locEls = Array.from(container.querySelectorAll("[data-node='location']"));
-  if (companyEl && locEls.length > 0) connectParentToChildren(companyEl, locEls);
-
-  // 소속 → 카테고리
   locEls.forEach((locEl) => {
     const locId = locEl.getAttribute("data-loc-id");
-    const catEls = Array.from(container.querySelectorAll(`[data-node='category'][data-parent='${locId}']`));
-    if (catEls.length > 0) connectParentToChildren(locEl, catEls);
+    const companyEls = Array.from(container.querySelectorAll(`[data-node='company'][data-parent='${locId}']`));
+    if (companyEls.length > 0) connectParentToChildren(locEl, companyEls);
+  });
+
+  // 회사 → 카테고리
+  const companyEls = Array.from(container.querySelectorAll("[data-node='company']"));
+  companyEls.forEach((companyEl) => {
+    const companyId = companyEl.getAttribute("data-company-id");
+    const catEls = Array.from(container.querySelectorAll(`[data-node='category'][data-parent='${companyId}']`));
+    if (catEls.length > 0) connectParentToChildren(companyEl, catEls);
   });
 }
 
-function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId }: {
-  companyFilter: string | null;
-  locations: { label: string; teams: Team[]; categories: { label: string; teams: Team[] }[] }[];
+function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTeam, userTeamId }: {
+  locationType: string;
+  locLabel: string;
+  companyGroups: { company: string; teams: Team[]; categories: { label: string; teams: Team[] }[] }[];
   onSelectTeam: (id: number) => void;
   userTeamId?: number | null;
 }) {
@@ -199,44 +204,40 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
     }
   });
 
-  const allLocs = locations;
-
   return (
     <div ref={containerRef} className="relative p-10 min-w-fit">
       <svg ref={svgRef} className="absolute top-0 left-0 pointer-events-none" style={{ zIndex: 0 }} />
 
       <div className="relative flex items-start" style={{ zIndex: 1 }}>
-        {/* 회사 — 소속 그룹 중앙 정렬 */}
+        {/* 본사/현장 */}
         <div className="flex-shrink-0 self-center">
-          <div data-node="company" className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
-            <h2 className="text-base font-bold text-white">{companyFilter || "남광토건"}</h2>
+          <div data-node="location" data-loc-id={locLabel} className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
+            <h2 className="text-base font-bold text-white">{locLabel}</h2>
           </div>
         </div>
 
-        {/* 소속 열 */}
+        {/* 회사 열 */}
         <div className="flex flex-col gap-10 ml-16">
-          {allLocs.map((loc) => (
-            <div key={loc.label} className="flex items-start">
-              {/* 소속 — 카테고리 그룹 중앙 정렬 */}
+          {companyGroups.map((cg) => (
+            <div key={cg.company} className="flex items-start">
+              {/* 회사 */}
               <div className="flex-shrink-0 self-center">
-                <button
-                  data-node="location" data-loc-id={loc.label}
-                  onClick={() => { if (loc.teams.length > 0) onSelectTeam(loc.teams[0].id); }}
-                  className="bg-card border border-border/40 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer"
+                <div
+                  data-node="company" data-company-id={`${locLabel}-${cg.company}`} data-parent={locLabel}
+                  className="bg-card border border-border/40 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center"
                 >
-                  <h3 className="text-base font-bold text-foreground">{loc.label}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{loc.teams.length}팀</p>
-                </button>
+                  <h3 className="text-base font-bold text-foreground">{cg.company}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{cg.teams.length}팀</p>
+                </div>
               </div>
 
               {/* 카테고리 열 */}
               <div className="flex flex-col gap-6 ml-16">
-                {loc.categories.length > 0 ? loc.categories.map((cat) => (
+                {cg.categories.length > 0 ? cg.categories.map((cat) => (
                   <div key={cat.label} className="flex items-center gap-0">
-                    {/* 카테고리 — 팀 그룹 중앙 정렬 */}
                     <div className="flex-shrink-0 self-center">
                       <button
-                        data-node="category" data-cat-id={`${loc.label}-${cat.label}`} data-parent={loc.label}
+                        data-node="category" data-cat-id={`${locLabel}-${cg.company}-${cat.label}`} data-parent={`${locLabel}-${cg.company}`}
                         onClick={() => { if (cat.teams.length > 0) onSelectTeam(cat.teams[0].id); }}
                         className="bg-card/90 border border-border/30 rounded-2xl w-[160px] h-[80px] shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md hover:border-primary/15 transition-all duration-200 cursor-pointer"
                       >
@@ -245,7 +246,6 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                       </button>
                     </div>
 
-                    {/* 팀 그리드 */}
                     {cat.teams.length > 0 && (
                       <div className="flex flex-col gap-2 ml-10">
                         {(() => {
@@ -314,17 +314,21 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
     return grouped;
   };
 
-  const companyData = companies.map((company) => {
-    const companyTeams = teams.filter((t) => t.location.company === company);
-    const hqTeams = companyTeams.filter((t) => t.location.type === "HQ");
-    const siteTeams = companyTeams.filter((t) => t.location.type === "SITE");
-    return {
-      company,
-      locations: [
-        { label: "본사", teams: hqTeams, categories: groupByCategory(hqTeams) },
-        { label: "현장", teams: siteTeams, categories: groupByCategory(siteTeams) },
-      ],
-    };
+  const locationTypes = [
+    { type: "HQ", label: "본사" },
+    { type: "SITE", label: "현장" },
+  ];
+
+  const locationData = locationTypes.map(({ type, label }) => {
+    const companyGroups = companies.map((company) => {
+      const companyTeams = teams.filter((t) => t.location.company === company && t.location.type === type);
+      return {
+        company,
+        teams: companyTeams,
+        categories: groupByCategory(companyTeams),
+      };
+    });
+    return { type, label, companyGroups };
   });
 
   return (
@@ -340,11 +344,12 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
       `}</style>
 
       <div className="flex flex-col items-start gap-12 py-10 px-10">
-        {companyData.map((data) => (
-          <CompanyTreeLayout
-            key={data.company}
-            companyFilter={data.company}
-            locations={data.locations}
+        {locationData.map((data) => (
+          <LocationTreeLayout
+            key={data.type}
+            locationType={data.type}
+            locLabel={data.label}
+            companyGroups={data.companyGroups}
             onSelectTeam={onSelectTeam}
             userTeamId={userTeamId}
           />
