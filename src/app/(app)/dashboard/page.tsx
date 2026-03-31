@@ -262,7 +262,10 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
                                   <div className="flex items-center gap-1.5">
                                     <h4 className="text-base font-extrabold text-foreground leading-tight">{team.name}</h4>
                                   </div>
-                                  <span className="mt-1 px-2.5 py-0.5 rounded-full bg-card text-sm font-bold text-foreground self-start">{team._count.employees}명</span>
+                                  <div className="flex items-center gap-1.5 mt-1">
+                                    <span className="px-2.5 py-0.5 rounded-full bg-card text-sm font-bold text-foreground">{team._count.employees}명</span>
+                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[9px] font-bold">MyTeam</span>}
+                                  </div>
                                 </button>
                               ))}
                             </div>
