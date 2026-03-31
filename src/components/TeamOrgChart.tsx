@@ -576,12 +576,17 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                       {item.descItems.length < 5 && <button type="button" className="text-xs text-primary font-medium" onClick={() => { const n = [...extCareerItems]; n[i] = { ...n[i], descItems: [...n[i].descItems, ""] }; setExtCareerItems(n); }}>+ 추가</button>}
                     </div>
                     <div className="space-y-1.5">
-                      {item.descItems.map((d, di) => (
-                        <div key={di} className="flex gap-1.5 items-center">
-                          <Input value={d} onChange={(e) => { const n = [...extCareerItems]; const ds = [...n[i].descItems]; ds[di] = e.target.value; n[i] = { ...n[i], descItems: ds }; setExtCareerItems(n); }} placeholder={`상세 업무 ${di + 1}`} />
+                      {item.descItems.map((d, di) => {
+                        const isImportant = d.startsWith("★");
+                        const cleanVal = isImportant ? d.slice(1) : d;
+                        return (
+                        <div key={di} className={`flex gap-1.5 items-center rounded-md px-1 ${isImportant ? "bg-yellow-100 dark:bg-yellow-900/30" : ""}`}>
+                          <button type="button" onClick={() => { const n = [...extCareerItems]; const ds = [...n[i].descItems]; ds[di] = isImportant ? cleanVal : `★${cleanVal}`; n[i] = { ...n[i], descItems: ds }; setExtCareerItems(n); }} className={`flex-shrink-0 text-sm ${isImportant ? "text-yellow-500" : "text-muted-foreground/30 hover:text-yellow-400"}`} title="중요 표시">★</button>
+                          <Input value={cleanVal} onChange={(e) => { const n = [...extCareerItems]; const ds = [...n[i].descItems]; ds[di] = (isImportant ? "★" : "") + e.target.value; n[i] = { ...n[i], descItems: ds }; setExtCareerItems(n); }} placeholder={`상세 업무 ${di + 1}`} />
                           {item.descItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => { const n = [...extCareerItems]; n[i] = { ...n[i], descItems: n[i].descItems.filter((_, k) => k !== di) }; setExtCareerItems(n); }}>×</Button>}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -707,12 +712,17 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                       {item.taskItems.length < 5 && <button type="button" className="text-xs text-primary font-medium" onClick={() => { const n = [...apptItems]; n[i] = { ...n[i], taskItems: [...n[i].taskItems, ""] }; setApptItems(n); }}>+ 추가</button>}
                     </div>
                     <div className="space-y-1.5">
-                      {item.taskItems.map((t, ti) => (
-                        <div key={ti} className="flex gap-1.5 items-center">
-                          <Input value={t} onChange={(e) => { const n = [...apptItems]; const ts = [...n[i].taskItems]; ts[ti] = e.target.value; n[i] = { ...n[i], taskItems: ts }; setApptItems(n); }} placeholder={`업무 ${ti + 1}`} />
+                      {item.taskItems.map((t, ti) => {
+                        const isImportant = t.startsWith("★");
+                        const cleanVal = isImportant ? t.slice(1) : t;
+                        return (
+                        <div key={ti} className={`flex gap-1.5 items-center rounded-md px-1 ${isImportant ? "bg-yellow-100 dark:bg-yellow-900/30" : ""}`}>
+                          <button type="button" onClick={() => { const n = [...apptItems]; const ts = [...n[i].taskItems]; ts[ti] = isImportant ? cleanVal : `★${cleanVal}`; n[i] = { ...n[i], taskItems: ts }; setApptItems(n); }} className={`flex-shrink-0 text-sm ${isImportant ? "text-yellow-500" : "text-muted-foreground/30 hover:text-yellow-400"}`} title="중요 표시">★</button>
+                          <Input value={cleanVal} onChange={(e) => { const n = [...apptItems]; const ts = [...n[i].taskItems]; ts[ti] = (isImportant ? "★" : "") + e.target.value; n[i] = { ...n[i], taskItems: ts }; setApptItems(n); }} placeholder={`업무 ${ti + 1}`} />
                           {item.taskItems.length > 1 && <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => { const n = [...apptItems]; n[i] = { ...n[i], taskItems: n[i].taskItems.filter((_, k) => k !== ti) }; setApptItems(n); }}>×</Button>}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -795,12 +805,16 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                               {line}
                             </li>
                           ))}
-                          {a.description && a.description.split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                            <li key={j} className={`flex items-center gap-2.5 ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${i === 0 ? "bg-foreground" : "bg-muted-foreground"}`} />
-                              {line}
+                          {a.description && a.description.split("\n").filter(Boolean).map((line: string, j: number) => {
+                            const imp = line.startsWith("★");
+                            const text = imp ? line.slice(1) : line;
+                            return (
+                            <li key={j} className={`flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5 font-semibold" : ""} ${i === 0 ? "text-base font-bold text-foreground" : "text-sm text-muted-foreground"}`}>
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : i === 0 ? "bg-foreground" : "bg-muted-foreground"}`} />
+                              {text}
                             </li>
-                          ))}
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
@@ -839,12 +853,16 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                               {e.task}
                             </li>
                           )}
-                          {e.description && e.description.split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                            <li key={j} className="text-sm text-muted-foreground flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-muted-foreground flex-shrink-0" />
-                              {line}
+                          {e.description && e.description.split("\n").filter(Boolean).map((line: string, j: number) => {
+                            const imp = line.startsWith("★");
+                            const text = imp ? line.slice(1) : line;
+                            return (
+                            <li key={j} className={`text-sm flex items-center gap-2.5 ${imp ? "text-foreground bg-yellow-100 dark:bg-yellow-900/30 rounded px-2 py-0.5 font-semibold" : "text-muted-foreground"}`}>
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : "bg-muted-foreground"}`} />
+                              {text}
                             </li>
-                          ))}
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
