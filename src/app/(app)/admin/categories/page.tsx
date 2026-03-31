@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const COMPANIES = ["3사 통합관리", "남광토건", "극동건설", "금광기업"];
+const COMPANIES = ["남광토건", "극동건설", "금광기업"];
 
 interface Location { id: number; company: string; name: string; type: string; }
 interface Category { id: number; name: string; company: string; locationId: number; location: Location; }

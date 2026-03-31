@@ -355,15 +355,9 @@ export default function AdminTeamsPage() {
                 </div>
                 <Button type="submit">{editId ? "수정" : "추가"}</Button>
               </div>
-              <div className="flex gap-3 mt-3">
-                <div className="flex-1">
-                  <Label className="mb-1.5 block">팀 설명 (선택)</Label>
-                  <Input value={teamDesc} onChange={(e) => setTeamDesc(e.target.value)} placeholder="예: 그룹사 재무·회계 업무 총괄" />
-                </div>
-                <div className="flex-1">
-                  <Label className="mb-1.5 block">대표 이미지 URL (선택)</Label>
-                  <Input value={teamImage} onChange={(e) => setTeamImage(e.target.value)} placeholder="예: /uploads/team-photo.jpg" />
-                </div>
+              <div className="mt-3">
+                <Label className="mb-1.5 block">팀 설명 (선택)</Label>
+                <Input value={teamDesc} onChange={(e) => setTeamDesc(e.target.value)} placeholder="예: 그룹사 재무·회계 업무 총괄" />
               </div>
               {error && <p className="text-destructive text-sm mt-2">{error}</p>}
             </form>
