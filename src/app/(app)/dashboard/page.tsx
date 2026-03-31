@@ -339,7 +339,7 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
         }
       `}</style>
 
-      <div className="flex flex-col items-center gap-12 py-10">
+      <div className="flex flex-col items-start gap-12 py-10 px-10">
         {companyData.map((data) => (
           <CompanyTreeLayout
             key={data.company}
