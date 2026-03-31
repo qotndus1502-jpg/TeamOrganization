@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { UserPlus } from "lucide-react";
 
 const ROLE_OPTIONS = [
   { value: "EMPLOYEE", label: "직원", desc: "인사정보 등록 및 수정" },
@@ -65,7 +66,9 @@ export default function SignupPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-auth-gradient">
       <Card className="w-full max-w-sm border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
-          <div className="text-4xl mx-auto mb-3">📋</div>
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <UserPlus className="w-6 h-6 text-primary" />
+          </div>
           <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">새 계정을 만들어 시작하세요</p>
         </CardHeader>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Home } from "lucide-react";
 
 interface User {
   id: number;
@@ -45,8 +46,8 @@ export default function Navbar() {
 
   return (
     <div className="flex justify-between h-16 items-center">
-      <a href={`/dashboard?company=${encodeURIComponent("남광토건")}`} className="text-xl hover:opacity-80 transition-opacity" title="홈">
-        🏠
+      <a href={`/dashboard?company=${encodeURIComponent("남광토건")}`} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all" title="홈">
+        <Home className="w-5 h-5" />
       </a>
 
       <div className="flex items-center gap-1">

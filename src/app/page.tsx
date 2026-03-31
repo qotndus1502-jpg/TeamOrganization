@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2 } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -37,7 +38,9 @@ export default function Home() {
     <div className="fixed inset-0 flex items-center justify-center p-4 bg-auth-gradient">
       <Card className="w-full max-w-sm border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
-          <div className="text-5xl mx-auto mb-4">🏢</div>
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-7 h-7 text-primary" />
+          </div>
           <CardTitle className="text-2xl font-bold">조직도 관리</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">부서 및 인사정보 통합 관리</p>
         </CardHeader>
