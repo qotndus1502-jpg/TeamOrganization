@@ -70,8 +70,8 @@ export default function PdfDropzone({ onExtracted, onSkip }: PdfDropzoneProps) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">인사정보 등록</h1>
-      <p className="text-gray-500 mb-6">이력서 PDF를 업로드하면 AI가 자동으로 정보를 추출합니다.</p>
+      <h1 className="text-2xl font-bold text-foreground mb-2">인사정보 등록</h1>
+      <p className="text-muted-foreground mb-6">이력서 PDF를 업로드하면 AI가 자동으로 정보를 추출합니다.</p>
 
       {/* 드래그앤드롭 영역 */}
       <div
@@ -113,7 +113,7 @@ export default function PdfDropzone({ onExtracted, onSkip }: PdfDropzoneProps) {
       </div>
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+        <div className="mt-4 p-3 bg-destructive-muted border border-destructive-border text-destructive-muted-foreground rounded-lg text-sm">
           {error}
         </div>
       )}

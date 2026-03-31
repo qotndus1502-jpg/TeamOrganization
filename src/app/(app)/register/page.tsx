@@ -429,10 +429,10 @@ export default function RegisterPage() {
   const selectCls = readOnly
     ? "w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none appearance-none"
     : "w-full border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:border-primary outline-none";
-  const labelCls = "block text-sm font-medium text-gray-700 mb-1";
+  const labelCls = "block text-sm font-medium text-foreground/70 mb-1";
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#F5F5F0]"><div className="max-w-3xl mx-auto pb-12 px-4 pt-6">
+    <div className="min-h-[calc(100vh-4rem)] bg-background"><div className="max-w-3xl mx-auto pb-12 px-4 pt-6">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold text-foreground">
           {isEdit ? "내 인사정보" : "인사정보 등록"}
@@ -457,22 +457,22 @@ export default function RegisterPage() {
         </div>
       )}
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">{error}</div>
+        <div className="mb-4 p-4 bg-destructive-muted border border-destructive-border text-destructive-muted-foreground rounded-lg">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* ── 기본 정보 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">기본 정보</h2>
 
           {/* 프로필 사진 */}
           <div className="flex items-center gap-5">
             <div className="relative group">
               {photoUrl ? (
-                <img src={photoUrl} alt="프로필" className="w-20 h-20 rounded-full object-cover ring-2 ring-gray-200" />
+                <img src={photoUrl} alt="프로필" className="w-20 h-20 rounded-full object-cover ring-2 ring-border" />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center ring-2 ring-gray-200">
+                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center ring-2 ring-border">
                   <svg className="w-8 h-8 text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
@@ -482,7 +482,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setPhotoUrl(null)}
-                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
                 >
                   ×
                 </button>
@@ -490,7 +490,7 @@ export default function RegisterPage() {
             </div>
             {!readOnly && (
             <div>
-              <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium text-gray-700 cursor-pointer transition">
+              <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium text-foreground/70 cursor-pointer transition">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
@@ -600,7 +600,7 @@ export default function RegisterPage() {
             {readOnly ? (
               <div className="flex flex-wrap gap-2">
                 {(form.skills || "").split(",").filter((s: string) => s.trim()).map((s: string, i: number) => (
-                  <span key={i} className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">{s.trim()}</span>
+                  <span key={i} className="px-3 py-1 rounded-full bg-muted text-sm text-foreground/70">{s.trim()}</span>
                 ))}
                 {!form.skills && <span className="text-sm text-muted-foreground">-</span>}
               </div>
@@ -614,7 +614,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 소속/직급/직책 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-4">
           <h2 className="text-lg font-bold text-foreground">소속 · 직급 · 직책</h2>
 
           <div>
@@ -708,7 +708,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 학력 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
           <EditableSection
             title="학력"
             items={education}
@@ -726,7 +726,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 자격증 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
           <EditableSection
             title="자격증 · 면허"
             items={certifications}
@@ -743,7 +743,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 경력 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
           <EditableSection
             title="경력사항"
             items={experience}
@@ -762,7 +762,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 가족관계 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
           <EditableSection
             title="가족관계"
             items={familyRelations}
@@ -779,8 +779,8 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 현재 발령 (자동) ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-sm font-bold text-gray-700 mb-3">현재 발령</h3>
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <h3 className="text-sm font-bold text-foreground/70 mb-3">현재 발령</h3>
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div><span className="text-xs text-muted-foreground">소속부서</span><p className="font-medium text-foreground">{teams.find((t) => String(t.id) === form.teamId)?.name || "—"}</p></div>
@@ -792,7 +792,7 @@ export default function RegisterPage() {
         </div>
 
         {/* ── 이전 발령사항 ── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
           <EditableSection
             title="이전 발령사항"
             items={appointmentHistory.slice(1)}
@@ -829,7 +829,7 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-white rounded-full shadow-lg hover:bg-primary/90 transition font-medium z-50"
+          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition font-medium z-50"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -861,7 +861,7 @@ export default function RegisterPage() {
             if (form) form.requestSubmit();
           }}
           disabled={loading}
-          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-white rounded-full shadow-lg hover:bg-primary/90 transition font-medium disabled:bg-gray-400 z-50"
+          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition font-medium disabled:opacity-50 z-50"
         >
           {loading ? "처리 중..." : "등록하기"}
         </button>
