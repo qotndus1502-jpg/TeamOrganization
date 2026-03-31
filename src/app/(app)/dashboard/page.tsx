@@ -77,32 +77,32 @@ function TeamCard({ team, onSelect, isAdmin, onImageUpdate }: {
       </div>
 
       {/* 호버 블러 오버레이 */}
-      <div className="absolute top-0 bottom-0 right-0 bg-black/50 backdrop-blur-xl translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out z-20 rounded-l-3xl border-l border-white/10" style={{ width: "60%" }}>
+      <div className="absolute top-0 bottom-0 right-0 bg-foreground/60 backdrop-blur-xl translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out z-20 rounded-l-3xl border-l border-card/10" style={{ width: "60%" }}>
         <div className="h-full flex flex-col justify-between p-5 pt-5">
           <div>
-            <p className="text-white/40 text-[10px] font-semibold tracking-[0.15em] uppercase mb-3">Team Leader</p>
+            <p className="text-primary-foreground/40 text-[10px] font-semibold tracking-[0.15em] uppercase mb-3">Team Leader</p>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/15 overflow-hidden flex-shrink-0 ring-1 ring-white/20">
+              <div className="w-10 h-10 rounded-full bg-primary-foreground/15 overflow-hidden flex-shrink-0 ring-1 ring-primary-foreground/20">
                 {team.leader?.photoUrl ? (
                   <img src={team.leader.photoUrl} alt={team.leader.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/60 text-sm font-bold">
+                  <div className="w-full h-full flex items-center justify-center text-primary-foreground/60 text-sm font-bold">
                     {team.leader?.name?.charAt(0) || "?"}
                   </div>
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-white font-semibold text-sm truncate">{team.leader?.name || "미배정"}</p>
-                <p className="text-white/40 text-xs">{team.leader ? `${team.leader.position} · ${team.leader.role}` : "팀장 미배정"}</p>
+                <p className="text-primary-foreground font-semibold text-sm truncate">{team.leader?.name || "미배정"}</p>
+                <p className="text-primary-foreground/40 text-xs">{team.leader ? `${team.leader.position} · ${team.leader.role}` : "팀장 미배정"}</p>
               </div>
             </div>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <span className="text-3xl font-black text-white tabular-nums">{String(memberCount).padStart(2, "0")}</span>
-              <span className="text-sm text-white/40 ml-1">명</span>
+              <span className="text-3xl font-black text-primary-foreground tabular-nums">{String(memberCount).padStart(2, "0")}</span>
+              <span className="text-sm text-primary-foreground/40 ml-1">명</span>
             </div>
-            <span className="text-[10px] text-white/25 font-medium tracking-wider uppercase">Members</span>
+            <span className="text-[10px] text-primary-foreground/25 font-medium tracking-wider uppercase">Members</span>
           </div>
         </div>
       </div>
@@ -138,7 +138,8 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
     const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
     el.setAttribute("x1", String(x1)); el.setAttribute("y1", String(y1));
     el.setAttribute("x2", String(x2)); el.setAttribute("y2", String(y2));
-    el.setAttribute("stroke", "#d1d5db"); el.setAttribute("stroke-width", "1.5");
+    const borderColor = getComputedStyle(document.documentElement).getPropertyValue("--border").trim() || "#E2E8F0";
+    el.setAttribute("stroke", borderColor); el.setAttribute("stroke-width", "1.5");
     svg.appendChild(el);
   };
 
@@ -257,11 +258,10 @@ function CompanyTreeLayout({ companyFilter, locations, onSelectTeam, userTeamId 
                               {row.map((team) => (
                                 <button key={team.id}
                                   onClick={() => onSelectTeam(team.id)}
-                                  className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between"
-                                  style={{ background: "#C1FD3C" }}>
+                                  className="premium-card relative rounded-xl w-[160px] h-[80px] p-4 text-left overflow-hidden flex flex-col justify-between bg-accent border border-primary/15 hover:border-primary/30">
                                   <div className="flex items-center gap-1.5">
                                     <h4 className="text-base font-extrabold text-foreground leading-tight">{team.name}</h4>
-                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-foreground text-primary-foreground text-[9px] font-bold">MyTeam</span>}
+                                    {userTeamId === team.id && <span className="px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[9px] font-bold">MyTeam</span>}
                                   </div>
                                   <span className="mt-1 px-2.5 py-0.5 rounded-full bg-card text-sm font-bold text-foreground self-start">{team._count.employees}명</span>
                                 </button>
@@ -325,16 +325,12 @@ function TeamListView({ teams, companyFilter, onSelectTeam, userTeamId }: {
   return (
     <div className="flex-1 overflow-auto flex items-center justify-center min-h-[calc(100vh-4rem)]">
       <style>{`
-        @keyframes cardSweep {
-          0% { transform: translateX(-100%) rotate(25deg); }
-          100% { transform: translateX(300%) rotate(25deg); }
-        }
         .premium-card {
           transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .premium-card:hover {
           transform: translateY(-2px) scale(1.01);
-          box-shadow: 0 12px 24px rgba(37,99,235,0.2), 0 0 0 1px rgba(37,99,235,0.15);
+          box-shadow: var(--shadow-lg), 0 0 0 1px hsl(from var(--primary) h s l / 0.15);
         }
       `}</style>
 
@@ -552,7 +548,7 @@ function DashboardContent() {
     >
       {/* 사이드바 오버레이 */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/20 z-30" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-foreground/20 z-30" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* 사이드바 */}

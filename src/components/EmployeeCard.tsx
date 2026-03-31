@@ -35,12 +35,12 @@ export default function EmployeeCard({
   const badgeVariant = POSITION_VARIANTS[employee.position] || "gray";
 
   return (
-    <Card className={`transition-all duration-300 hover:shadow-lg group ${isLeader ? "ring-2 ring-orange-400/60 shadow-md" : ""}`}>
+    <Card className={`transition-all duration-300 hover:shadow-lg group ${isLeader ? "ring-2 ring-orange-border shadow-md" : ""}`}>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3.5">
           <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 ${
             isLeader
-              ? "bg-gradient-to-br from-orange-400 to-orange-500 text-primary-foreground shadow-sm"
+              ? "bg-orange-muted text-orange-muted-foreground shadow-sm ring-1 ring-orange-border"
               : "bg-gradient-to-br from-muted to-muted/80 text-muted-foreground"
           }`}>
             {employee.name.charAt(0)}

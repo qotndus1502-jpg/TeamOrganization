@@ -81,8 +81,8 @@ export default function PdfDropzone({ onExtracted, onSkip }: PdfDropzoneProps) {
         onClick={() => !loading && fileRef.current?.click()}
         className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition ${
           dragging
-            ? "border-orange-400 bg-orange-50"
-            : "border-gray-300 bg-white hover:border-orange-300 hover:bg-gray-50"
+            ? "border-primary bg-accent"
+            : "border-border bg-card hover:border-primary/50 hover:bg-muted"
         } ${loading ? "pointer-events-none opacity-70" : ""}`}
       >
         <input
@@ -95,19 +95,19 @@ export default function PdfDropzone({ onExtracted, onSkip }: PdfDropzoneProps) {
 
         {loading ? (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-700 font-medium">AI가 이력서를 분석하고 있습니다...</p>
-            <p className="text-sm text-gray-400">{fileName}</p>
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-foreground font-medium">AI가 이력서를 분석하고 있습니다...</p>
+            <p className="text-sm text-muted-foreground">{fileName}</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center text-3xl">
+            <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center text-3xl">
               📄
             </div>
-            <p className="text-gray-700 font-medium">
+            <p className="text-foreground font-medium">
               이력서 PDF를 여기에 드래그하거나 클릭하세요
             </p>
-            <p className="text-sm text-gray-400">PDF 파일만 가능, 최대 10MB</p>
+            <p className="text-sm text-muted-foreground">PDF 파일만 가능, 최대 10MB</p>
           </div>
         )}
       </div>

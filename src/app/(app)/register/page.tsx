@@ -90,19 +90,19 @@ function EditableSection<T extends Record<string, string>>({
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-bold text-gray-700">{title}</h3>
+        <h3 className="text-sm font-bold text-foreground/70">{title}</h3>
         {!readOnly && (
-          <button type="button" onClick={add} className="text-xs text-orange-500 hover:text-orange-700 font-medium">
+          <button type="button" onClick={add} className="text-xs text-primary hover:text-primary/80 font-medium">
             + 추가
           </button>
         )}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-gray-400 py-2">항목이 없습니다.</p>
+        <p className="text-xs text-muted-foreground py-2">항목이 없습니다.</p>
       ) : (
         <div className="space-y-2">
           {items.map((item, idx) => (
-            <div key={idx} className="flex gap-2 items-start bg-gray-50 rounded-lg p-3">
+            <div key={idx} className="flex gap-2 items-start bg-muted rounded-lg p-3">
               <div className="flex-1 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   {(() => {
@@ -116,8 +116,8 @@ function EditableSection<T extends Record<string, string>>({
                     return (
                       <>
                         {textFields.map((f) => readOnly ? (
-                          <div key={String(f.key)} className={`px-2 py-1.5 text-gray-900 ${String(f.key) === "school_name" ? "text-xl font-bold col-span-2" : "text-sm"}`}>
-                            {String(f.key) !== "school_name" && <span className="text-xs text-gray-400">{f.label}: </span>}
+                          <div key={String(f.key)} className={`px-2 py-1.5 text-foreground ${String(f.key) === "school_name" ? "text-xl font-bold col-span-2" : "text-sm"}`}>
+                            {String(f.key) !== "school_name" && <span className="text-xs text-muted-foreground">{f.label}: </span>}
                             {item[f.key] || "-"}
                           </div>
                         ) : (
@@ -127,34 +127,34 @@ function EditableSection<T extends Record<string, string>>({
                             value={item[f.key] || ""}
                             onChange={(e) => update(idx, f.key, e.target.value)}
                             placeholder={f.label}
-                            className={`border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none ${f.width || ""}`}
+                            className={`border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none ${f.width || ""}`}
                           />
                         ))}
                         {datePairs.map((pair, pi) => readOnly ? (
-                          <div key={pi} className="col-span-2 flex items-center gap-2 text-sm text-gray-900 px-2 py-1.5">
-                            <span className="text-xs text-gray-400">{pair[0].label}:</span> {item[pair[0].key] || "-"}
-                            {pair[1] && <><span className="text-gray-300 mx-1">~</span><span className="text-xs text-gray-400">{pair[1].label}:</span> {item[pair[1].key] || "-"}</>}
+                          <div key={pi} className="col-span-2 flex items-center gap-2 text-sm text-foreground px-2 py-1.5">
+                            <span className="text-xs text-muted-foreground">{pair[0].label}:</span> {item[pair[0].key] || "-"}
+                            {pair[1] && <><span className="text-border mx-1">~</span><span className="text-xs text-muted-foreground">{pair[1].label}:</span> {item[pair[1].key] || "-"}</>}
                           </div>
                         ) : (
                           <div key={pi} className="col-span-2 flex items-center gap-2">
                             <div className="flex-1">
-                              <label className="text-[10px] text-gray-400 mb-0.5 block">{pair[0].label}</label>
+                              <label className="text-[10px] text-muted-foreground mb-0.5 block">{pair[0].label}</label>
                               <input
                                 type="date"
                                 value={toIso(item[pair[0].key] || "")}
                                 onChange={(e) => update(idx, pair[0].key, toDot(e.target.value))}
-                                className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
+                                className="w-full border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none"
                               />
                             </div>
-                            <span className="text-gray-400 mt-4">~</span>
+                            <span className="text-muted-foreground mt-4">~</span>
                             {pair[1] && (
                               <div className="flex-1">
-                                <label className="text-[10px] text-gray-400 mb-0.5 block">{pair[1].label}</label>
+                                <label className="text-[10px] text-muted-foreground mb-0.5 block">{pair[1].label}</label>
                                 <input
                                   type="date"
                                   value={toIso(item[pair[1].key] || "")}
                                   onChange={(e) => update(idx, pair[1].key, toDot(e.target.value))}
-                                  className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
+                                  className="w-full border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none"
                                 />
                               </div>
                             )}
@@ -168,12 +168,12 @@ function EditableSection<T extends Record<string, string>>({
                   <div key={String(f.key)} className="py-1">
                     <ul className="space-y-1.5">
                       {(item[f.key] || "").split("\n").filter(Boolean).slice(0, 5).map((line: string, j: number) => (
-                        <li key={j} className="flex items-center gap-2 text-sm text-gray-900">
-                          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                        <li key={j} className="flex items-center gap-2 text-sm text-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                           {line}
                         </li>
                       ))}
-                      {!item[f.key] && <span className="text-sm text-gray-400">-</span>}
+                      {!item[f.key] && <span className="text-sm text-muted-foreground">-</span>}
                     </ul>
                   </div>
                 ) : (
@@ -182,7 +182,7 @@ function EditableSection<T extends Record<string, string>>({
                       const lines = (item[f.key] || "").split("\n");
                       return (
                         <div key={j} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                           <input
                             type="text"
                             value={lines[j] || ""}
@@ -193,7 +193,7 @@ function EditableSection<T extends Record<string, string>>({
                               update(idx, f.key, newLines.slice(0, 5).join("\n"));
                             }}
                             placeholder={`${f.label.replace(/\s*\(.*\)/, "")} ${j + 1}`}
-                            className="flex-1 border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-orange-400 outline-none"
+                            className="flex-1 border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none"
                           />
                         </div>
                       );
@@ -202,7 +202,7 @@ function EditableSection<T extends Record<string, string>>({
                 ))}
               </div>
               {!readOnly && (
-                <button type="button" onClick={() => remove(idx)} className="text-red-400 hover:text-red-600 text-xs mt-1 flex-shrink-0">
+                <button type="button" onClick={() => remove(idx)} className="text-destructive/60 hover:text-destructive text-xs mt-1 flex-shrink-0">
                   삭제
                 </button>
               )}
@@ -424,24 +424,24 @@ export default function RegisterPage() {
 
   const readOnly = isEdit && !editing;
   const inputCls = readOnly
-    ? "w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none"
-    : "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none";
+    ? "w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none"
+    : "w-full border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:border-primary outline-none";
   const selectCls = readOnly
-    ? "w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 outline-none appearance-none"
-    : "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none";
+    ? "w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none appearance-none"
+    : "w-full border border-input rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-ring focus:border-primary outline-none";
   const labelCls = "block text-sm font-medium text-gray-700 mb-1";
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#F5F5F0]"><div className="max-w-3xl mx-auto pb-12 px-4 pt-6">
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {isEdit ? "내 인사정보" : "인사정보 등록"}
         </h1>
         {isEdit && editing && (
           <button
             type="button"
             onClick={() => setStep("upload")}
-            className="flex items-center gap-1.5 text-sm text-orange-500 hover:text-orange-700 font-medium transition"
+            className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium transition"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -452,7 +452,7 @@ export default function RegisterPage() {
       </div>
 
       {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+        <div className="mb-4 p-4 bg-success-muted border border-success-border text-success-muted-foreground rounded-lg">
           {isEdit ? "인사정보가 수정되었습니다." : "인사정보가 등록되었습니다."}
         </div>
       )}
@@ -464,7 +464,7 @@ export default function RegisterPage() {
 
         {/* ── 기본 정보 ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">기본 정보</h2>
+          <h2 className="text-lg font-bold text-foreground">기본 정보</h2>
 
           {/* 프로필 사진 */}
           <div className="flex items-center gap-5">
@@ -473,7 +473,7 @@ export default function RegisterPage() {
                 <img src={photoUrl} alt="프로필" className="w-20 h-20 rounded-full object-cover ring-2 ring-gray-200" />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center ring-2 ring-gray-200">
-                  <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="w-8 h-8 text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
                 </div>
@@ -523,7 +523,7 @@ export default function RegisterPage() {
                   }}
                 />
               </label>
-              <p className="text-xs text-gray-400 mt-1">JPG, PNG, WebP (5MB 이하)</p>
+              <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP (5MB 이하)</p>
             </div>
             )}
           </div>
@@ -602,12 +602,12 @@ export default function RegisterPage() {
                 {(form.skills || "").split(",").filter((s: string) => s.trim()).map((s: string, i: number) => (
                   <span key={i} className="px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700">{s.trim()}</span>
                 ))}
-                {!form.skills && <span className="text-sm text-gray-400">-</span>}
+                {!form.skills && <span className="text-sm text-muted-foreground">-</span>}
               </div>
             ) : (
               <>
                 <input type="text" value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} className={inputCls} placeholder="콤마(,)로 구분하여 입력 (예: Excel, AutoCAD, BIM)" />
-                <p className="text-xs text-gray-400 mt-1">보유 스킬을 콤마(,)로 구분하여 입력하세요</p>
+                <p className="text-xs text-muted-foreground mt-1">보유 스킬을 콤마(,)로 구분하여 입력하세요</p>
               </>
             )}
           </div>
@@ -615,7 +615,7 @@ export default function RegisterPage() {
 
         {/* ── 소속/직급/직책 ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">소속 · 직급 · 직책</h2>
+          <h2 className="text-lg font-bold text-foreground">소속 · 직급 · 직책</h2>
 
           <div>
             <label className={labelCls}>소속 팀 *</label>
@@ -673,12 +673,12 @@ export default function RegisterPage() {
             {readOnly ? (
               <ul className="space-y-2">
                 {(form.taskDetail || "").split("\n").filter(Boolean).slice(0, 3).map((line: string, i: number) => (
-                  <li key={i} className="flex items-center gap-2.5 text-sm text-gray-900">
-                    <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
+                  <li key={i} className="flex items-center gap-2.5 text-sm text-foreground">
+                    <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
                     {line}
                   </li>
                 ))}
-                {!form.taskDetail && <span className="text-sm text-gray-400">-</span>}
+                {!form.taskDetail && <span className="text-sm text-muted-foreground">-</span>}
               </ul>
             ) : (
               <div className="space-y-2">
@@ -686,7 +686,7 @@ export default function RegisterPage() {
                   const lines = (form.taskDetail || "").split("\n");
                   return (
                     <div key={idx} className="flex items-center gap-2.5">
-                      <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
                       <input
                         type="text"
                         value={lines[idx] || ""}
@@ -781,12 +781,12 @@ export default function RegisterPage() {
         {/* ── 현재 발령 (자동) ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-sm font-bold text-gray-700 mb-3">현재 발령</h3>
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><span className="text-xs text-gray-400">소속부서</span><p className="font-medium text-gray-900">{teams.find((t) => String(t.id) === form.teamId)?.name || "—"}</p></div>
-              <div><span className="text-xs text-gray-400">직위</span><p className="font-medium text-gray-900">{form.position || "—"}</p></div>
-              <div><span className="text-xs text-gray-400">직책</span><p className="font-medium text-gray-900">{form.role || "—"}</p></div>
-              <div><span className="text-xs text-gray-400">입사일</span><p className="font-medium text-gray-900">{form.joinDate || "—"}</p></div>
+              <div><span className="text-xs text-muted-foreground">소속부서</span><p className="font-medium text-foreground">{teams.find((t) => String(t.id) === form.teamId)?.name || "—"}</p></div>
+              <div><span className="text-xs text-muted-foreground">직위</span><p className="font-medium text-foreground">{form.position || "—"}</p></div>
+              <div><span className="text-xs text-muted-foreground">직책</span><p className="font-medium text-foreground">{form.role || "—"}</p></div>
+              <div><span className="text-xs text-muted-foreground">입사일</span><p className="font-medium text-foreground">{form.joinDate || "—"}</p></div>
             </div>
           </div>
         </div>
@@ -813,9 +813,9 @@ export default function RegisterPage() {
 
         {/* ── 이력서 ── */}
         {resumePath && (
-          <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-success-muted-foreground bg-success-muted rounded-lg px-4 py-3">
             📄 이력서 첨부됨
-            <button type="button" onClick={() => setShowPdf(true)} className="text-orange-500 hover:underline">보기</button>
+            <button type="button" onClick={() => setShowPdf(true)} className="text-primary hover:underline">보기</button>
           </div>
         )}
         {showPdf && resumePath && (
@@ -829,7 +829,7 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition font-medium z-50"
+          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-white rounded-full shadow-lg hover:bg-primary/90 transition font-medium z-50"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -845,7 +845,7 @@ export default function RegisterPage() {
             if (form) form.requestSubmit();
           }}
           disabled={loading}
-          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition font-medium disabled:bg-gray-400 z-50"
+          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-success text-success-foreground rounded-full shadow-lg hover:bg-success/90 transition font-medium disabled:opacity-50 z-50"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -861,7 +861,7 @@ export default function RegisterPage() {
             if (form) form.requestSubmit();
           }}
           disabled={loading}
-          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition font-medium disabled:bg-gray-400 z-50"
+          className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-primary/50 text-white rounded-full shadow-lg hover:bg-primary/90 transition font-medium disabled:bg-gray-400 z-50"
         >
           {loading ? "처리 중..." : "등록하기"}
         </button>

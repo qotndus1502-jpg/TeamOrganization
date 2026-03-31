@@ -34,7 +34,7 @@ export default function Home() {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4" style={{ background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)" }}>
+    <div className="fixed inset-0 flex items-center justify-center p-4 bg-auth-gradient">
       <Card className="w-full max-w-sm border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/25">
