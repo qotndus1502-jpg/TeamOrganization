@@ -699,7 +699,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">타사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""), task: e.task || "", descItems: (e.description || "").split("\n").filter(Boolean) })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", descItems: [""] }]); setEditSection("extCareer"); }} />}
+                  {canEdit && <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const exp = (rd.experience || []).map((e: Record<string, string>) => ({ company: e.company || "", position: e.position || "", period: (() => { const raw = e.period || (e.startDate ? `${e.startDate} ~ ${e.endDate || ""}` : ""); const fmt = fmtPeriod(raw || null); return fmt === "—" ? "" : fmt; })(), task: e.task || "", descItems: (e.description || "").split("\n").filter(Boolean) })); setExtCareerItems(exp.length > 0 ? exp : [{ company: "", position: "", period: "", task: "", descItems: [""] }]); setEditSection("extCareer"); }} />}
                 </div>
                 <div className="space-y-3">
                   {experience.length > 0 ? experience.map((e, i) => (
