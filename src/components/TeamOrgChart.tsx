@@ -542,10 +542,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive flex-shrink-0" onClick={() => setTaskItems(taskItems.filter((_, j) => j !== i))}>×</Button>
                 </div>
               ))}
-              {taskItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setTaskItems([...taskItems, ""])}>+ 업무 추가</Button>
-              )}
-              <p className="text-xs text-muted-foreground">{taskItems.length}/5</p>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setTaskItems([...taskItems, ""])}>+ 업무 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveFields({ taskDetail: taskItems.filter(Boolean).join("\n") })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -589,10 +586,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                 </div>
               ))}
-              {extCareerItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", descItems: [""] }])}>+ 경력 추가</Button>
-              )}
-              <p className="text-xs text-muted-foreground">{extCareerItems.length}/5</p>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setExtCareerItems([...extCareerItems, { company: "", position: "", period: "", task: "", descItems: [""] }])}>+ 경력 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveResumeKey("experience", extCareerItems.filter(e => e.company).map(e => ({ ...e, description: e.descItems.filter(Boolean).join("\n"), descItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -619,10 +613,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                 </div>
               ))}
-              {certsItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setCertsItems([...certsItems, { name: "", acquisition_date: "", issuer: "" }])}>+ 자격증 추가</Button>
-              )}
-              <p className="text-xs text-muted-foreground">{certsItems.length}/5</p>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setCertsItems([...certsItems, { name: "", acquisition_date: "", issuer: "" }])}>+ 자격증 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveResumeKey("certifications", certsItems.filter(c => c.name))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -649,10 +640,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                 </div>
               ))}
-              {eduItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setEduItems([...eduItems, { school_name: "", major: "", degree: "" }])}>+ 학력 추가</Button>
-              )}
-              <p className="text-xs text-muted-foreground">{eduItems.length}/5</p>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setEduItems([...eduItems, { school_name: "", major: "", degree: "" }])}>+ 학력 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveResumeKey("education", eduItems.filter(e => e.school_name))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
@@ -721,10 +709,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                   </div>
                 </div>
               ))}
-              {apptItems.length < 5 && (
-                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", taskItems: [""] }])}>+ 발령 추가</Button>
-              )}
-              <p className="text-xs text-muted-foreground">{apptItems.length}/5</p>
+              <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", taskItems: [""] }])}>+ 발령 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
               <Button className="flex-1" onClick={() => saveResumeKey("appointmentHistory", apptItems.filter(a => a.date || a.department).map(a => ({ ...a, description: a.taskItems.filter(Boolean).join("\n"), taskItems: undefined })))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
