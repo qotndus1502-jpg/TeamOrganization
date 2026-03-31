@@ -731,7 +731,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", taskItems: [""] }])}>+ 발령 추가</Button>
             </div>
             <div className="flex gap-2 mt-2">
-              <Button className="flex-1" onClick={() => { const items = apptItems.filter(a => a.date || a.department).map(a => ({ ...a, description: a.taskItems.filter(Boolean).join("\n"), taskItems: undefined })); const firstDesc = apptItems[0]?.taskItems.filter(Boolean).join("\n") || ""; const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; rd.appointmentHistory = items; saveFields({ resumeData: JSON.stringify(rd), taskDetail: firstDesc }); }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" onClick={() => { const items = apptItems.filter(a => a.date || a.department).map(a => ({ ...a, description: a.taskItems.filter(Boolean).join("\n"), taskItems: undefined })); const firstDesc = apptItems[0]?.taskItems.filter(Boolean).join("\n") || ""; const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; rd.appointmentHistory = items; const fields: Record<string, unknown> = { resumeData: JSON.stringify(rd) }; if (firstDesc) fields.taskDetail = firstDesc; saveFields(fields); }} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
               <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
             </div>
           </DialogContent>
@@ -800,12 +800,18 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                       </p>
                       {(a.description || (i === 0 && ((extra.taskDetail?.trim()) || extra.jobRole))) && (
                         <ul className={`mt-4 space-y-2 pt-4 ${i === 0 ? "border-t border-foreground/15" : "border-t border-border"}`}>
-                          {i === 0 && !a.description && ((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => (
+                          {i === 0 && !a.description && ((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, j: number) => {
+                            const imp = line.startsWith("★");
+                            const text = imp ? line.slice(1) : line;
+                            return (
                             <li key={`task-${j}`} className="text-base font-bold text-foreground flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-foreground flex-shrink-0" />
-                              {line}
+                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded-sm px-2 py-0.5 -ml-2" : ""}`}>
+                                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : "bg-foreground"}`} />
+                                {text}
+                              </span>
                             </li>
-                          ))}
+                            );
+                          })}
                           {a.description && a.description.split("\n").filter(Boolean).map((line: string, j: number) => {
                             const imp = line.startsWith("★");
                             const text = imp ? line.slice(1) : line;
@@ -826,12 +832,18 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
                       <p className="text-base font-bold text-foreground">{employee.team?.name || "—"} | {employee.joinDate ? `${fmtDateShort(employee.joinDate)} ~ 현재` : "—"}</p>
                       {((extra.taskDetail?.trim()) || extra.jobRole) && (
                         <ul className="mt-4 space-y-2 border-t border-foreground/15 pt-4">
-                          {((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => (
+                          {((extra.taskDetail?.trim() ? [extra.taskDetail] : [extra.jobRole]).filter(Boolean).join("\n")).split("\n").filter(Boolean).map((line: string, i: number) => {
+                            const imp = line.startsWith("★");
+                            const text = imp ? line.slice(1) : line;
+                            return (
                             <li key={i} className="text-sm text-foreground/70 flex items-center gap-2.5">
-                              <span className="w-2 h-2 rounded-full bg-success flex-shrink-0" />
-                              {line}
+                              <span className={`inline-flex items-center gap-2.5 ${imp ? "bg-yellow-100 dark:bg-yellow-900/30 rounded-sm px-2 py-0.5 -ml-2" : ""}`}>
+                                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${imp ? "bg-yellow-500" : "bg-success"}`} />
+                                {text}
+                              </span>
                             </li>
-                          ))}
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
