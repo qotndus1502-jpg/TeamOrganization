@@ -1057,6 +1057,7 @@ export default function TeamOrgChart({
   isAdmin?: boolean;
   onUpdate?: () => void;
   currentEmployeeId?: number | null;
+  autoOpenEmployeeId?: number | null;
 }) {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
@@ -1064,6 +1065,17 @@ export default function TeamOrgChart({
     setSelectedEmployee(emp);
     onPanelChange?.(emp !== null);
   };
+
+  // URL에서 employee 파라미터로 자동 프로필 열기
+  const autoOpened = useRef(false);
+  useEffect(() => {
+    if (autoOpenEmployeeId && !autoOpened.current) {
+      const all = [...(leader ? [leader] : []), ...members];
+      const target = all.find(e => e.id === autoOpenEmployeeId);
+      if (target) { selectEmployee(target); autoOpened.current = true; }
+    }
+  }, [autoOpenEmployeeId, leader, members]);
+
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   const sorted = [...members].sort((a, b) =>

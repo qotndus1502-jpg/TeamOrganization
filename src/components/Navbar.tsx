@@ -15,6 +15,7 @@ interface User {
   hasEmployee: boolean;
   teamId: number | null;
   teamCompany: string | null;
+  employeeId: number | null;
 }
 
 export default function Navbar() {
@@ -75,7 +76,7 @@ export default function Navbar() {
             )}
             <Separator orientation="vertical" className="h-5 mx-2" />
             <Link
-              href={user.role.includes("EMPLOYEE") ? "/register" : "/dashboard"}
+              href={user.hasEmployee && user.teamId ? `/dashboard?company=${encodeURIComponent(user.teamCompany || "남광토건")}&team=${user.teamId}&employee=${user.employeeId}` : user.hasEmployee ? "/dashboard" : "/register"}
               className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-muted/60 transition-all duration-200"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-sm">

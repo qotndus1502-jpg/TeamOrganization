@@ -408,6 +408,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const companyFilter = searchParams.get("company");
   const teamParam = searchParams.get("team");
+  const employeeParam = searchParams.get("employee");
 
   const [user, setUser] = useState<User | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -418,6 +419,7 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState<"HQ" | "SITE">("HQ");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [employeePanelOpen, setEmployeePanelOpen] = useState(false);
+  const [autoOpenEmployeeId, setAutoOpenEmployeeId] = useState<number | null>(employeeParam ? Number(employeeParam) : null);
 
   // URL의 team 파라미터 변경 시 반영
   useEffect(() => {
@@ -640,6 +642,7 @@ function DashboardContent() {
                   isAdmin={isAdmin}
                   onUpdate={loadEmployees}
                   currentEmployeeId={user?.employeeId}
+                  autoOpenEmployeeId={autoOpenEmployeeId}
                 />
               )}
             </div>
