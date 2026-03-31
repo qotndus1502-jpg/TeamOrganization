@@ -57,7 +57,7 @@ function EditableSection<T extends Record<string, string>>({
   title: string;
   items: T[];
   setItems: (items: T[]) => void;
-  fields: { key: keyof T; label: string; width?: string; type?: "text" | "textarea" | "date"; pairWith?: keyof T; pairLabel?: string }[];
+  fields: { key: keyof T; label: string; width?: string; type?: "text" | "textarea" | "date" | "select"; options?: string[]; pairWith?: keyof T; pairLabel?: string }[];
   emptyItem: () => T;
   readOnly?: boolean;
 }) {
@@ -120,6 +120,16 @@ function EditableSection<T extends Record<string, string>>({
                             {String(f.key) !== "school_name" && <span className="text-xs text-muted-foreground">{f.label}: </span>}
                             {item[f.key] || "-"}
                           </div>
+                        ) : f.type === "select" && f.options ? (
+                          <select
+                            key={String(f.key)}
+                            value={item[f.key] || ""}
+                            onChange={(e) => update(idx, f.key, e.target.value)}
+                            className={`border border-input rounded-md px-2 py-1.5 text-sm focus:ring-1 focus:ring-ring outline-none bg-card ${f.width || ""}`}
+                          >
+                            <option value="">{f.label}</option>
+                            {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                          </select>
                         ) : (
                           <input
                             key={String(f.key)}
@@ -821,7 +831,7 @@ export default function RegisterPage() {
             fields={[
               { key: "school_name", label: "학교명" },
               { key: "major", label: "전공" },
-              { key: "degree", label: "학위" },
+              { key: "degree", label: "학위", type: "select", options: ["학사", "석사", "박사수료", "박사"] },
               { key: "startDate", label: "입학일", type: "date" },
               { key: "endDate", label: "졸업일", type: "date" },
             ]}
