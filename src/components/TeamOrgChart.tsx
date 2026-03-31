@@ -1048,6 +1048,7 @@ export default function TeamOrgChart({
   isAdmin,
   onUpdate,
   currentEmployeeId,
+  autoOpenEmployeeId,
 }: {
   leader: Employee | undefined;
   members: Employee[];
