@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Pencil } from "lucide-react";
+import { Pencil, Camera } from "lucide-react";
 
 interface Employee {
   id: number;
@@ -23,6 +23,7 @@ interface Employee {
   resumePath: string | null;
   photoUrl: string | null;
   resumeData: string | null;
+  teamId: number;
   team?: { name: string; location: { name: string; company: string } };
   birthDate?: string | null;
   address?: string | null;
@@ -179,7 +180,7 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [editForm, setEditForm] = useState({ name: employee.name, phone: employee.phone || "", position: employee.position, role: employee.role });
 
   // 섹션별 수정 다이얼로그
-  const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | "certs" | "career" | "extCareer" | "education" | null>(null);
+  const [editSection, setEditSection] = useState<"skills" | "info" | "contact" | "certs" | "career" | "extCareer" | "education" | "team" | "appointment" | null>(null);
   const [skillsForm, setSkillsForm] = useState({ skills: employee.skills || "" });
   const [infoForm, setInfoForm] = useState({ birthDate: employee.birthDate || "", address: employee.address || "", jobCategory: employee.jobCategory || "", taskDetail: "" });
   const [taskItems, setTaskItems] = useState<string[]>([]);
@@ -187,7 +188,33 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
   const [certsItems, setCertsItems] = useState<{ name: string; acquisition_date: string; issuer: string }[]>([]);
   const [extCareerItems, setExtCareerItems] = useState<{ company: string; position: string; period: string; task: string; descItems: string[] }[]>([]);
   const [eduItems, setEduItems] = useState<{ school_name: string; major: string; degree: string }[]>([]);
+  const [teamForm, setTeamForm] = useState({ teamId: String(employee.teamId), joinDate: employee.joinDate || "" });
+  const [allTeams, setAllTeams] = useState<{ id: number; name: string; location: { company: string; name: string } }[]>([]);
+  const [apptItems, setApptItems] = useState<{ date: string; department: string; position: string; description: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // 사진 업로드
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload/photo", { method: "POST", body: fd });
+    if (res.ok) {
+      const { url } = await res.json();
+      await saveFields({ photoUrl: url });
+    }
+    setUploading(false);
+    e.target.value = "";
+  };
+
+  // 팀 목록 로드
+  const loadTeams = async () => {
+    const res = await fetch("/api/teams");
+    if (res.ok) setAllTeams(await res.json());
+  };
 
   // resumeData의 특정 키를 업데이트
   const saveResumeKey = async (key: string, value: unknown) => {
@@ -385,13 +412,26 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </div>
           <div className="flex flex-col items-center">
             {/* 증명사진 */}
-            <div className="w-full aspect-[3/4] rounded-md overflow-hidden mb-5">
+            <div className="w-full aspect-[3/4] rounded-md overflow-hidden mb-5 relative group/photo">
                 {employee.photoUrl ? (
                   <img src={employee.photoUrl} alt={employee.name} className="w-full h-full object-cover object-top" />
                 ) : (
                   <div className="w-full h-full bg-muted flex items-center justify-center text-3xl font-bold text-muted-foreground">
                     {employee.name.charAt(0)}
                   </div>
+                )}
+                {canEdit && (
+                  <label className="absolute inset-0 bg-foreground/0 group-hover/photo:bg-foreground/40 flex items-center justify-center cursor-pointer transition-all">
+                    <div className="opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center gap-1">
+                      {uploading ? (
+                        <svg className="w-6 h-6 text-primary-foreground animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                      ) : (
+                        <Camera className="w-6 h-6 text-primary-foreground" />
+                      )}
+                      <span className="text-xs text-primary-foreground font-medium">{uploading ? "업로드 중..." : "사진 변경"}</span>
+                    </div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                  </label>
                 )}
             </div>
             <div className="flex items-baseline gap-2">
@@ -606,15 +646,78 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
           </DialogContent>
         </Dialog>
 
+        {/* ── 소속/입사일 수정 ── */}
+        <Dialog open={editSection === "team"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>소속 및 입사일 수정</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label>소속 팀</Label>
+                <select value={teamForm.teamId} onChange={(e) => setTeamForm({ ...teamForm, teamId: e.target.value })} className={nativeSelectClass}>
+                  {allTeams.map((t) => <option key={t.id} value={t.id}>[{t.location.company}] {t.name}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>입사일</Label>
+                <Input value={teamForm.joinDate} onChange={(e) => setTeamForm({ ...teamForm, joinDate: e.target.value })} placeholder="2024.03.01" />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveFields({ teamId: Number(teamForm.teamId), joinDate: teamForm.joinDate })} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── 발령내역(자사 경력) 수정 (최대 5개) ── */}
+        <Dialog open={editSection === "appointment"} onOpenChange={(o) => !o && setEditSection(null)}>
+          <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>자사 경력 (발령내역) 수정</DialogTitle></DialogHeader>
+            <div className="space-y-4">
+              {apptItems.map((item, i) => (
+                <div key={i} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground">발령 {i + 1}</span>
+                    <Button variant="ghost" size="icon-xs" className="text-destructive/60 hover:text-destructive" onClick={() => setApptItems(apptItems.filter((_, j) => j !== i))}>×</Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">발령일</Label><Input value={item.date} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], date: e.target.value }; setApptItems(n); }} placeholder="2024.03.01" /></div>
+                    <div><Label className="text-xs">부서</Label><Input value={item.department} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], department: e.target.value }; setApptItems(n); }} placeholder="경영지원팀" /></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div><Label className="text-xs">직위</Label><Input value={item.position} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], position: e.target.value }; setApptItems(n); }} placeholder="사원, 대리 등" /></div>
+                    <div><Label className="text-xs">비고</Label><Input value={item.description} onChange={(e) => { const n = [...apptItems]; n[i] = { ...n[i], description: e.target.value }; setApptItems(n); }} placeholder="신규입사, 승진 등" /></div>
+                  </div>
+                </div>
+              ))}
+              {apptItems.length < 5 && (
+                <Button variant="ghost" size="xs" className="text-primary" onClick={() => setApptItems([...apptItems, { date: "", department: "", position: "", description: "" }])}>+ 발령 추가</Button>
+              )}
+              <p className="text-xs text-muted-foreground">{apptItems.length}/5</p>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Button className="flex-1" onClick={() => saveResumeKey("appointmentHistory", apptItems.filter(a => a.date || a.department))} disabled={saving}>{saving ? "저장 중..." : "저장"}</Button>
+              <Button className="flex-1" variant="outline" onClick={() => setEditSection(null)}>취소</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* 근속/경력 카드 */}
-        <div className="bg-card rounded-md border border-border py-4 flex">
-          <div className="flex-1 text-center border-r border-border">
-            <p className="text-base font-bold text-foreground leading-none">{yearsWorked}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">근속</p>
-          </div>
-          <div className="flex-1 text-center">
-            <p className="text-base font-bold text-foreground leading-none">{totalCareer}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">경력</p>
+        <div className="bg-card rounded-md border border-border py-4 relative">
+          {canEdit && (
+            <button onClick={() => { setTeamForm({ teamId: String(employee.teamId), joinDate: employee.joinDate || "" }); loadTeams(); setEditSection("team"); }} className="absolute top-2 right-2 p-1 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all" title="소속/입사일 수정">
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+          <div className="flex">
+            <div className="flex-1 text-center border-r border-border">
+              <p className="text-base font-bold text-foreground leading-none">{yearsWorked}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">근속</p>
+            </div>
+            <div className="flex-1 text-center">
+              <p className="text-base font-bold text-foreground leading-none">{totalCareer}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">경력</p>
+            </div>
           </div>
         </div>
 
@@ -652,7 +755,11 @@ function ProfilePanel({ employee, onClose, isAdmin, onUpdate, currentEmployeeId 
               <div>
                 <div className="flex items-center justify-between mb-5 pb-2 border-b border-border">
                   <h4 className="text-base font-bold text-muted-foreground uppercase tracking-widest">자사 경력</h4>
-                  {canEdit && <SectionEditBtn onClick={() => { const tasks = (employee.taskDetail || "").split("\n").filter(Boolean); setTaskItems(tasks.length > 0 ? tasks : [""]); setEditSection("career"); }} />}
+                  {canEdit && (
+                    <div className="flex gap-1">
+                      <SectionEditBtn onClick={() => { const rd = employee.resumeData ? JSON.parse(employee.resumeData) : {}; const ah = (rd.appointmentHistory || []).map((a: Record<string, string>) => ({ date: a.date || "", department: a.department || "", position: a.position || "", description: a.description || "" })); setApptItems(ah.length > 0 ? ah : [{ date: "", department: "", position: "", description: "" }]); setEditSection("appointment"); }} />
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-3">
                   {appointmentHistory.length > 0 ? appointmentHistory.map((a, i) => (
