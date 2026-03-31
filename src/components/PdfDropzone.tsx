@@ -122,7 +122,7 @@ export default function PdfDropzone({ onExtracted, onSkip }: PdfDropzoneProps) {
       {!loading && (
         <button
           onClick={onSkip}
-          className="mt-4 w-full text-center text-sm text-gray-400 hover:text-gray-600 transition"
+          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition"
         >
           PDF 없이 직접 입력하기 →
         </button>
