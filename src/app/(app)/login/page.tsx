@@ -59,15 +59,9 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-auth-gradient">
       <Card className="w-full max-w-sm border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-primary/20">
-            <svg className="w-6 h-6 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <polyline points="10 17 15 12 10 7" />
-              <line x1="15" y1="12" x2="3" y2="12" />
-            </svg>
-          </div>
+          <div className="text-4xl mx-auto mb-3">🔐</div>
           <CardTitle className="text-2xl font-bold">로그인</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">TeamWork에 오신 것을 환영합니다</p>
+          <p className="text-sm text-muted-foreground mt-1">조직도 관리 시스템</p>
         </CardHeader>
         <CardContent className="px-8 pb-8">
           {error && (

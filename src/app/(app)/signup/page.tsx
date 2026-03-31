@@ -65,14 +65,7 @@ export default function SignupPage() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-auth-gradient">
       <Card className="w-full max-w-sm border-0 shadow-xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-primary/20">
-            <svg className="w-6 h-6 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" y1="8" x2="19" y2="14" />
-              <line x1="22" y1="11" x2="16" y2="11" />
-            </svg>
-          </div>
+          <div className="text-4xl mx-auto mb-3">📋</div>
           <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">새 계정을 만들어 시작하세요</p>
         </CardHeader>
