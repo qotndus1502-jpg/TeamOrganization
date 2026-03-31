@@ -189,9 +189,14 @@ function drawBracketLines(svg: SVGSVGElement, container: HTMLDivElement) {
 }
 
 const COMPANY_STYLES: Record<string, string> = {
-  "남광토건": "bg-primary text-primary-foreground",
-  "극동건설": "bg-foreground text-card",
-  "금광기업": "bg-primary/70 text-primary-foreground",
+  "남광토건": "bg-[#2563EB] text-white",
+  "극동건설": "bg-[#3B82F6] text-white",
+  "금광기업": "bg-[#60A5FA] text-white",
+};
+
+const LOC_STYLES: Record<string, string> = {
+  "HQ": "bg-gradient-to-br from-[#6366F1] to-[#818CF8] shadow-[#6366F1]/20",
+  "SITE": "bg-gradient-to-br from-[#8B5CF6] to-[#A78BFA] shadow-[#8B5CF6]/20",
 };
 
 function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTeam, userTeamId }: {
@@ -217,7 +222,7 @@ function LocationTreeLayout({ locationType, locLabel, companyGroups, onSelectTea
       <div className="relative flex items-center" style={{ zIndex: 1 }}>
         {/* 본사/현장 */}
         <div className="flex-shrink-0">
-          <div data-node="location" data-loc-id={locLabel} className="bg-gradient-to-br from-primary to-primary/85 rounded-2xl w-[160px] h-[80px] shadow-lg shadow-primary/20 flex flex-col items-center justify-center text-center">
+          <div data-node="location" data-loc-id={locLabel} className={`${LOC_STYLES[locationType] || "bg-gradient-to-br from-primary to-primary/85 shadow-primary/20"} rounded-2xl w-[160px] h-[80px] shadow-lg flex flex-col items-center justify-center text-center`}>
             <h2 className="text-base font-bold text-white">{locLabel}</h2>
           </div>
         </div>
